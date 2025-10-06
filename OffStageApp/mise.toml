@@ -1,0 +1,27 @@
+# --- 도구 버전 관리 ----------------------------------------------------------
+[tools]
+    tuist = "4.82.1"
+    swiftlint = "0.59.1"
+    swiftformat = "0.57.2"
+
+# --- 태스크(팀 표준 커맨드) ---------------------------------------------------
+[tasks]
+# 로컬 개발: 스타일 수정 + 자동 수정 + 리포트 + generate
+gen = [
+  "swiftformat . --config .swiftformat",
+  "swiftlint autocorrect --format --config .swiftlint.yml .",
+  "swiftlint --config .swiftlint.yml",
+  "tuist generate --no-open"
+]
+
+# CI/PR: 수정 없이 검사 + 엄격
+gen_check = [
+  "swiftformat . --config .swiftformat --lint",
+  "swiftlint --config .swiftlint.yml --strict",
+  "tuist generate --no-open"
+]
+
+tuist_generate = "tuist generate --no-open"
+format        = "swiftformat . --config .swiftformat"
+format_check  = "swiftformat . --config .swiftformat --lint"
+lint          = "swiftlint --config .swiftlint.yml"

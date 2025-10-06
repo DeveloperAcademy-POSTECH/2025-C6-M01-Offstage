@@ -1,0 +1,40 @@
+--exclude Tests/XCTestManifests.swift,Tests/BadConfig,Snapshots,Build,PluginTests,Derived
+
+--swiftversion 5.10
+
+--trimwhitespace always
+--indent 4
+--indentcase false
+--linebreaks lf
+--allman false
+--elseposition same-line
+--ranges spaced
+--semicolons inline
+--self remove
+--stripunusedargs always
+
+--importgrouping alphabetical
+
+--commas always
+
+--wraparguments before-first
+--wrapcollections before-first
+--wrapconditions after-first
+--maxwidth 120
+
+--binarygrouping 4,8
+--decimalgrouping 3,6
+--exponentcase lowercase
+--exponentgrouping disabled
+--fractiongrouping disabled
+--hexgrouping 4,8
+--hexliteralcase uppercase
+
+--ifdef indent
+
+--operatorfunc spaced
+--patternlet hoist
+
+--header strip
+
+--enable isEmpty
