@@ -1,0 +1,13 @@
+pre-commit:
+  parallel: true
+  commands:
+    swiftformat:
+      run: mise x -- swiftformat . --config .swiftformat
+    check-branch-name:
+      run: Scripts/check-branch.sh
+
+commit-msg:
+  parallel: false
+  commands:
+    validate-commit:
+      run: bash Scripts/check-commit-msg.sh {1} # {1} = 커밋 메시지 파일 경로
