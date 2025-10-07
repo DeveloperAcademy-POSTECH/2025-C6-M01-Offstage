@@ -10,44 +10,85 @@ else
   RUN =
 endif
 
+# 설치 스크립트 URL (필요 시 실제 설치 URL로 변경)
+MISE_INSTALL_URL ?= https://mise.run
+
 # 설정 파일 경로 (루트 기준)
 FMT_CFG := .swiftformat
 LINT_CFG := .swiftlint.yml
 
-.PHONY: setup hooks verify verify-ci gen format lint tuist-generate clean help
+.PHONY: setup hooks verify verify-ci gen format lint tuist-generate clean help check-mise onboard-mise mise-ensure register-git-template
 
 ## 개발 환경 설치 (mise) + 훅 자동 설치
 setup:
-	@echo "[setup] mise install"
-	@mise install
+	@echo "[setup] mise 확인 중"
+	@$(MAKE) check-mise >/dev/null 2>&1 || $(MAKE) onboard-mise
+	@$(MAKE) mise-ensure
 	@$(MAKE) hooks
+	@$(MAKE) register-git-template
 	@echo "[setup] 완료: 도구 설치 및 git hooks 구성"
 
-## Git 훅 설치/갱신 (lefthook)
-hooks:
-	@chmod +x Scripts/check-branch.sh Scripts/check-commit-msg.sh || true
-	@$(RUN) lefthook install
-	@echo "[hooks] lefthook installed/updated from .lefthook.yml"
+## mise 존재 여부 검사 (명시적 호출용)
+check-mise:
+	@if command -v mise >/dev/null 2>&1; then \
+	  echo "[check-mise] mise: 정상"; \
+	elif [ -x "$$HOME/.local/bin/mise" ]; then \
+	  echo "[check-mise] mise가 ~/.local/bin/mise에 있음 (PATH에 없음)"; \
+	else \
+	  echo "[check-mise] mise: 발견되지 않음"; exit 1; \
+	fi
+
+## 온보딩: curl/wget으로 mise 설치 스크립트 실행
+onboard-mise:
+	@echo "[onboard-mise] $(MISE_INSTALL_URL)에서 mise 설치 중"
+	@if command -v curl >/dev/null 2>&1; then \
+	  curl -fsSL "$(MISE_INSTALL_URL)" | sh || { echo "[onboard-mise] 설치 실패"; exit 1; }; \
+	elif command -v wget >/dev/null 2>&1; then \
+	  wget -qO- "$(MISE_INSTALL_URL)" | sh || { echo "[onboard-mise] 설치 실패"; exit 1; }; \
+	else \
+	  echo "[onboard-mise] mise 설치에는 curl 또는 wget이 필요합니다"; exit 1; \
+	fi
+
+## mise가 PATH에 없을 수 있으니 설치된 위치 확인 후 mise install 실행
+mise-ensure:
+	@echo "[mise-ensure] mise 상태 확인 및 mise install 실행"
+	@if command -v mise >/dev/null 2>&1; then \
+	  MISE_CMD="mise"; \
+	elif [ -x "$$HOME/.local/bin/mise" ]; then \
+	  MISE_CMD="$$HOME/.local/bin/mise"; \
+	else \
+	  echo "[mise-ensure] mise를 찾을 수 없습니다. 설치가 필요합니다."; exit 1; \
+	fi; \
+	$$MISE_CMD install
+
+## .gitmessage.txt를 로컬 커밋 템플릿으로 등록
+register-git-template:
+	@echo "[git-template] .gitmessage.txt를 커밋 템플릿으로 등록합니다"
+	@if [ -f .gitmessage.txt ]; then \
+	  git config --local commit.template .gitmessage.txt && echo "[git-template] 등록 완료: .gitmessage.txt"; \
+	else \
+	  echo "[git-template] .gitmessage.txt 파일이 없습니다. 등록을 건너뜁니다."; \
+	fi
 
 ## 로컬 통합 검증: 포맷(수정) → autocorrect → 린트(보고) → tuist generate
 verify: format
-	@echo "[swiftlint] autocorrect"
+	@echo "[swiftlint] 자동수정(autocorrect)"
 	@$(RUN) swiftlint autocorrect --config $(LINT_CFG) --format .
-	@echo "[swiftlint] lint (non-strict)"
+	@echo "[swiftlint] 린트(비엄격)"
 	@$(RUN) swiftlint --config $(LINT_CFG) || true
 	$(MAKE) tuist-generate
 
 ## CI 통합 검증: 수정 없이 검사 + 엄격
 verify-ci:
-	@echo "[swiftformat] lint only"
+	@echo "[swiftformat] 포맷 검사(lint only)"
 	@$(RUN) swiftformat . --config $(FMT_CFG) --lint
-	@echo "[swiftlint] strict lint"
+	@echo "[swiftlint] 린트(엄격)"
 	@$(RUN) swiftlint --config $(LINT_CFG) --strict
 	$(MAKE) tuist-generate
 
 ## 포맷(수정 모드)
 format:
-	@echo "[swiftformat] format (apply)"
+	@echo "[swiftformat] 포맷 적용"
 	@$(RUN) swiftformat . --config $(FMT_CFG)
 
 ## 린트만
@@ -56,8 +97,8 @@ lint:
 
 ## Tuist 프로젝트 생성
 tuist-generate:
-	@echo "[tuist] generate"
-	@$(RUN) tuist generate --no-open
+	@echo "[tuist] 프로젝트 생성"
+	@$(RUN) tuist generate
 
 ## 생성물 정리
 clean:

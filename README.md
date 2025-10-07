@@ -33,6 +33,25 @@
 
 ---
 
+## 🚀 Getting Started
+
+
+```sh
+# 1. 프로젝트 clone
+git clone https://github.com/DeveloperAcademy-POSTECH/2025-C6-M01-Offstage.git
+
+# 2. 환경 준비 및 Git 훅 설치
+make setup
+
+# 3. 프로젝트 생성 및 Xcode 실행
+make tuist-generate
+```
+
+🔎 개발/검증 워크플로우, 브랜치/커밋 규칙 등 자세한 내용은  
+[온보딩 가이드](docs/onboarding-guide.md)를 참고하세요.  
+
+---
+
 ## 🧑‍💻 팀 소개
 
 | [Echo<br>(신민규)](https://github.com/shinmingyu)<br>Domain  | [Ell<br>(한주연)](https://github.com/1ONE111)<br>Domain  | [Kirby<br>(양서린)](https://github.com/bisor0627)<br>Tech | [Murphy<br>(유정민)](https://github.com/JMO307)<br>Design  | [ssol<br>(석민솔)](https://github.com/msseock)<br>Tech  | [Three<br>(이슬)](https://github.com/iamseulee)<br>Design |
