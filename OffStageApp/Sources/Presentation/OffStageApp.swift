@@ -1,11 +1,7 @@
-import Foundation
-
 import SwiftUI
 
-import Foundation
-
 @main
-struct OffStageAppApp: App {
+struct OffStageApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
