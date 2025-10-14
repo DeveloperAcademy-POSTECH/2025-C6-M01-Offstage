@@ -4,27 +4,41 @@ This file provides guidance to AGENTS when working with code in this repository.
 
 ## Common Commands
 
-### Building and Running
+### Tuist (프로젝트 관리)
 ```bash
-# Build the project
-xcodebuild -project TaskCombo.xcodeproj -scheme TaskCombo -configuration Debug build
+# 프로젝트 파일 생성 (Tuist가 관리하는 Xcode 프로젝트/워크스페이스 생성)
+tuist generate
 
-# Clean build
-xcodebuild clean -project TaskCombo.xcodeproj -scheme TaskCombo
+# 생성된 Xcode 프로젝트 (.xcodeproj 또는 .xcworkspace)를 바로 열기
+open ./TaskCombo.xcodeproj
 
-# Archive for release
-xcodebuild archive -project TaskCombo.xcodeproj -scheme TaskCombo -archivePath TaskCombo.xcarchive
+# 주의: 생성된 Xcode 프로젝트는 Tuist가 관리합니다.
+# 직접 Xcode 프로젝트 파일을 편집하지 말고, Project.swift 등 Tuist 설정을 수정하세요.
 ```
 
-### Testing
+### Building and Running (Tuist 기반 권장)
 ```bash
-# Run all tests
+# 권장: Tuist로 생성 후 Xcode에서 빌드/실행
+tuist generate
+open ./TaskCombo.xcodeproj
+# 또는 Xcode에서 직접 빌드
+
+# CI 또는 커맨드라인 빌드 (Tuist가 제공하는 빌드 래퍼 사용)
+tuist build --scheme TaskCombo --configuration Debug
+
+# 대체: 생성된 Xcode 프로젝트에 대해 xcodebuild 사용 가능
+xcodebuild -project TaskCombo.xcodeproj -scheme TaskCombo -configuration Debug build
+```
+
+### Testing (Tuist 기반 권장)
+```bash
+# Tuist를 이용한 테스트 실행 (기본)
+tuist test --scheme TaskCombo --destination 'platform=iOS Simulator,name=iPhone 15'
+
+# 대체: 생성된 Xcode 프로젝트에 대해 xcodebuild로 테스트 실행
 xcodebuild test -project TaskCombo.xcodeproj -scheme TaskCombo -destination 'platform=iOS Simulator,name=iPhone 15'
 
-# Run specific test class
-xcodebuild test -project TaskCombo.xcodeproj -scheme TaskCombo -destination 'platform=iOS Simulator,name=iPhone 15' -only-testing:TaskComboTests/TaskComboTests
-
-# Run with code coverage
+# 코드 커버리지 필요 시 xcodebuild 플래그 사용(정교한 옵션이 필요하면 xcodebuild 사용 권장)
 xcodebuild test -project TaskCombo.xcodeproj -scheme TaskCombo -destination 'platform=iOS Simulator,name=iPhone 15' -enableCodeCoverage YES
 ```
 ## Project Architecture
@@ -40,6 +54,7 @@ TaskCombo는 유즈케이스 중심의 계층화된 아키텍처를 채택합니
 - SwiftUI 친화적: SwiftUI의 패러다임에 맞는 구조
 
 ### 2. 계층 구조
+```
 ┌─────────────────────────────────────────┐
 │           Presentation Layer            │
 │         (Views & View States)           │
@@ -53,6 +68,7 @@ TaskCombo는 유즈케이스 중심의 계층화된 아키텍처를 채택합니
 │         Infrastructure Layer            │
 │    (Managers & External Services)      │
 └─────────────────────────────────────────┘
+```
 
 ### 3. 각 계층의 역할과 책임
 #### 3.1 Presentation Layer (UI)
