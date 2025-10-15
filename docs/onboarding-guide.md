@@ -31,6 +31,25 @@ make tuist-generate
 
 ---
 
+### ⚠️ 위 프로젝트 생성시 아래와 같은 에러가 생기는 경우에는?
+```bash
+✖ Error 
+  Couldn't find Xcode's Info.plist at /Library/Contents/Info.plist. Make sure your Xcode installation is selected by running: sudo xcode-select -s /Applications/Xcode.app 
+
+  Sorry this didn’t work. Here’s what to try next: 
+   ▸ If the error is actionable, address it
+   ▸ If the error is not actionable, let's discuss it in the Troubleshooting & how to
+   ▸ If you are very certain it's a bug, file an issue
+   ▸ Check out the logs at /Users/shinmingyu/.local/state/tuist/logs/05629AC4-224F-422E-A896-A44FE268C3AA.log
+make: *** [tuist-generate] Error 1
+```
+
+Xcode를 관리자 권한으로 전환합니다.
+```bash
+sudo xcode-select --switch /Applications/Xcode.app
+```
+---
+
 ## 2. 브랜치 규칙
 
 ### 📌 형식
