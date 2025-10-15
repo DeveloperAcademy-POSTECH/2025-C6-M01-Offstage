@@ -9,6 +9,7 @@ let baseInfoPlist: [String: Plist.Value] = [
     ],
     "CFBundleShortVersionString": "1.0",
     "CFBundleVersion": "1",
+    "Bus Service Key": "$(SERVICE_KEY)",
 ]
 
 let formatScript: TargetScript = .pre(
@@ -42,6 +43,7 @@ let app = Target.target(
     resources: ["OffStageApp/Resources/**"],
     scripts: [formatScript, lintScript],
     dependencies: [
+        .external(name: "Moya"),
     ]
 )
 
@@ -56,7 +58,16 @@ let busAI = Target.target(
     scripts: [formatScript, lintScript],
 )
 
+let settings = Settings.settings(
+    base: [:],
+    configurations: [
+        .debug(name: "Debug", xcconfig: .relativeToRoot("Config/Debug.xcconfig")),
+        .release(name: "Release", xcconfig: .relativeToRoot("Config/Release.xcconfig")),
+    ]
+)
+
 let project = Project(
     name: "OffStage",
+    settings: settings,
     targets: [app, busAI, busApiTest]
 )
