@@ -33,14 +33,18 @@ struct ItemWrapper<T: Codable>: Codable {
     }
 
     init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if let singleItem = try? container.decode(T.self) {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let singleItem = try? container.decode(T.self, forKey: .item) {
             item = [singleItem]
-        } else if let array = try? container.decode([T].self) {
+        } else if let array = try? container.decode([T].self, forKey: .item) {
             item = array
         } else {
             item = []
         }
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case item
     }
 }
 
@@ -164,5 +168,61 @@ struct StationRoute: Codable, Identifiable, Hashable {
 
     static func == (lhs: StationRoute, rhs: StationRoute) -> Bool {
         lhs.id == rhs.id
+    }
+}
+
+// MARK: - Sample Data Extensions
+
+extension BusArrivalInfo {
+    static var sample: BusArrivalInfo {
+        BusArrivalInfo(
+            arrprevstationcnt: 1,
+            arrtime: 91,
+            nodeid: "DJB8001793",
+            nodenm: "대전역",
+            routeid: "DJB30300002",
+            routeno: "2",
+            routetp: "간선버스",
+            vehicletp: "저상버스"
+        )
+    }
+}
+
+extension BusStop {
+    static var sample: BusStop {
+        BusStop(gpslati: 36.3325, gpslong: 127.4342, nodeid: "DJB8001793", nodenm: "대전역", nodeno: 101)
+    }
+}
+
+extension BusLocation {
+    static var sample: BusLocation {
+        BusLocation(
+            gpslati: 36.3325,
+            gpslong: 127.4342,
+            nodeid: "DJB8001793",
+            nodenm: "대전역",
+            routeid: "DJB30300002",
+            vehicleno: "대전75자1234"
+        )
+    }
+}
+
+extension StationRoute {
+    static var sample: StationRoute {
+        StationRoute(routeid: "DJB30300002", routeno: "2", routetp: "간선버스", startnodenm: "기점", endnodenm: "종점")
+    }
+}
+
+extension BusRoute {
+    static var sample: BusRoute {
+        BusRoute(
+            routeid: "DJB30300002",
+            routeno: "2",
+            routetp: "간선버스",
+            startnodenm: "기점",
+            endnodenm: "종점",
+            startvehicletime: "05:30",
+            endvehicletime: "22:00"
+        )
     }
 }

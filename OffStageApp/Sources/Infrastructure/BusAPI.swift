@@ -86,4 +86,32 @@ extension BusAPI: TargetType {
     }
 
     var headers: [String: String]? { ["Content-type": "application/json"] }
+
+    var sampleData: Data {
+        switch self {
+        case .getArrivals, .getArrivalsForRoute:
+            mockResponse(for: BusArrivalInfo.sample)
+        case .searchStop, .getStopsByGps, .getRouteStops:
+            mockResponse(for: BusStop.sample)
+        case .getRouteBusLocations:
+            mockResponse(for: BusLocation.sample)
+        case .getStopRoutes:
+            mockResponse(for: StationRoute.sample)
+        case .getRouteInfo, .searchRoute:
+            mockResponse(for: BusRoute.sample)
+        }
+    }
+
+    private func mockResponse(for item: some Codable) -> Data {
+        let response = ApiResponse(
+            response: ResponseBody(
+                header: ResponseHeader(resultCode: "00", resultMsg: "NORMAL SERVICE."),
+                body: ItemBody(items: ItemWrapper(item: [item]), numOfRows: 1, pageNo: 1, totalCount: 1)
+            )
+        )
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        let data = try? encoder.encode(response)
+        return data ?? Data()
+    }
 }
