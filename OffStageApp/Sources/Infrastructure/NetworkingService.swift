@@ -1,6 +1,11 @@
 import Foundation
 import Moya
 
+enum NetworkError: Error {
+    case decodingError(error: Error, data: Data)
+    case moyaError(Error)
+}
+
 protocol NetworkingService {
     func request<T: Codable>(api: BusAPI) async throws -> T
 }
@@ -8,8 +13,8 @@ protocol NetworkingService {
 final class NetworkingAPI: NetworkingService {
     private let provider: MoyaProvider<BusAPI>
 
-    init(provider: MoyaProvider<BusAPI> = MoyaProvider<BusAPI>()) {
-        self.provider = provider
+    init(isMocking: Bool = true) {
+        provider = MoyaProvider<BusAPI>(stubClosure: isMocking ? MoyaProvider.immediatelyStub : MoyaProvider.neverStub)
     }
 
     func request<T: Codable>(api: BusAPI) async throws -> T {
@@ -21,10 +26,10 @@ final class NetworkingAPI: NetworkingService {
                         let decodedData = try JSONDecoder().decode(T.self, from: response.data)
                         continuation.resume(returning: decodedData)
                     } catch {
-                        continuation.resume(throwing: error)
+                        continuation.resume(throwing: NetworkError.decodingError(error: error, data: response.data))
                     }
                 case let .failure(error):
-                    continuation.resume(throwing: error)
+                    continuation.resume(throwing: NetworkError.moyaError(error))
                 }
             }
         }
