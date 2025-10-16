@@ -70,20 +70,19 @@ register-git-template:
 	  echo "[git-template] .gitmessage.txt 파일이 없습니다. 등록을 건너뜁니다."; \
 	fi
 
+## lefthook 기반 git hooks 설치/갱신
+hooks:
+	@echo "[hooks] Scripts/*.sh 실행 권한 부여"
+	@chmod +x Scripts/*.sh
+	@echo "[hooks] lefthook으로 git hooks 설치/갱신"
+	@$(RUN) lefthook install
+
 ## 로컬 통합 검증: 포맷(수정) → autocorrect → 린트(보고) → tuist generate
 verify: format
 	@echo "[swiftlint] 자동수정(autocorrect)"
 	@$(RUN) swiftlint autocorrect --config $(LINT_CFG) --format .
 	@echo "[swiftlint] 린트(비엄격)"
 	@$(RUN) swiftlint --config $(LINT_CFG) || true
-	$(MAKE) tuist-generate
-
-## CI 통합 검증: 수정 없이 검사 + 엄격
-verify-ci:
-	@echo "[swiftformat] 포맷 검사(lint only)"
-	@$(RUN) swiftformat . --config $(FMT_CFG) --lint
-	@echo "[swiftlint] 린트(엄격)"
-	@$(RUN) swiftlint --config $(LINT_CFG) --strict
 	$(MAKE) tuist-generate
 
 ## 포맷(수정 모드)
@@ -96,7 +95,7 @@ lint:
 	@$(RUN) swiftlint --config $(LINT_CFG)
 
 ## Tuist 프로젝트 생성
-tuist-generate:
+gen:
 	@echo "[tuist] 프로젝트 생성"
 	@$(RUN) tuist generate
 
@@ -105,18 +104,13 @@ clean:
 	@rm -rf Derived *.xcodeproj *.xcworkspace graph.dot
 	@echo "[clean] 생성 산출물 삭제 완료"
 
-## 브랜치명/커밋메시지 예시 테스트
-test-hooks:
-	@bash Scripts/test-hooks.sh
-
 ## 도움말
 help:
 	@echo "사용 방법:"
 	@echo "  make setup           # mise로 도구 설치 후, 자동으로 git hooks 설치까지 수행"
 	@echo "  make hooks           # lefthook 기반 git hooks 설치/갱신 (pre-commit, commit-msg)"
 	@echo "  make verify          # 포맷(수정) → lint autocorrect → lint(non-strict) → tuist generate"
-	@echo "  make verify-ci       # 포맷(lint only) → lint(strict) → tuist generate (CI용)"
 	@echo "  make format          # SwiftFormat 적용(수정 모드)"
 	@echo "  make lint            # SwiftLint 실행(보고)"
-	@echo "  make tuist-generate  # tuist generate --no-open"
+	@echo "  make gen  # tuist generate"
 	@echo "  make clean           # 생성물 정리 (Derived, *.xcodeproj, *.xcworkspace 등)"
