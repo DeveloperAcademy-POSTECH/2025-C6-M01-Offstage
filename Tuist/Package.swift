@@ -15,8 +15,7 @@ import PackageDescription
 let package = Package(
     name: "OffStageApp",
     dependencies: [
-        // Add your own dependencies here:
-        // .package(url: "https://github.com/Alamofire/Alamofire", from: "5.0.0"),
-        // You can read more about dependencies here: https://docs.tuist.io/documentation/tuist/dependencies
+        .package(url: "https://github.com/Moya/Moya.git", from: "15.0.0"),
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
     ]
 )

@@ -113,4 +113,5 @@ Tuist/Dependencies/graph.json
 
 .claude/
 *.p12
-./minio
+./minio\n# Secrets\nConfig/Secrets.xcconfig
+Config/Secrets.xcconfig
