@@ -40,7 +40,7 @@ let app = Target.target(
     product: .app,
     bundleId: "\(organizationName).App",
     infoPlist: .extendingDefault(with: baseInfoPlist),
-    sources: ["OffStageApp/Sources/**"],
+    sources: ["OffStageApp/Sources/**", "OffStageApp/Routing/**", "OffStageApp/Views/**"],
     resources: ["OffStageApp/Resources/**"],
     scripts: [formatScript, lintScript],
     dependencies: [
