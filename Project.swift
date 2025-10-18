@@ -26,16 +26,6 @@ let lintScript: TargetScript = .pre(
     basedOnDependencyAnalysis: false
 )
 
-let busApiTest = Target.target(
-    name: "BusApiTest",
-    destinations: [.iPhone],
-    product: .unitTests,
-    bundleId: "\(organizationName).BusApiTest",
-    infoPlist: .default,
-    sources: ["Modules/BusApiTest/**"],
-    dependencies: []
-)
-
 let app = Target.target(
     name: "OffStageApp",
     destinations: [.iPhone],
@@ -46,7 +36,7 @@ let app = Target.target(
     resources: ["OffStageApp/Resources/**"],
     scripts: [formatScript, lintScript],
     dependencies: [
-        .external(name: "Moya"),
+        .target(name: "BusAPI"),
     ]
 )
 
@@ -59,6 +49,9 @@ let busAI = Target.target(
     sources: ["BusAI/Sources/**"],
     resources: ["BusAI/Resources/**"],
     scripts: [formatScript, lintScript],
+    dependencies: [
+        .target(name: "BusAPI"),
+    ]
 )
 
 let settings = Settings.settings(
@@ -72,5 +65,5 @@ let settings = Settings.settings(
 let project = Project(
     name: "OffStage",
     settings: settings,
-    targets: [app, busAI, busApiTest]
+    targets: [app, busAI]
 )
