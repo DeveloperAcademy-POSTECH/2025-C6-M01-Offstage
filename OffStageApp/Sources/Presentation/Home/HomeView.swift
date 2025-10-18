@@ -28,10 +28,6 @@ struct HomeView: View {
                 router.push(.busstation(busStopInfo: sampleBusStop))
             }
 
-            Button("TestView로 이동 (데이터 전달)") {
-                router.push(.test(busStopInfo: sampleBusStop))
-            }
-
             Button("비전 버스 켜기") {
                 router.push(.busvision)
             }
