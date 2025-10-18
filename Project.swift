@@ -38,6 +38,19 @@ let busAPI = Target.target(
     ]
 )
 
+let busAPITests = Target.target(
+    name: "BusAPITests",
+    destinations: [.iPhone],
+    product: .unitTests,
+    bundleId: "\(organizationName).BusAPITests",
+    infoPlist: .default,
+    sources: ["Modules/BusAPITests/Sources/**"],
+    dependencies: [
+        .target(name: "BusAPI"),
+        .target(name: "OffStageApp"),
+    ]
+)
+
 let app = Target.target(
     name: "OffStageApp",
     destinations: [.iPhone],
@@ -77,5 +90,5 @@ let settings = Settings.settings(
 let project = Project(
     name: "OffStage",
     settings: settings,
-    targets: [busAPI, app, busAI]
+    targets: [busAPI, busAPITests, app, busAI]
 )
