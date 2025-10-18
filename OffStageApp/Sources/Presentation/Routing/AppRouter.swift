@@ -2,11 +2,12 @@ import SwiftUI
 
 enum AppRoute: Routable {
     case home
-    case search
-    case busstation
+    case search(busStopInfo: BusStopInfo)
+    case busstation(busStopInfo: BusStopInfo)
     case busvision
     case homeedit
     case onboarding
+    case test(busStopInfo: BusStopInfo)
 
     @ViewBuilder
     func view() -> some View {
@@ -14,11 +15,11 @@ enum AppRoute: Routable {
         case .home:
             HomeView()
 
-        case .search:
-            SearchView()
+        case let .search(busStopInfo):
+            SearchView(busStopInfo: busStopInfo)
 
-        case .busstation:
-            BusStationView()
+        case let .busstation(busStopInfo):
+            BusStationView(busStopInfo: busStopInfo)
 
         case .busvision:
             BusVisionView()
@@ -28,6 +29,9 @@ enum AppRoute: Routable {
 
         case .onboarding:
             OnboardingView()
+
+        case let .test(busStopInfo):
+            TestView(busStopInfo: busStopInfo)
         }
     }
 }
