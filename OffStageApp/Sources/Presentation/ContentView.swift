@@ -1,164 +1,131 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var resultText: String = "API Response will be shown here."
-    @State private var isLoading = false
-    @State private var displayData: Any?
-    @State private var isMocking = true
-
-    private var networkingApi: NetworkingAPI {
-        NetworkingAPI(isMocking: isMocking)
-    }
-
-    // --- Dummy values for testing ---
-    private let cityCode = "25" // Daejeon
-    private let nodeId = "DJB8001793" // Daejeon Station Stop
-    private let routeId = "DJB30300002" // Route 2
-    private let stopName = "대전역"
-    private let routeNo = "102"
-    private let gpsLati = 36.3325
-    private let gpsLong = 127.4342
+    @StateObject private var viewModel = ContentViewModel()
 
     var body: some View {
         NavigationView {
-            VStack {
-                Toggle("Mock API", isOn: $isMocking)
-                    .padding()
+            VStack(spacing: 20) {
+                locationSection
 
-                // --- Result Display ---
-                Text("Result:").font(.headline).padding(.top)
-                ScrollView {
-                    if let data = displayData {
-                        SampleDataView(data: data)
-                    } else {
-                        Text(resultText)
-                            .padding()
-                    }
-                }
-                .frame(height: 200)
-                .background(Color(.systemGray6))
-                .cornerRadius(8)
+                Divider()
 
-                // --- Buttons ---
-                ScrollView {
-                    VStack(spacing: 15) {
-                        apiButton(title: "Search Stop", params: ["cityCode": cityCode, "stopName": stopName]) {
-                            await performRequest(
-                                api: .searchStop(cityCode: cityCode, stopName: stopName),
-                                responseType: BusStop.self
-                            )
-                        }
-
-                        apiButton(title: "Get Arrivals", params: ["cityCode": cityCode, "nodeId": nodeId]) {
-                            await performRequest(
-                                api: .getArrivals(cityCode: cityCode, nodeId: nodeId),
-                                responseType: BusArrivalInfo.self
-                            )
-                        }
-
-                        apiButton(
-                            title: "Get Arrivals for Route",
-                            params: ["cityCode": cityCode, "nodeId": nodeId, "routeId": routeId]
-                        ) { await performRequest(
-                            api: .getArrivalsForRoute(cityCode: cityCode, nodeId: nodeId, routeId: routeId),
-                            responseType: BusArrivalInfo.self
-                        )
-                        }
-
-                        apiButton(title: "Get Route Bus Locations", params: [
-                            "cityCode": cityCode,
-                            "routeId": routeId,
-                        ]) {
-                            await performRequest(
-                                api: .getRouteBusLocations(cityCode: cityCode, routeId: routeId),
-                                responseType: BusLocation.self
-                            )
-                        }
-
-                        apiButton(
-                            title: "Get Stops by GPS",
-                            params: ["gpsLati": String(gpsLati), "gpsLong": String(gpsLong)]
-                        ) { await performRequest(
-                            api: .getStopsByGps(gpsLati: gpsLati, gpsLong: gpsLong),
-                            responseType: BusStop.self
-                        )
-                        }
-
-                        apiButton(title: "Get Stop Routes", params: ["cityCode": cityCode, "nodeId": nodeId]) {
-                            await performRequest(
-                                api: .getStopRoutes(cityCode: cityCode, nodeId: nodeId),
-                                responseType: StationRoute.self
-                            )
-                        }
-
-                        apiButton(title: "Get Route Info", params: ["cityCode": cityCode, "routeId": routeId]) {
-                            await performRequest(
-                                api: .getRouteInfo(cityCode: cityCode, routeId: routeId),
-                                responseType: BusRoute.self
-                            )
-                        }
-
-                        apiButton(title: "Search Route", params: ["cityCode": cityCode, "routeNo": routeNo]) {
-                            await performRequest(
-                                api: .searchRoute(cityCode: cityCode, routeNo: routeNo),
-                                responseType: BusRoute.self
-                            )
-                        }
-
-                        apiButton(title: "Get Route Stops", params: ["cityCode": cityCode, "routeId": routeId]) {
-                            await performRequest(
-                                api: .getRouteStops(cityCode: cityCode, routeId: routeId),
-                                responseType: BusStop.self
-                            )
-                        }
-                    }.padding()
-                }
+                apiSection
             }
-            .navigationTitle("Bus API Test")
-            .overlay(ActivityIndicator(isAnimating: $isLoading, style: .large))
+            .padding()
+            .navigationTitle("Sprint 1")
+            .overlay(
+                ActivityIndicator(isAnimating: loadingBinding, style: .large)
+                    .allowsHitTesting(false)
+            )
+        }
+        .onAppear {
+            viewModel.onAppear()
         }
     }
 
     @ViewBuilder
-    private func apiButton(title: String, params: [String: String], action: @escaping () async -> Void) -> some View {
+    private var locationSection: some View {
+        VStack(spacing: 12) {
+            VStack(spacing: 4) {
+                Text("Latitude: \(viewModel.latitude)")
+                Text("Longitude: \(viewModel.longitude)")
+            }
+            .font(.body)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(12)
+    }
+
+    @ViewBuilder
+    private var apiSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Toggle("Mock API", isOn: $viewModel.isMocking)
+            ScrollView {
+                if let data = viewModel.displayData {
+                    SampleDataView(data: data)
+                } else {
+                    Text(viewModel.resultText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                }
+            }
+            .frame(height: 100)
+            .background(Color(.systemGray6))
+            .cornerRadius(8)
+
+            ScrollView {
+                LazyVGrid(columns: [
+                    GridItem(.flexible(), spacing: 12),
+                    GridItem(.flexible(), spacing: 12),
+                    GridItem(.flexible(), spacing: 12),
+                ], spacing: 15) {
+                    apiButton(title: "Search Stop") {
+                        await viewModel.searchStop()
+                    }
+
+                    apiButton(title: "Get Arrivals") {
+                        await viewModel.getArrivals()
+                    }
+
+                    apiButton(title: "Get Arrivals for Route") {
+                        await viewModel.getArrivalsForRoute()
+                    }
+
+                    apiButton(title: "Get Route Bus Locations") {
+                        await viewModel.getRouteBusLocations()
+                    }
+
+                    apiButton(title: "Get Stops by GPS") {
+                        await viewModel.getStopsByGPS()
+                    }
+
+                    apiButton(title: "Get Stop Routes") {
+                        await viewModel.getStopRoutes()
+                    }
+
+                    apiButton(title: "Get Route Info") {
+                        await viewModel.getRouteInfo()
+                    }
+
+                    apiButton(title: "Search Route") {
+                        await viewModel.searchRoute()
+                    }
+
+                    apiButton(title: "Get Route Stops") {
+                        await viewModel.getRouteStops()
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private func apiButton(title: String, action: @escaping () async -> Void) -> some View {
         Button {
-            displayData = nil
+            viewModel.resetApiDisplay()
             Task { await action() }
         } label: {
             VStack {
                 Text(title).font(.headline)
-                ForEach(params.sorted(by: <), id: \.key) { key, value in
-                    Text("\(key): \(value)").font(.caption)
-                }
             }
             .padding()
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: 100)
             .background(Color.gray.opacity(0.1))
             .cornerRadius(10)
         }
         .buttonStyle(PlainButtonStyle())
     }
 
-    // Generic request function
-    private func performRequest<T: Codable>(api: BusAPI, responseType _: T.Type) async {
-        isLoading = true
-        resultText = "Loading..."
-        displayData = nil
-        do {
-            let response: ApiResponse<ItemBody<T>> = try await networkingApi.request(api: api)
-            if let firstItem = response.response.body?.items.item.first {
-                displayData = firstItem
-                resultText = ""
-            } else {
-                resultText = "No items in response"
-            }
-        } catch let NetworkError.decodingError(error, data) {
-            let dataString = String(data: data, encoding: .utf8) ?? "Could not convert data to string"
-            resultText = "Decoding Error: \(error.localizedDescription)\n\nRaw Response:\n\(dataString)"
-        } catch {
-            resultText = "Error: \(error.localizedDescription)"
-        }
-        isLoading = false
+    private var loadingBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.isLoading },
+            set: { viewModel.isLoading = $0 }
+        )
     }
 }
 
@@ -189,8 +156,10 @@ struct SampleDataView: View {
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
+#Preview {
+    ContentView()
+}
+
+#Preview {
+    ContentView()
 }
