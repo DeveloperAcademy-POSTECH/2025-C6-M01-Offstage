@@ -26,6 +26,18 @@ let lintScript: TargetScript = .pre(
     basedOnDependencyAnalysis: false
 )
 
+let busAPI = Target.target(
+    name: "BusAPI",
+    destinations: [.iPhone],
+    product: .framework,
+    bundleId: "\(organizationName).BusAPI",
+    infoPlist: .default,
+    sources: ["Modules/BusAPI/Sources/**"],
+    dependencies: [
+        .external(name: "Moya"),
+    ]
+)
+
 let app = Target.target(
     name: "OffStageApp",
     destinations: [.iPhone],
@@ -65,5 +77,5 @@ let settings = Settings.settings(
 let project = Project(
     name: "OffStage",
     settings: settings,
-    targets: [app, busAI]
+    targets: [busAPI, app, busAI]
 )

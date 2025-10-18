@@ -1,31 +1,36 @@
 import Foundation
 import Moya
 
-enum BusAPI {
-    // Arrival Info
+/// Describes the available endpoints exposed by the public bus API.
+public enum BusAPI {
+    // MARK: - Arrival Info
+
     case getArrivals(cityCode: String, nodeId: String)
     case getArrivalsForRoute(cityCode: String, nodeId: String, routeId: String)
 
-    // Location Info
+    // MARK: - Location Info
+
     case getRouteBusLocations(cityCode: String, routeId: String)
 
-    // Stop Info
+    // MARK: - Stop Info
+
     case searchStop(cityCode: String, stopName: String)
     case getStopsByGps(gpsLati: Double, gpsLong: Double)
     case getStopRoutes(cityCode: String, nodeId: String)
 
-    // Route Info
+    // MARK: - Route Info
+
     case getRouteInfo(cityCode: String, routeId: String)
     case searchRoute(cityCode: String, routeNo: String)
     case getRouteStops(cityCode: String, routeId: String)
 }
 
 extension BusAPI: TargetType {
-    var baseURL: URL {
+    public var baseURL: URL {
         URL(string: "https://apis.data.go.kr/1613000")!
     }
 
-    var path: String {
+    public var path: String {
         switch self {
         case .getArrivals: "/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList"
         case .getArrivalsForRoute: "/ArvlInfoInqireService/getSttnAcctoSpcifyRouteBusArvlPrearngeInfoList"
@@ -39,55 +44,55 @@ extension BusAPI: TargetType {
         }
     }
 
-    var method: Moya.Method { .get }
+    public var method: Moya.Method { .get }
 
-    var task: Moya.Task {
+    public var task: Moya.Task {
         let serviceKey = APIKeyProvider.busServiceKey
-        var p: [String: Any] = ["serviceKey": serviceKey, "_type": "json"]
+        var parameters: [String: Any] = ["serviceKey": serviceKey, "_type": "json"]
 
         switch self {
         case let .getArrivals(cityCode, nodeId):
-            p["cityCode"] = cityCode
-            p["nodeId"] = nodeId
-            p["numOfRows"] = 50
+            parameters["cityCode"] = cityCode
+            parameters["nodeId"] = nodeId
+            parameters["numOfRows"] = 50
         case let .getArrivalsForRoute(cityCode, nodeId, routeId):
-            p["cityCode"] = cityCode
-            p["nodeId"] = nodeId
-            p["routeId"] = routeId
+            parameters["cityCode"] = cityCode
+            parameters["nodeId"] = nodeId
+            parameters["routeId"] = routeId
         case let .getRouteBusLocations(cityCode, routeId):
-            p["cityCode"] = cityCode
-            p["routeId"] = routeId
-            p["numOfRows"] = 50
+            parameters["cityCode"] = cityCode
+            parameters["routeId"] = routeId
+            parameters["numOfRows"] = 50
         case let .searchStop(cityCode, stopName):
-            p["cityCode"] = cityCode
-            p["nodeNm"] = stopName
-            p["numOfRows"] = 30
+            parameters["cityCode"] = cityCode
+            parameters["nodeNm"] = stopName
+            parameters["numOfRows"] = 30
         case let .getStopsByGps(gpsLati, gpsLong):
-            p["gpsLati"] = gpsLati
-            p["gpsLong"] = gpsLong
+            parameters["gpsLati"] = gpsLati
+            parameters["gpsLong"] = gpsLong
         case let .getStopRoutes(cityCode, nodeId):
-            p["cityCode"] = cityCode
-            p["nodeId"] = nodeId
-            p["numOfRows"] = 50
+            parameters["cityCode"] = cityCode
+            parameters["nodeId"] = nodeId
+            parameters["numOfRows"] = 50
         case let .getRouteInfo(cityCode, routeId):
-            p["cityCode"] = cityCode
-            p["routeId"] = routeId
+            parameters["cityCode"] = cityCode
+            parameters["routeId"] = routeId
         case let .searchRoute(cityCode, routeNo):
-            p["cityCode"] = cityCode
-            p["routeNo"] = routeNo
-            p["numOfRows"] = 30
+            parameters["cityCode"] = cityCode
+            parameters["routeNo"] = routeNo
+            parameters["numOfRows"] = 30
         case let .getRouteStops(cityCode, routeId):
-            p["cityCode"] = cityCode
-            p["routeId"] = routeId
-            p["numOfRows"] = 100
+            parameters["cityCode"] = cityCode
+            parameters["routeId"] = routeId
+            parameters["numOfRows"] = 100
         }
 
-        return .requestParameters(parameters: p, encoding: URLEncoding.queryString)
+        return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
     }
 
-    var headers: [String: String]? { ["Content-type": "application/json"] }
+    public var headers: [String: String]? { ["Content-type": "application/json"] }
 
-    var sampleData: Data {
+    public var sampleData: Data {
         switch self {
         case .getArrivals, .getArrivalsForRoute:
             mockResponse(for: BusArrivalInfo.sample)
