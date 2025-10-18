@@ -1,7 +1,11 @@
 import SwiftUI
 
-struct ContentView: View {
-    @StateObject private var viewModel = ContentViewModel()
+struct TestView: View {
+    @StateObject private var viewModel: TestViewModel
+
+    init(busStopInfo: BusStopInfo) {
+        _viewModel = StateObject(wrappedValue: TestViewModel(busStopInfo: busStopInfo))
+    }
 
     var body: some View {
         NavigationView {
@@ -28,8 +32,8 @@ struct ContentView: View {
     private var locationSection: some View {
         VStack(spacing: 12) {
             VStack(spacing: 4) {
-                Text("Latitude: \(viewModel.latitude)")
-                Text("Longitude: \(viewModel.longitude)")
+                Text("Latitude: \(viewModel.busStopInfo.gpsLati)")
+                Text("Longitude: \(viewModel.busStopInfo.gpsLong)")
             }
             .font(.body)
         }
@@ -157,9 +161,13 @@ struct SampleDataView: View {
 }
 
 #Preview {
-    ContentView()
-}
-
-#Preview {
-    ContentView()
+    TestView(busStopInfo: .init(
+        cityCode: 25,
+        nodeId: "",
+        routeId: "",
+        stopName: "",
+        routeNo: "",
+        gpsLati: 0,
+        gpsLong: 0
+    ))
 }

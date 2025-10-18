@@ -2,30 +2,29 @@ import Combine
 import Foundation
 
 @MainActor
-final class ContentViewModel: ObservableObject {
-    // Location display
-    @Published var latitude: String = "-"
-    @Published var longitude: String = "-"
-
+final class TestViewModel: ObservableObject {
     // API test state
     @Published var resultText: String = "API Response will be shown here."
     @Published var isLoading = false
     @Published var displayData: Any?
     @Published var isMocking = true
 
-    // Dummy parameters for playground API calls
-    let cityCode = "25" // Daejeon
-    let nodeId = "DJB8001793" // Daejeon Station Stop
-    let routeId = "DJB30300002" // Route 2
-    let stopName = "대전역"
-    let routeNo = "102"
-    let gpsLati = 36.3325
-    let gpsLong = 127.4342
+    // Dummy model for playground API calls
+    @Published var busStopInfo: BusStopInfo
 
     private let locationProvider: LocationProviding
     private var cancellables = Set<AnyCancellable>()
 
-    init(locationProvider: LocationProviding = LocationManager()) {
+    init(busStopInfo: BusStopInfo? = nil, locationProvider: LocationProviding = LocationManager()) {
+        self.busStopInfo = busStopInfo ?? BusStopInfo(
+            cityCode: 25, // Daejeon
+            nodeId: "DJB8001793", // Daejeon Station Stop
+            routeId: "DJB30300002", // Route 2
+            stopName: "대전역",
+            routeNo: "102",
+            gpsLati: 0, // Initial value, will be updated by location services
+            gpsLong: 0
+        )
         self.locationProvider = locationProvider
     }
 
@@ -77,71 +76,83 @@ final class ContentViewModel: ObservableObject {
                     print("Location error: \(error)")
                 }
             } receiveValue: { [weak self] coordinate in
-                self?.latitude = String(format: "%.6f", coordinate.latitude)
-                self?.longitude = String(format: "%.6f", coordinate.longitude)
+                guard let self else { return }
+                busStopInfo = BusStopInfo(
+                    cityCode: busStopInfo.cityCode,
+                    nodeId: busStopInfo.nodeId,
+                    routeId: busStopInfo.routeId,
+                    stopName: busStopInfo.stopName,
+                    routeNo: busStopInfo.routeNo,
+                    gpsLati: coordinate.latitude,
+                    gpsLong: coordinate.longitude
+                )
             }
             .store(in: &cancellables)
     }
 
     func searchStop() async {
         await performRequest(
-            api: .searchStop(cityCode: cityCode, stopName: stopName),
+            api: .searchStop(cityCode: String(busStopInfo.cityCode), stopName: busStopInfo.stopName),
             responseType: BusStop.self
         )
     }
 
     func getArrivals() async {
         await performRequest(
-            api: .getArrivals(cityCode: cityCode, nodeId: nodeId),
+            api: .getArrivals(cityCode: String(busStopInfo.cityCode), nodeId: busStopInfo.nodeId),
             responseType: BusArrivalInfo.self
         )
     }
 
     func getArrivalsForRoute() async {
         await performRequest(
-            api: .getArrivalsForRoute(cityCode: cityCode, nodeId: nodeId, routeId: routeId),
+            api: .getArrivalsForRoute(
+                cityCode: String(busStopInfo.cityCode),
+                nodeId: busStopInfo.nodeId,
+                routeId: busStopInfo.routeId
+            ),
             responseType: BusArrivalInfo.self
         )
     }
 
     func getRouteBusLocations() async {
         await performRequest(
-            api: .getRouteBusLocations(cityCode: cityCode, routeId: routeId),
+            api: .getRouteBusLocations(cityCode: String(busStopInfo.cityCode), routeId: busStopInfo.routeId),
             responseType: BusLocation.self
         )
     }
 
     func getStopsByGPS() async {
         await performRequest(
-            api: .getStopsByGps(gpsLati: gpsLati, gpsLong: gpsLong),
+            api: .getStopsByGps(gpsLati: busStopInfo.gpsLati, gpsLong: busStopInfo.gpsLong),
             responseType: BusStop.self
         )
     }
 
     func getStopRoutes() async {
         await performRequest(
-            api: .getStopRoutes(cityCode: cityCode, nodeId: nodeId),
+            api: .getStopRoutes(cityCode: String(busStopInfo.cityCode), nodeId: busStopInfo.nodeId),
             responseType: StationRoute.self
         )
     }
 
     func getRouteInfo() async {
         await performRequest(
-            api: .getRouteInfo(cityCode: cityCode, routeId: routeId),
+            api: .getRouteInfo(cityCode: String(busStopInfo.cityCode), routeId: busStopInfo.routeId),
             responseType: BusRoute.self
         )
     }
 
     func searchRoute() async {
         await performRequest(
-            api: .searchRoute(cityCode: cityCode, routeNo: routeNo),
+            api: .searchRoute(cityCode: String(busStopInfo.cityCode), routeNo: busStopInfo.routeNo),
             responseType: BusRoute.self
         )
     }
 
     func getRouteStops() async {
         await performRequest(
-            api: .getRouteStops(cityCode: cityCode, routeId: routeId),
+            api: .getRouteStops(cityCode: String(busStopInfo.cityCode), routeId: busStopInfo.routeId),
             responseType: BusStop.self
         )
     }
