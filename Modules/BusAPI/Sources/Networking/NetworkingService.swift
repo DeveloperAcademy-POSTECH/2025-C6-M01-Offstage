@@ -1,23 +1,25 @@
 import Foundation
 import Moya
 
-enum NetworkError: Error {
+public enum NetworkError: Error {
     case decodingError(error: Error, data: Data)
     case moyaError(Error)
 }
 
-protocol NetworkingService {
+public protocol NetworkingService {
     func request<T: Codable>(api: BusAPI) async throws -> T
 }
 
-final class NetworkingAPI: NetworkingService {
+/// Default implementation of `NetworkingService` backed by Moya.
+public final class NetworkingAPI: NetworkingService {
     private let provider: MoyaProvider<BusAPI>
 
-    init(isMocking: Bool = true) {
+    /// - Parameter isMocking: When `true`, immediately returns the stubbed sample data.
+    public init(isMocking: Bool = true) {
         provider = MoyaProvider<BusAPI>(stubClosure: isMocking ? MoyaProvider.immediatelyStub : MoyaProvider.neverStub)
     }
 
-    func request<T: Codable>(api: BusAPI) async throws -> T {
+    public func request<T: Codable>(api: BusAPI) async throws -> T {
         try await withCheckedThrowingContinuation { continuation in
             provider.request(api) { result in
                 switch result {
