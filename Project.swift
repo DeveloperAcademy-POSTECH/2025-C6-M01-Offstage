@@ -12,6 +12,7 @@ let baseInfoPlist: [String: Plist.Value] = [
     "Bus Service Key": "$(SERVICE_KEY)",
     "NSLocationWhenInUseUsageDescription": "현재 위치를 기반으로 주변 정류장 정보를 제공하기 위해 위치 정보가 필요합니다.",
     "ITSAppUsesNonExemptEncryption": .boolean(false),
+    "UIDesignRequiresCompatibility": .boolean(true),
 ]
 
 let formatScript: TargetScript = .pre(
