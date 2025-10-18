@@ -1,6 +1,6 @@
 import ProjectDescription
 
-let organizationName = "c6.offstage"
+let organizationName = "2025C6.OffStage"
 
 let baseInfoPlist: [String: Plist.Value] = [
     "UILaunchScreen": [
@@ -11,6 +11,7 @@ let baseInfoPlist: [String: Plist.Value] = [
     "CFBundleVersion": "1",
     "Bus Service Key": "$(SERVICE_KEY)",
     "NSLocationWhenInUseUsageDescription": "현재 위치를 기반으로 주변 정류장 정보를 제공하기 위해 위치 정보가 필요합니다.",
+    "ITSAppUsesNonExemptEncryption": .boolean(false),
 ]
 
 let formatScript: TargetScript = .pre(
@@ -26,7 +27,7 @@ let lintScript: TargetScript = .pre(
 
 let busApiTest = Target.target(
     name: "BusApiTest",
-    destinations: [.iPhone, .iPad],
+    destinations: [.iPhone],
     product: .unitTests,
     bundleId: "\(organizationName).BusApiTest",
     infoPlist: .default,
@@ -36,7 +37,7 @@ let busApiTest = Target.target(
 
 let app = Target.target(
     name: "OffStageApp",
-    destinations: [.iPhone, .iPad],
+    destinations: [.iPhone],
     product: .app,
     bundleId: "\(organizationName).App",
     infoPlist: .extendingDefault(with: baseInfoPlist),
@@ -50,7 +51,7 @@ let app = Target.target(
 
 let busAI = Target.target(
     name: "BusAI",
-    destinations: [.iPhone, .iPad],
+    destinations: [.iPhone],
     product: .app,
     bundleId: "\(organizationName).BusAI",
     infoPlist: .extendingDefault(with: baseInfoPlist),
