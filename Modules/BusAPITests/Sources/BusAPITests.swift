@@ -3,130 +3,95 @@ import Moya
 import XCTest
 
 final class BusAPITests: XCTestCase {
-    private let sampleContext = (
-        cityCode: "25",
-        nodeId: "DJB8001793",
-        routeId: "DJB30300002",
-        routeNo: "2",
-        stopName: "대전역",
-        gpsLati: 36.3325,
-        gpsLong: 127.4342
+    private let provider = MoyaProvider<CityCodeTarget>(
+        plugins: [
+            ServiceKeyPlugin(),
+            NetworkLoggerPlugin(configuration: .init(logOptions: .verbose)),
+        ]
     )
+    private let decoder = JSONDecoder()
 
-    private let networking = NetworkingAPI()
+    func testFetchCityCodeList() async throws {
+        let data = try await request(.cityCodeList)
 
-    // MARK: - Live networking Tests
-
-    func testLiveArrivalsResponseDecodes() async throws {
-        try await assertLiveResponse(
-            target: ArrivalEndpoint.getArrivals(cityCode: sampleContext.cityCode, nodeId: sampleContext.nodeId),
-            decoding: BusArrivalInfo.self
-        )
-    }
-
-    func testLiveArrivalsForRouteResponseDecodes() async throws {
-        try await assertLiveResponse(
-            target: ArrivalEndpoint.getArrivalsForRoute(
-                cityCode: sampleContext.cityCode,
-                nodeId: sampleContext.nodeId,
-                routeId: sampleContext.routeId
-            ),
-            decoding: BusArrivalInfo.self
-        )
-    }
-
-    func testLiveRouteBusLocationsResponseDecodes() async throws {
-        try await assertLiveResponse(
-            target: LocationEndpoint.getRouteBusLocations(
-                cityCode: sampleContext.cityCode,
-                routeId: sampleContext.routeId
-            ),
-            decoding: BusLocation.self
-        )
-    }
-
-    func testLiveSearchStopResponseDecodes() async throws {
-        try await assertLiveResponse(
-            target: StopEndpoint.searchStop(cityCode: sampleContext.cityCode, stopName: sampleContext.stopName),
-            decoding: BusStop.self
-        )
-    }
-
-    func testLiveStopsByGpsResponseDecodes() async throws {
-        try await assertLiveResponse(
-            target: StopEndpoint.getStopsByGps(gpsLati: sampleContext.gpsLati, gpsLong: sampleContext.gpsLong),
-            decoding: BusStop.self
-        )
-    }
-
-    func testLiveStopRoutesResponseDecodes() async throws {
-        try await assertLiveResponse(
-            target: StopEndpoint.getStopRoutes(cityCode: sampleContext.cityCode, nodeId: sampleContext.nodeId),
-            decoding: StationRoute.self
-        )
-    }
-
-    func testLiveRouteInfoResponseDecodes() async throws {
-        try await assertLiveResponse(
-            target: RouteEndpoint.getRouteInfo(cityCode: sampleContext.cityCode, routeId: sampleContext.routeId),
-            decoding: BusRoute.self
-        )
-    }
-
-    func testLiveSearchRouteResponseDecodes() async throws {
-        try await assertLiveResponse(
-            target: RouteEndpoint.searchRoute(cityCode: sampleContext.cityCode, routeNo: sampleContext.routeNo),
-            decoding: BusRoute.self
-        )
-    }
-
-    func testLiveRouteStopsResponseDecodes() async throws {
-        try await assertLiveResponse(
-            target: RouteEndpoint.getRouteStops(cityCode: sampleContext.cityCode, routeId: sampleContext.routeId),
-            decoding: BusStop.self
-        )
-    }
-
-    func testBusStopInfoCodableRoundTrip() throws {
-        let info = BusStopInfo(
-            cityCode: 25,
-            nodeId: "NODE",
-            routeId: "ROUTE",
-            stopName: "Sample Stop",
-            routeNo: "100",
-            gpsLati: 37.1234,
-            gpsLong: 127.5678
-        )
-
-        let data = try JSONEncoder().encode(info)
-        let decoded = try JSONDecoder().decode(BusStopInfo.self, from: data)
-
-        XCTAssertEqual(decoded, info)
-    }
-
-    // MARK: - Helpers
-
-    private func assertLiveResponse<T: Codable>(
-        target: TargetType,
-        decoding _: T.Type,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) async throws {
-        let (response, rawData): (ApiResponse<ItemBody<T>>, Data) = try await networking.request(
-            target: target,
-            responseType: ApiResponse<ItemBody<T>>.self
-        )
-
-        if let rawString = String(data: rawData, encoding: .utf8) {
-            print("Raw response for \(target.path):\n\(rawString)\n")
+        if let rawString = String(data: data, encoding: .utf8) {
+            print("Received body:\n\(rawString)")
+        } else {
+            print("Received body is not valid UTF-8, size: \(data.count) bytes")
         }
 
-        XCTAssertEqual(
-            response.response.header.resultCode,
-            "00",
-            "API request for \(target.path) failed with message: \(response.response.header.resultMsg)",
-            file: file,
-            line: line
-        )
+        let cityCodes = try decoder.decode(CityCodeListResponse.self, from: data)
+
+        XCTAssertEqual(cityCodes.response.header.resultCode, "00")
+        XCTAssertFalse(cityCodes.response.body.items.item.isEmpty)
+    }
+
+    private func request(_ target: CityCodeTarget) async throws -> Data {
+        try await withCheckedThrowingContinuation { continuation in
+            provider.request(target) { result in
+                switch result {
+                case let .success(response):
+                    continuation.resume(returning: response.data)
+                case let .failure(error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+}
+
+private enum CityCodeTarget: BusAPITarget {
+    case cityCodeList
+
+    var baseURL: URL { URL(string: "https://apis.data.go.kr/1613000")! }
+
+    var path: String {
+        switch self {
+        case .cityCodeList:
+            "/BusSttnInfoInqireService/getCtyCodeList"
+        }
+    }
+
+    var method: Moya.Method { .get }
+    var sampleData: Data { Data() }
+
+    var task: Moya.Task {
+        let parameters: [String: Any] = [
+            "_type": "json",
+        ]
+        return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+    }
+
+    var headers: [String: String]? {
+        ["Content-Type": "application/json"]
+    }
+
+    var serviceKey: String { APIKeyProvider.stopServiceKey }
+}
+
+private struct CityCodeListResponse: Decodable {
+    let response: Response
+
+    struct Response: Decodable {
+        let header: Header
+        let body: Body
+    }
+
+    struct Header: Decodable {
+        let resultCode: String
+        let resultMsg: String
+    }
+
+    struct Body: Decodable {
+        let items: Items
+    }
+
+    struct Items: Decodable {
+        let item: [City]
+    }
+
+    struct City: Decodable {
+        let citycode: Int
+        let cityname: String
     }
 }

@@ -11,7 +11,7 @@ public protocol NetworkingService {
     func request<T: Codable>(target: TargetType, responseType: T.Type) async throws -> (decoded: T, rawData: Data)
 }
 
-private final class ServiceKeyPlugin: PluginType {
+final class ServiceKeyPlugin: PluginType {
     func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
         guard let url = request.url,
               let busTarget = target as? BusAPITarget
