@@ -8,6 +8,7 @@ enum AppRoute: Routable {
     case busvision
     case homeedit
     case onboarding
+    case test(busStopInfo: BusStopInfo)
 
     @ViewBuilder
     func view() -> some View {
@@ -29,6 +30,9 @@ enum AppRoute: Routable {
 
         case .onboarding:
             OnboardingView()
+
+        case let .test(busStopInfo):
+            TestView(busStopInfo: busStopInfo)
         }
     }
 }
