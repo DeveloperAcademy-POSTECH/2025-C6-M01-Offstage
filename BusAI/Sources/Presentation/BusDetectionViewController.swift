@@ -7,6 +7,9 @@ final class BusDetectionViewController: UIViewController {
     private var request: VNCoreMLRequest?
 
     private var drawingBoxesView: DrawingBoxesView?
+    private var currentPixelBuffer: CVPixelBuffer?
+    
+    let busNumberToDetect: [String] = ["1142", "0411"]
 
     // MARK: Life Cycle
     override func viewDidLoad() {
@@ -18,7 +21,10 @@ final class BusDetectionViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupBoxesView()
-        captureSession?.startRunning()
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            self?.captureSession?.startRunning()
+        }
     }
 
     // MARK: Functions
@@ -71,12 +77,15 @@ final class BusDetectionViewController: UIViewController {
 }
 
 // MARK: - Video Delegate
+
 extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     /// 실시간 캡쳐 Delegate
     func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer), let request else {
             return
         }
+
+        currentPixelBuffer = pixelBuffer
 
         let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer)
         try? handler.perform([request])
@@ -101,16 +110,62 @@ extension BusDetectionViewController {
 
     /// AI 모델 결과 처리
     private func visionRequestDidComplete(request: VNRequest, error _: Error?) {
-        if let predictions = (request.results as? [VNRecognizedObjectObservation]) {
-            // TODO: 바운딩박스 받아서 OCR 돌리기
-            // TODO: OCR 결과 찾던 버스라면 그때 바운딩박스 UI 그려주기
-            predictions.map {
-                $0.confidence > 0.6
-            }
+        guard let predictions = (request.results as? [VNRecognizedObjectObservation]) else { return }
+        var finalPredictions: [VNRecognizedObjectObservation] = []
 
-            DispatchQueue.main.async {
-                self.drawingBoxesView?.drawBox(with: predictions)
+        for prediction in predictions {
+            if prediction.confidence < 0.6 { continue }
+
+            // 이미지 자르기
+            guard let image = cropImage(prediction: prediction) else {
+                print("이미지 자르기 실패")
+                continue
+            }
+            
+            // 자른 이미지 OCR 처리하기
+            OCRManager.recognizeText(from: image) { ocrText in
+                guard let ocrText else {
+                    print("OCR 처리 실패")
+                    return
+                }
+                print(ocrText)
+
+                // OCR 텍스트에 찾던 버스번호 있는지 검사
+                for busNumber in self.busNumberToDetect {
+                    if ocrText.contains(busNumber) {
+                        // 검사 결과에 있다면 바운딩박스에 추가
+                        finalPredictions.append(prediction)
+                    }
+                }
             }
         }
+        DispatchQueue.main.async {
+            self.drawingBoxesView?.drawBox(with: finalPredictions)
+        }
+    }
+
+    /// 바운딩박스에 맞춰 이미지 자르기
+    private func cropImage(prediction: VNRecognizedObjectObservation) -> CGImage? {
+        guard let pixelBuffer = currentPixelBuffer else { return nil }
+
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let context = CIContext()
+
+        let imageWidth = CGFloat(CVPixelBufferGetWidth(pixelBuffer))
+        let imageHeight = CGFloat(CVPixelBufferGetHeight(pixelBuffer))
+
+        let boundingBox = prediction.boundingBox
+
+        let x = boundingBox.origin.x * imageWidth
+        let y = (1 - boundingBox.origin.y - boundingBox.height) * imageHeight
+        let width = boundingBox.width * imageWidth
+        let height = boundingBox.height * imageHeight
+
+        let cropRect = CGRect(x: x, y: y, width: width, height: height)
+        let croppedCIImage = ciImage.cropped(to: cropRect)
+
+        guard let cgImage = context.createCGImage(croppedCIImage, from: croppedCIImage.extent) else { return nil }
+
+        return cgImage
     }
 }
