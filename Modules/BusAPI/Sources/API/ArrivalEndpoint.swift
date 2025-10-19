@@ -33,6 +33,4 @@ extension ArrivalEndpoint: BusAPITarget {
         parameters["_type"] = "json"
         return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
     }
-
-    public var sampleData: Data { Data() }
 }

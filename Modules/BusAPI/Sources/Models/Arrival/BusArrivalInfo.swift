@@ -11,18 +11,3 @@ public struct BusArrivalInfo: Codable, Identifiable, Hashable {
     public let routetp: String
     public let vehicletp: String
 }
-
-public extension BusArrivalInfo {
-    static var sample: BusArrivalInfo {
-        .init(
-            arrprevstationcnt: 1,
-            arrtime: 91,
-            nodeid: "DJB8001793",
-            nodenm: "대전역",
-            routeid: "DJB30300002",
-            routeno: "2",
-            routetp: "간선버스",
-            vehicletp: "저상버스"
-        )
-    }
-}

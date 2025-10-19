@@ -47,7 +47,6 @@ struct TestView: View {
     @ViewBuilder
     private var apiSection: some View {
         ScrollView { VStack(alignment: .leading, spacing: 16) {
-            Toggle("Mock API", isOn: $viewModel.isMocking)
             ScrollView {
                 if let data = viewModel.displayData {
                     SampleDataView(data: data)

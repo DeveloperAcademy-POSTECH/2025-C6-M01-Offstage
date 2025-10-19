@@ -11,18 +11,3 @@ public struct BusLocation: Codable, Identifiable, Hashable {
     public let routetp: String
     public let vehicleno: String
 }
-
-public extension BusLocation {
-    static var sample: BusLocation {
-        .init(
-            gpslati: 36.3325,
-            gpslong: 127.4342,
-            nodeid: "DJB8001793",
-            nodenm: "대전역",
-            nodeord: 1,
-            routenm: "102",
-            routetp: "간선버스",
-            vehicleno: "대전75자1234"
-        )
-    }
-}

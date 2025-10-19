@@ -42,12 +42,9 @@ public final class NetworkingAPI: NetworkingService {
     public static let shared = NetworkingAPI()
     private let provider: MoyaProvider<MultiTarget>
 
-    public init(isMocking: Bool = false) {
-        let plugins: [PluginType] = isMocking ? [] : [ServiceKeyPlugin()]
-        let stubClosure = { (_: MultiTarget) -> Moya.StubBehavior in
-            return isMocking ? .immediate : .never
-        }
-        provider = MoyaProvider<MultiTarget>(stubClosure: stubClosure, plugins: plugins)
+    public init() {
+        let plugins: [PluginType] = [ServiceKeyPlugin()]
+        provider = MoyaProvider<MultiTarget>(plugins: plugins)
     }
 
     public func request<T: Codable>(

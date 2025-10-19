@@ -10,13 +10,13 @@ final class TestViewModel: ObservableObject {
     @Published var resultText: String = "API Response will be shown here."
     @Published var isLoading = false
     @Published var displayData: Any?
-    @Published var isMocking = true
 
     // Dummy model for playground API calls
     @Published var busStopInfo: BusStopInfo
 
     private let locationProvider: LocationProviding
     private var cancellables = Set<AnyCancellable>()
+    private let networkingApi: NetworkingService = NetworkingAPI.shared
 
     init(busStopInfo: BusStopInfo? = nil, locationProvider: LocationProviding = LocationManager()) {
         self.busStopInfo = busStopInfo ?? BusStopInfo(
@@ -69,10 +69,6 @@ final class TestViewModel: ObservableObject {
         }
 
         isLoading = false
-    }
-
-    private var networkingApi: NetworkingService {
-        NetworkingAPI(isMocking: isMocking)
     }
 
     private func subscribeLocation() {
