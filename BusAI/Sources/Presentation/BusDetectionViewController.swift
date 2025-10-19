@@ -77,7 +77,6 @@ final class BusDetectionViewController: UIViewController {
 }
 
 // MARK: - Video Delegate
-
 extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     /// 실시간 캡쳐 Delegate
     func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
