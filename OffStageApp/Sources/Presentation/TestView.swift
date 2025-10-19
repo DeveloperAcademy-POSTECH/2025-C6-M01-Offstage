@@ -46,7 +46,7 @@ struct TestView: View {
 
     @ViewBuilder
     private var apiSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        ScrollView { VStack(alignment: .leading, spacing: 16) {
             Toggle("Mock API", isOn: $viewModel.isMocking)
             ScrollView {
                 if let data = viewModel.displayData {
@@ -57,7 +57,7 @@ struct TestView: View {
                         .padding()
                 }
             }
-            .frame(height: 100)
+            .frame(height: 200)
             .background(Color(.systemGray6))
             .cornerRadius(8)
 
@@ -105,7 +105,7 @@ struct TestView: View {
                 }
                 .padding(.vertical, 4)
             }
-        }
+        }}
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
@@ -138,26 +138,12 @@ struct SampleDataView: View {
     let data: Any
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(String(describing: type(of: data)))
-                .font(.title2)
-                .fontWeight(.bold)
-                .padding(.bottom, 5)
-
-            let mirror = Mirror(reflecting: data)
-            ForEach(mirror.children.map { $0 }, id: \.label) { child in
-                if let label = child.label {
-                    HStack {
-                        Text("\(label):")
-                            .fontWeight(.semibold)
-                        Text(String(describing: child.value))
-                            .font(.body)
-                    }
-                }
-            }
+        ScrollView {
+            Text(String(describing: data))
+                .font(.system(.caption, design: .monospaced))
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

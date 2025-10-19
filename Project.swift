@@ -9,7 +9,10 @@ let baseInfoPlist: [String: Plist.Value] = [
     ],
     "CFBundleShortVersionString": "1.0",
     "CFBundleVersion": "1",
-    "Bus Service Key": "$(SERVICE_KEY)",
+    "ArrivalServiceKey": "$(ARRIVAL_SERVICE_KEY)",
+    "LocationServiceKey": "$(LOCATION_SERVICE_KEY)",
+    "StopServiceKey": "$(STOP_SERVICE_KEY)",
+    "RouteServiceKey": "$(ROUTE_SERVICE_KEY)",
     "NSLocationWhenInUseUsageDescription": "현재 위치를 기반으로 주변 정류장 정보를 제공하기 위해 위치 정보가 필요합니다.",
     "ITSAppUsesNonExemptEncryption": .boolean(false),
     "UIDesignRequiresCompatibility": .boolean(true),
@@ -35,6 +38,7 @@ let busAPI = Target.target(
     sources: ["Modules/BusAPI/Sources/**"],
     dependencies: [
         .external(name: "Moya"),
+        .external(name: "Logging"),
     ]
 )
 

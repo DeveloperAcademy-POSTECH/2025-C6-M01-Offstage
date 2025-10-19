@@ -1,6 +1,8 @@
 import BusAPI
 import Combine
 import Foundation
+import Logging
+import Moya
 
 @MainActor
 final class TestViewModel: ObservableObject {
@@ -38,18 +40,26 @@ final class TestViewModel: ObservableObject {
         resultText = "API Response will be shown here."
     }
 
-    func performRequest<T: Codable>(api: BusAPI, responseType _: T.Type) async {
+    func performRequest<T: Codable>(target: TargetType, responseType _: T.Type) async {
         isLoading = true
         resultText = "Loading..."
         displayData = nil
 
         do {
-            let response: ApiResponse<ItemBody<T>> = try await networkingApi.request(api: api)
+            let (response, rawData): (ApiResponse<ItemBody<T>>, Data) = try await networkingApi.request(
+                target: target,
+                responseType: ApiResponse<ItemBody<T>>.self
+            )
             if let firstItem = response.response.body?.items.item.first {
                 displayData = firstItem
+                logInfo("Successfully parsed item: \(String(describing: firstItem))")
+                if let rawString = String(data: rawData, encoding: .utf8) {
+                    logDebug("Raw response for successful parse: \(rawString)")
+                }
                 resultText = ""
             } else {
-                resultText = "No items in response"
+                let rawString = String(data: rawData, encoding: .utf8) ?? "Could not convert data to string"
+                resultText = "No items in response.\n\nRaw Response:\n\(rawString)"
             }
         } catch let NetworkError.decodingError(error, data) {
             let dataString = String(data: data, encoding: .utf8) ?? "Could not convert data to string"
@@ -61,7 +71,7 @@ final class TestViewModel: ObservableObject {
         isLoading = false
     }
 
-    private var networkingApi: NetworkingAPI {
+    private var networkingApi: NetworkingService {
         NetworkingAPI(isMocking: isMocking)
     }
 
@@ -71,10 +81,10 @@ final class TestViewModel: ObservableObject {
 
         locationProvider.currentLocation
             .receive(on: RunLoop.main)
-            .sink { completion in
-                if case let .failure(error) = completion {
+            .sink {
+                if case let .failure(error) = $0 {
                     // TODO: Surface error to UI when design is ready.
-                    print("Location error: \(error)")
+                    logError("Location error: \(error)")
                 }
             } receiveValue: { [weak self] coordinate in
                 guard let self else { return }
@@ -92,22 +102,25 @@ final class TestViewModel: ObservableObject {
     }
 
     func searchStop() async {
+        logInfo("searchStop() called")
         await performRequest(
-            api: .searchStop(cityCode: String(busStopInfo.cityCode), stopName: busStopInfo.stopName),
+            target: StopEndpoint.searchStop(cityCode: String(busStopInfo.cityCode), stopName: busStopInfo.stopName),
             responseType: BusStop.self
         )
     }
 
     func getArrivals() async {
+        logInfo("getArrivals() called")
         await performRequest(
-            api: .getArrivals(cityCode: String(busStopInfo.cityCode), nodeId: busStopInfo.nodeId),
+            target: ArrivalEndpoint.getArrivals(cityCode: String(busStopInfo.cityCode), nodeId: busStopInfo.nodeId),
             responseType: BusArrivalInfo.self
         )
     }
 
     func getArrivalsForRoute() async {
+        logInfo("getArrivalsForRoute() called")
         await performRequest(
-            api: .getArrivalsForRoute(
+            target: ArrivalEndpoint.getArrivalsForRoute(
                 cityCode: String(busStopInfo.cityCode),
                 nodeId: busStopInfo.nodeId,
                 routeId: busStopInfo.routeId
@@ -117,43 +130,52 @@ final class TestViewModel: ObservableObject {
     }
 
     func getRouteBusLocations() async {
+        logInfo("getRouteBusLocations() called")
         await performRequest(
-            api: .getRouteBusLocations(cityCode: String(busStopInfo.cityCode), routeId: busStopInfo.routeId),
+            target: LocationEndpoint.getRouteBusLocations(
+                cityCode: String(busStopInfo.cityCode),
+                routeId: busStopInfo.routeId
+            ),
             responseType: BusLocation.self
         )
     }
 
     func getStopsByGPS() async {
+        logInfo("getStopsByGPS() called")
         await performRequest(
-            api: .getStopsByGps(gpsLati: busStopInfo.gpsLati, gpsLong: busStopInfo.gpsLong),
+            target: StopEndpoint.getStopsByGps(gpsLati: busStopInfo.gpsLati, gpsLong: busStopInfo.gpsLong),
             responseType: BusStop.self
         )
     }
 
     func getStopRoutes() async {
+        logInfo("getStopRoutes() called")
         await performRequest(
-            api: .getStopRoutes(cityCode: String(busStopInfo.cityCode), nodeId: busStopInfo.nodeId),
+            target: StopEndpoint.getStopRoutes(cityCode: String(busStopInfo.cityCode), nodeId: busStopInfo.nodeId),
             responseType: StationRoute.self
         )
     }
 
     func getRouteInfo() async {
+        logInfo("getRouteInfo() called")
         await performRequest(
-            api: .getRouteInfo(cityCode: String(busStopInfo.cityCode), routeId: busStopInfo.routeId),
+            target: RouteEndpoint.getRouteInfo(cityCode: String(busStopInfo.cityCode), routeId: busStopInfo.routeId),
             responseType: BusRoute.self
         )
     }
 
     func searchRoute() async {
+        logInfo("searchRoute() called")
         await performRequest(
-            api: .searchRoute(cityCode: String(busStopInfo.cityCode), routeNo: busStopInfo.routeNo),
+            target: RouteEndpoint.searchRoute(cityCode: String(busStopInfo.cityCode), routeNo: busStopInfo.routeNo),
             responseType: BusRoute.self
         )
     }
 
     func getRouteStops() async {
+        logInfo("getRouteStops() called")
         await performRequest(
-            api: .getRouteStops(cityCode: String(busStopInfo.cityCode), routeId: busStopInfo.routeId),
+            target: RouteEndpoint.getRouteStops(cityCode: String(busStopInfo.cityCode), routeId: busStopInfo.routeId),
             responseType: BusStop.self
         )
     }

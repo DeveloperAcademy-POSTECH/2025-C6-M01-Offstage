@@ -16,5 +16,6 @@ let package = Package(
     name: "OffStageApp",
     dependencies: [
         .package(url: "https://github.com/Moya/Moya.git", from: "15.0.0"),
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
     ]
 )
