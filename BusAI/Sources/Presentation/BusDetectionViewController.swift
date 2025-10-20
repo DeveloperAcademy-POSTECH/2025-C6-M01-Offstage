@@ -37,8 +37,12 @@ final class BusDetectionViewController: UIViewController {
         session.beginConfiguration()
         session.sessionPreset = .hd1280x720
 
-        guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
-              let input = try? AVCaptureDeviceInput(device: device)
+        guard let device = AVCaptureDevice.default(
+            .builtInWideAngleCamera,
+            for: .video,
+            position: .back
+        ),
+            let input = try? AVCaptureDeviceInput(device: device)
         else {
             print("Couldn't create video input")
             return
@@ -80,10 +84,18 @@ final class BusDetectionViewController: UIViewController {
 
 // MARK: - Video Delegate
 
-extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
+extension BusDetectionViewController:
+    AVCaptureVideoDataOutputSampleBufferDelegate
+{
     /// 실시간 캡쳐 Delegate
-    func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer), let request else {
+    func captureOutput(
+        _: AVCaptureOutput,
+        didOutput sampleBuffer: CMSampleBuffer,
+        from _: AVCaptureConnection
+    ) {
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer),
+              let request
+        else {
             return
         }
 
@@ -107,13 +119,18 @@ extension BusDetectionViewController {
             return
         }
 
-        request = VNCoreMLRequest(model: visionModel, completionHandler: visionRequestDidComplete)
+        request = VNCoreMLRequest(
+            model: visionModel,
+            completionHandler: visionRequestDidComplete
+        )
         request?.imageCropAndScaleOption = .scaleFit
     }
 
     /// AI 모델 결과 처리
     private func visionRequestDidComplete(request: VNRequest, error _: Error?) {
-        guard let predictions = (request.results as? [VNRecognizedObjectObservation]) else { return }
+        guard let predictions =
+            (request.results as? [VNRecognizedObjectObservation])
+        else { return }
         var finalPredictions: [VNRecognizedObjectObservation] = []
 
         for prediction in predictions {
@@ -148,7 +165,9 @@ extension BusDetectionViewController {
     }
 
     /// 바운딩박스에 맞춰 이미지 자르기
-    private func cropImage(prediction: VNRecognizedObjectObservation) -> CGImage? {
+    private func cropImage(prediction: VNRecognizedObjectObservation)
+        -> CGImage?
+    {
         guard let pixelBuffer = currentPixelBuffer else { return nil }
 
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
@@ -167,7 +186,11 @@ extension BusDetectionViewController {
         let cropRect = CGRect(x: x, y: y, width: width, height: height)
         let croppedCIImage = ciImage.cropped(to: cropRect)
 
-        guard let cgImage = context.createCGImage(croppedCIImage, from: croppedCIImage.extent) else { return nil }
+        guard let cgImage = context.createCGImage(
+            croppedCIImage,
+            from: croppedCIImage.extent
+        )
+        else { return nil }
 
         return cgImage
     }
