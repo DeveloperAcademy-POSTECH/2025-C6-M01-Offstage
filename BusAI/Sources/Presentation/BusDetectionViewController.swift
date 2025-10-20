@@ -1,4 +1,5 @@
 import AVKit
+import CoreML
 import UIKit
 import Vision
 
@@ -113,7 +114,7 @@ extension BusDetectionViewController {
     private func setupRequest() {
         let configuration = MLModelConfiguration()
 
-        guard let model = try? BusObjectDetector(configuration: configuration).model,
+        guard let model = try? loadMLModel(configuration: configuration),
               let visionModel = try? VNCoreMLModel(for: model)
         else {
             return
@@ -124,6 +125,40 @@ extension BusDetectionViewController {
             completionHandler: visionRequestDidComplete
         )
         request?.imageCropAndScaleOption = .scaleFit
+    }
+
+    private func loadMLModel(configuration: MLModelConfiguration) throws
+        -> MLModel
+    {
+        let bundle = Bundle.main
+
+        if let modelURL = bundle.url(
+            forResource: "BusObjectDetector",
+            withExtension: "mlmodelc"
+        ) {
+            return try MLModel(
+                contentsOf: modelURL,
+                configuration: configuration
+            )
+        }
+
+        guard let modelURL = bundle.url(
+            forResource: "BusObjectDetector",
+            withExtension: "mlmodel"
+        )
+        else {
+            throw NSError(
+                domain: "BusDetectionViewController",
+                code: -1,
+                userInfo: nil
+            )
+        }
+
+        let compiledURL = try MLModel.compileModel(at: modelURL)
+        return try MLModel(
+            contentsOf: compiledURL,
+            configuration: configuration
+        )
     }
 
     /// AI 모델 결과 처리
