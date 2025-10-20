@@ -76,7 +76,7 @@ let busAI = Target.target(
     bundleId: "\(organizationName).BusAI",
     infoPlist: .extendingDefault(with: baseInfoPlist),
     sources: ["BusAI/Sources/**"],
-    resources: ["BusAI/Resources/**"],
+    resources: ["BusAI/Resources/**", "BusAI/Resources/*.mlmodel"],
     scripts: [formatScript, lintScript],
     dependencies: [
         .target(name: "BusAPI"),

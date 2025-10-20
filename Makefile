@@ -99,6 +99,11 @@ gen:
 	@echo "[tuist] 프로젝트 생성"
 	@$(RUN) tuist generate
 
+## Tuist install
+install:
+	@echo "[tuist] 프로젝트 install"
+	@$(RUN) tuist install
+
 ## 생성물 정리
 clean:
 	@rm -rf Derived *.xcodeproj *.xcworkspace graph.dot
@@ -113,4 +118,5 @@ help:
 	@echo "  make format          # SwiftFormat 적용(수정 모드)"
 	@echo "  make lint            # SwiftLint 실행(보고)"
 	@echo "  make gen  # tuist generate"
+	@echo "  make install        # tuist install"
 	@echo "  make clean           # 생성물 정리 (Derived, *.xcodeproj, *.xcworkspace 등)"

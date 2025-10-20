@@ -8,10 +8,11 @@ final class BusDetectionViewController: UIViewController {
 
     private var drawingBoxesView: DrawingBoxesView?
     private var currentPixelBuffer: CVPixelBuffer?
-    
+
     let busNumberToDetect: [String] = ["1142", "0411"]
 
     // MARK: Life Cycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupRequest()
@@ -28,6 +29,7 @@ final class BusDetectionViewController: UIViewController {
     }
 
     // MARK: Functions
+
     /// 카메라 기본 설정
     private func setupCaptureSession() {
         let session = AVCaptureSession()
@@ -77,6 +79,7 @@ final class BusDetectionViewController: UIViewController {
 }
 
 // MARK: - Video Delegate
+
 extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     /// 실시간 캡쳐 Delegate
     func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
@@ -92,6 +95,7 @@ extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelega
 }
 
 // MARK: - AI 모델 관련
+
 extension BusDetectionViewController {
     /// AI 모델 요청
     private func setupRequest() {
@@ -120,7 +124,7 @@ extension BusDetectionViewController {
                 print("이미지 자르기 실패")
                 continue
             }
-            
+
             // 자른 이미지 OCR 처리하기
             OCRManager.recognizeText(from: image) { ocrText in
                 guard let ocrText else {
