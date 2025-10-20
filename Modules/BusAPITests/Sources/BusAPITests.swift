@@ -8,6 +8,7 @@ final class BusAPITests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         let plugins: [PluginType] = [
+            ServiceKeyPlugin(),
             NetworkLoggerPlugin(configuration: .init(logOptions: .verbose)),
         ]
         let provider = MoyaProvider<BusAPITarget>(plugins: plugins)

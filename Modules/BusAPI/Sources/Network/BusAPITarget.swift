@@ -3,7 +3,7 @@ import Moya
 
 public struct BusAPITarget: TargetType {
     public let endpoint: Endpoint
-    private let serviceKey: String
+    let serviceKey: String
 
     public static func make(
         _ endpoint: Endpoint,
@@ -35,7 +35,6 @@ public struct BusAPITarget: TargetType {
     public var task: Moya.Task {
         var parameters = endpoint.parameters
         parameters["_type"] = "json"
-        parameters["serviceKey"] = serviceKey
         return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
     }
 

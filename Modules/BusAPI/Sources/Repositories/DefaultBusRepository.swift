@@ -11,7 +11,14 @@ public final class DefaultBusRepository: BusRepository {
         decoder: JSONDecoder = JSONDecoder(),
         keyProvider: @escaping (BusAPIService) throws -> String = { try BusAPIKey.value(for: $0) }
     ) {
-        self.provider = provider ?? MoyaProvider<BusAPITarget>()
+        if let provider {
+            self.provider = provider
+        } else {
+            let plugins: [PluginType] = [
+                ServiceKeyPlugin(),
+            ]
+            self.provider = MoyaProvider<BusAPITarget>(plugins: plugins)
+        }
         self.decoder = decoder
         self.keyProvider = keyProvider
     }
