@@ -63,53 +63,40 @@ public struct BusLocation: Decodable, Hashable, Identifiable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        routeId = try container.decodeFlexibleString(forKey: .routeIdLower, fallbackKeys: [.routeIdUpper])
+        routeId = container.decodeOptionalFlexibleString(forKey: .routeIdLower, fallbackKeys: [.routeIdUpper]) ?? ""
+
         if let number = container.decodeOptionalFlexibleString(
             forKey: .routeNumberLower,
             fallbackKeys: [.routeNumberUpper]
         ) {
             routeNumber = number
         } else {
-            routeNumber = try container.decodeFlexibleString(
+            routeNumber = container.decodeOptionalFlexibleString(
                 forKey: .routeNumberNameLower,
                 fallbackKeys: [.routeNumberNameUpper]
-            )
+            ) ?? ""
         }
-        routeType = try container.decodeFlexibleString(forKey: .routeTypeLower, fallbackKeys: [.routeTypeUpper])
-        vehicleNumber = try container.decodeFlexibleString(
+
+        routeType = container
+            .decodeOptionalFlexibleString(forKey: .routeTypeLower, fallbackKeys: [.routeTypeUpper]) ?? ""
+        vehicleNumber = container.decodeOptionalFlexibleString(
             forKey: .vehicleLower,
             fallbackKeys: [.vehicleUpper, .vehiclePlain]
-        )
-        nodeId = try container.decodeFlexibleString(forKey: .nodeIdLower, fallbackKeys: [.nodeIdUpper])
-        nodeName = try container.decodeFlexibleString(forKey: .nodeNameLower, fallbackKeys: [.nodeNameUpper])
-        nodeOrder = try container.decodeFlexibleInt(forKey: .nodeOrderLower, fallbackKeys: [.nodeOrderUpper])
+        ) ?? ""
+        nodeId = container.decodeOptionalFlexibleString(forKey: .nodeIdLower, fallbackKeys: [.nodeIdUpper]) ?? ""
+        nodeName = container.decodeOptionalFlexibleString(forKey: .nodeNameLower, fallbackKeys: [.nodeNameUpper]) ?? ""
+        nodeOrder = container.decodeOptionalFlexibleInt(forKey: .nodeOrderLower, fallbackKeys: [.nodeOrderUpper]) ?? 0
 
-        guard let decodedLatitude = container.decodeOptionalFlexibleDouble(
+        let decodedLatitude = container.decodeOptionalFlexibleDouble(
             forKey: .latitudeLower,
             fallbackKeys: [.latitudeUpper, .latitudeY]
-        ) else {
-            throw DecodingError.valueNotFound(
-                Double.self,
-                .init(
-                    codingPath: container.codingPath,
-                    debugDescription: "Missing latitude for route location"
-                )
-            )
-        }
+        ) ?? 0
         latitude = decodedLatitude
 
-        guard let decodedLongitude = container.decodeOptionalFlexibleDouble(
+        let decodedLongitude = container.decodeOptionalFlexibleDouble(
             forKey: .longitudeLower,
             fallbackKeys: [.longitudeUpper, .longitudeX]
-        ) else {
-            throw DecodingError.valueNotFound(
-                Double.self,
-                .init(
-                    codingPath: container.codingPath,
-                    debugDescription: "Missing longitude for route location"
-                )
-            )
-        }
+        ) ?? 0
         longitude = decodedLongitude
     }
 }

@@ -3,11 +3,24 @@ import Combine
 import Foundation
 import Logging
 
+struct DTOSection: Identifiable {
+    struct Item: Identifiable {
+        let id = UUID()
+        let name: String
+        let value: String
+    }
+
+    let id = UUID()
+    let title: String
+    let items: [Item]
+}
+
 @MainActor
 final class TestViewModel: ObservableObject {
-    @Published var resultText: String = "API Response will be shown here."
+    @Published var resultText: String = "API 응답이 이 영역에 표시됩니다."
     @Published var isLoading = false
-    @Published var displayData: Any?
+    @Published var displaySections: [DTOSection]?
+    @Published var rawResponseText: String?
     @Published var busStopInfo: BusStopInfo
 
     private let locationProvider: LocationProviding
@@ -38,8 +51,9 @@ final class TestViewModel: ObservableObject {
     }
 
     func resetApiDisplay() {
-        displayData = nil
-        resultText = "API Response will be shown here."
+        displaySections = nil
+        rawResponseText = nil
+        resultText = "API 응답이 이 영역에 표시됩니다."
     }
 
     func searchStop() async {
@@ -53,8 +67,7 @@ final class TestViewModel: ObservableObject {
             )
         } onSuccess: { [weak self] stops in
             guard let self else { return }
-            displayData = stops
-            resultText = describeStops(stops)
+            updateDisplay(with: stops, title: "정류장", describe: describeStops, emptyMessage: "정류장 정보를 찾을 수 없습니다.")
         }
     }
 
@@ -69,8 +82,7 @@ final class TestViewModel: ObservableObject {
             )
         } onSuccess: { [weak self] arrivals in
             guard let self else { return }
-            displayData = arrivals
-            resultText = describeArrivals(arrivals)
+            updateDisplay(with: arrivals, title: "도착 정보", describe: describeArrivals, emptyMessage: "도착 예정 정보가 없습니다.")
         }
     }
 
@@ -86,8 +98,7 @@ final class TestViewModel: ObservableObject {
             )
         } onSuccess: { [weak self] arrivals in
             guard let self else { return }
-            displayData = arrivals
-            resultText = describeArrivals(arrivals)
+            updateDisplay(with: arrivals, title: "도착 정보", describe: describeArrivals, emptyMessage: "도착 예정 정보가 없습니다.")
         }
     }
 
@@ -103,8 +114,12 @@ final class TestViewModel: ObservableObject {
             )
         } onSuccess: { [weak self] locations in
             guard let self else { return }
-            displayData = locations
-            resultText = describeLocations(locations)
+            updateDisplay(
+                with: locations,
+                title: "차량 위치",
+                describe: describeLocations,
+                emptyMessage: "차량 위치 정보를 찾을 수 없습니다."
+            )
         }
     }
 
@@ -119,8 +134,7 @@ final class TestViewModel: ObservableObject {
             )
         } onSuccess: { [weak self] stops in
             guard let self else { return }
-            displayData = stops
-            resultText = describeStops(stops)
+            updateDisplay(with: stops, title: "정류장", describe: describeStops, emptyMessage: "정류장 정보를 찾을 수 없습니다.")
         }
     }
 
@@ -135,8 +149,7 @@ final class TestViewModel: ObservableObject {
             )
         } onSuccess: { [weak self] routes in
             guard let self else { return }
-            displayData = routes
-            resultText = describeRoutes(routes)
+            updateDisplay(with: routes, title: "노선", describe: describeRoutes, emptyMessage: "노선 정보를 찾을 수 없습니다.")
         }
     }
 
@@ -151,8 +164,13 @@ final class TestViewModel: ObservableObject {
             )
         } onSuccess: { [weak self] route in
             guard let self else { return }
-            displayData = route as Any
-            resultText = describeRoute(route)
+            let routes = route.map { [$0] } ?? []
+            updateDisplay(
+                with: routes,
+                title: "노선",
+                describe: { describeRoute($0.first) },
+                emptyMessage: "노선 정보를 찾을 수 없습니다."
+            )
         }
     }
 
@@ -167,8 +185,7 @@ final class TestViewModel: ObservableObject {
             )
         } onSuccess: { [weak self] routes in
             guard let self else { return }
-            displayData = routes
-            resultText = describeRoutes(routes)
+            updateDisplay(with: routes, title: "노선", describe: describeRoutes, emptyMessage: "노선 정보를 찾을 수 없습니다.")
         }
     }
 
@@ -183,8 +200,12 @@ final class TestViewModel: ObservableObject {
             )
         } onSuccess: { [weak self] stations in
             guard let self else { return }
-            displayData = stations
-            resultText = describeStations(stations)
+            updateDisplay(
+                with: stations,
+                title: "경유 정류장",
+                describe: describeStations,
+                emptyMessage: "경유 정류장 정보를 찾을 수 없습니다."
+            )
         }
     }
 
@@ -196,8 +217,7 @@ final class TestViewModel: ObservableObject {
             try await busRepository.fetchCities(for: .stop)
         } onSuccess: { [weak self] cities in
             guard let self else { return }
-            displayData = cities
-            resultText = describeCities(cities)
+            updateDisplay(with: cities, title: "도시 코드", describe: describeCities, emptyMessage: "도시 코드 정보를 찾을 수 없습니다.")
         }
     }
 
@@ -232,12 +252,13 @@ final class TestViewModel: ObservableObject {
         onSuccess: (Result) -> Void
     ) async {
         isLoading = true
-        resultText = "Loading..."
-        displayData = nil
+        resultText = "불러오는 중..."
+        displaySections = nil
+        rawResponseText = nil
         do {
             let result = try await operation()
             onSuccess(result)
-            logger.info("\(name) succeeded")
+            logger.info("\(name) 성공")
         } catch {
             handle(error: error, for: name)
         }
@@ -245,62 +266,123 @@ final class TestViewModel: ObservableObject {
     }
 
     private func handle(error: Error, for name: String) {
+        rawResponseText = nil
         if let busError = error as? BusAPIError {
-            resultText = "Bus API error: \(busError.localizedDescription)"
+            resultText = "버스 API 오류: \(busError.localizedDescription)"
         } else {
-            resultText = "Error: \(error.localizedDescription)"
+            resultText = "오류가 발생했습니다: \(error.localizedDescription)"
         }
-        logger.error("\(name) failed: \(error.localizedDescription)")
+        logger.error("\(name) 실패: \(error.localizedDescription)")
     }
 
     private func describeStops(_ stops: [BusStop]) -> String {
         guard let first = stops.first else {
-            return "No stops found."
+            return "정류장 정보를 찾을 수 없습니다."
         }
-        return "Found \(stops.count) stops. First: \(first.name) (\(first.nodeId))"
+        return "총 \(stops.count)개의 정류장을 받았습니다. 첫 번째 정류장: \(first.name) (\(first.nodeId))"
     }
 
     private func describeRoutes(_ routes: [BusRoute]) -> String {
         guard let first = routes.first else {
-            return "No routes found."
+            return "노선 정보를 찾을 수 없습니다."
         }
-        return "Found \(routes.count) routes. First: \(first.routeNumber) (\(first.startStopName) -> \(first.endStopName))"
+        return "총 \(routes.count)개의 노선 정보를 받았습니다. 첫 번째 노선: \(first.routeNumber) (\(first.startStopName) → \(first.endStopName))"
     }
 
     private func describeRoute(_ route: BusRoute?) -> String {
         guard let route else {
-            return "No route found."
+            return "노선 정보를 찾을 수 없습니다."
         }
-        return "\(route.routeNumber) (\(route.startStopName) -> \(route.endStopName))"
+        return "\(route.routeNumber) (\(route.startStopName) → \(route.endStopName))"
     }
 
     private func describeStations(_ stations: [BusRouteStation]) -> String {
         guard let first = stations.first else {
-            return "No stations found."
+            return "경유 정류장 정보를 찾을 수 없습니다."
         }
-        return "Found \(stations.count) stations. First: #\(first.stationOrder) \(first.stationName)"
+        return "총 \(stations.count)개의 경유 정류장을 받았습니다. 첫 번째: #\(first.stationOrder) \(first.stationName)"
     }
 
     private func describeArrivals(_ arrivals: [BusArrival]) -> String {
         guard let first = arrivals.first else {
-            return "No arrival data found."
+            return "도착 예정 정보가 없습니다."
         }
-        let remaining = first.remainingStopCount.map { "\($0) stops away" } ?? "remaining stops unavailable"
-        let eta = first.estimatedArrivalTime.map { "\($0) seconds" } ?? "ETA unavailable"
-        return "Found \(arrivals.count) arrivals. First: \(first.routeNumber) - \(remaining), \(eta)"
+        let remaining = first.remainingStopCount.map { "남은 정류장 \($0)개" } ?? "남은 정류장 정보 없음"
+        let eta = first.estimatedArrivalTime.map { "예상 도착 \($0)초" } ?? "예상 도착 정보 없음"
+        return "총 \(arrivals.count)개의 도착 정보를 받았습니다. 첫 번째: \(first.routeNumber) - \(remaining), \(eta)"
     }
 
     private func describeLocations(_ locations: [BusLocation]) -> String {
         guard let first = locations.first else {
-            return "No vehicle locations found."
+            return "차량 위치 정보를 찾을 수 없습니다."
         }
-        return "Found \(locations.count) vehicles. First near \(first.nodeName) (\(first.latitude), \(first.longitude))"
+        return "총 \(locations.count)대 차량 위치를 받았습니다. 첫 번째 차량: \(first.nodeName) 인근 (\(first.latitude), \(first.longitude))"
     }
 
     private func describeCities(_ cities: [BusCity]) -> String {
         guard let first = cities.first else {
-            return "No city codes found."
+            return "도시 코드 정보를 찾을 수 없습니다."
         }
-        return "Found \(cities.count) cities. First: \(first.name) (\(first.code))"
+        return "총 \(cities.count)개의 도시 코드를 받았습니다. 첫 번째: \(first.name) (\(first.code))"
+    }
+
+    private func makeSections(from items: [some Any], title: String) -> [DTOSection] {
+        items.enumerated().map { index, element in
+            DTOSection(
+                title: "\(title) \(index + 1)번",
+                items: makeItems(from: element)
+            )
+        }
+    }
+
+    private func makeItems(from value: Any) -> [DTOSection.Item] {
+        Mirror(reflecting: value).children.compactMap { child in
+            guard let label = child.label else { return nil }
+            let formattedValue = formatValue(child.value)
+            return DTOSection.Item(name: label, value: formattedValue)
+        }
+    }
+
+    private func formatValue(_ value: Any) -> String {
+        if let unwrapped = unwrapOptional(value) {
+            if let describable = unwrapped as? CustomStringConvertible {
+                return describable.description
+            }
+            return "\(unwrapped)"
+        } else {
+            return "nil"
+        }
+    }
+
+    private func unwrapOptional(_ value: Any) -> Any? {
+        let mirror = Mirror(reflecting: value)
+        guard mirror.displayStyle == .optional else {
+            return value
+        }
+        return mirror.children.first?.value
+    }
+
+    private func rawDump(_ value: some Any) -> String {
+        var output = ""
+        dump(value, to: &output)
+        return output
+    }
+
+    private func updateDisplay<T>(
+        with items: [T],
+        title: String,
+        describe: ([T]) -> String,
+        emptyMessage: String
+    ) {
+        guard !items.isEmpty else {
+            displaySections = nil
+            rawResponseText = nil
+            resultText = emptyMessage
+            return
+        }
+
+        displaySections = makeSections(from: items, title: title)
+        rawResponseText = rawDump(items)
+        resultText = describe(items)
     }
 }

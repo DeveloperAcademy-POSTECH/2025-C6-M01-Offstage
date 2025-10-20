@@ -1,10 +1,12 @@
 import Foundation
+import Logging
 import Moya
 
 public final class DefaultBusRepository: BusRepository {
     private let provider: MoyaProvider<BusAPITarget>
     private let decoder: JSONDecoder
     private let keyProvider: (BusAPIService) throws -> String
+    private let logger = Logger(label: "BusAPI.DefaultBusRepository")
 
     public init(
         provider: MoyaProvider<BusAPITarget>? = nil,
@@ -82,6 +84,7 @@ public final class DefaultBusRepository: BusRepository {
 
         let response: Response
         do {
+            logger.info("➡️ Request: \(target.path) params: \(endpoint.parameters)")
             response = try await provider.request(target)
         } catch let error as MoyaError {
             throw BusAPIError.network(error)
@@ -91,10 +94,20 @@ public final class DefaultBusRepository: BusRepository {
             throw BusAPIError.emptyBody
         }
 
+        if let body = String(data: response.data, encoding: .utf8) {
+            logger.info("⬅️ Response: \(target.path) status: \(response.statusCode)\n\(body)")
+        } else {
+            logger
+                .info(
+                    "⬅️ Response: \(target.path) status: \(response.statusCode) (non-UTF8 body, \(response.data.count) bytes)"
+                )
+        }
+
         let envelope: BusAPIEnvelope<Item>
         do {
             envelope = try decoder.decode(BusAPIEnvelope<Item>.self, from: response.data)
         } catch {
+            logger.error("Decoding failed for \(target.path): \(error.localizedDescription)")
             throw BusAPIError.decodingFailed(error)
         }
 
