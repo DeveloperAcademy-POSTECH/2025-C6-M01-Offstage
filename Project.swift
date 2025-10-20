@@ -14,6 +14,7 @@ let baseInfoPlist: [String: Plist.Value] = [
     "StopServiceKey": "$(STOP_SERVICE_KEY)",
     "RouteServiceKey": "$(ROUTE_SERVICE_KEY)",
     "NSLocationWhenInUseUsageDescription": "현재 위치를 기반으로 주변 정류장 정보를 제공하기 위해 위치 정보가 필요합니다.",
+    "NSCameraUsageDescription": "버스 인식을 위해 카메라 접근이 필요합니다.",
     "ITSAppUsesNonExemptEncryption": .boolean(false),
     "UIDesignRequiresCompatibility": .boolean(true),
 ]
@@ -34,7 +35,7 @@ let busAPI = Target.target(
     destinations: [.iPhone],
     product: .framework,
     bundleId: "\(organizationName).BusAPI",
-    infoPlist: .default,
+    infoPlist: .extendingDefault(with: baseInfoPlist),
     sources: ["Modules/BusAPI/Sources/**"],
     dependencies: [
         .external(name: "Moya"),
@@ -60,7 +61,9 @@ let app = Target.target(
     destinations: [.iPhone],
     product: .app,
     bundleId: "\(organizationName).App",
-    infoPlist: .extendingDefault(with: baseInfoPlist),
+    infoPlist: .extendingDefault(with: [
+        "NSCameraUsageDescription": "버스 인식을 위해 카메라 접근이 필요합니다.",
+    ]),
     sources: ["OffStageApp/Sources/**"],
     resources: ["OffStageApp/Resources/**"],
     scripts: [formatScript, lintScript],
