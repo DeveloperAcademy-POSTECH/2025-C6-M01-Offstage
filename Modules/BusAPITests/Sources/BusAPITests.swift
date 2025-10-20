@@ -3,31 +3,176 @@ import Moya
 import XCTest
 
 final class BusAPITests: XCTestCase {
-    private let provider = MoyaProvider<CityCodeTarget>(
-        plugins: [
-            ServiceKeyPlugin(),
-            NetworkLoggerPlugin(configuration: .init(logOptions: .verbose)),
-        ]
-    )
-    private let decoder = JSONDecoder()
+    private let plugins: [PluginType] = [
+        ServiceKeyPlugin(),
+        NetworkLoggerPlugin(configuration: .init(logOptions: .verbose)),
+    ]
+    private var decoder: JSONDecoder!
 
-    func testFetchCityCodeList() async throws {
-        let data = try await request(.cityCodeList)
-
-        if let rawString = String(data: data, encoding: .utf8) {
-            print("Received body:\n\(rawString)")
-        } else {
-            print("Received body is not valid UTF-8, size: \(data.count) bytes")
-        }
-
-        let cityCodes = try decoder.decode(CityCodeListResponse.self, from: data)
-
-        XCTAssertEqual(cityCodes.response.header.resultCode, "00")
-        XCTAssertFalse(cityCodes.response.body.items.item.isEmpty)
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        decoder = JSONDecoder()
     }
 
-    private func request(_ target: CityCodeTarget) async throws -> Data {
-        try await withCheckedThrowingContinuation { continuation in
+    override func tearDownWithError() throws {
+        decoder = nil
+        try super.tearDownWithError()
+    }
+
+    func test_Location_노선별버스위치_페이지() async throws {
+        let header = try await requestHeader(
+            LocationRouteListPagedTarget(
+                cityCode: Fixture.cityCode,
+                routeId: Fixture.routeId,
+                pageNo: 1,
+                numOfRows: 10
+            ),
+            attachmentName: #function
+        )
+        XCTAssertEqual(header.resultCode, "00")
+        XCTAssertFalse(header.resultMsg.isEmpty)
+    }
+
+    func test_Location_노선별버스위치_간단() async throws {
+        let header = try await requestHeader(
+            LocationEndpoint.getRouteBusLocations(
+                cityCode: Fixture.cityCode,
+                routeId: Fixture.routeId
+            ),
+            attachmentName: #function
+        )
+        XCTAssertEqual(header.resultCode, "00")
+        XCTAssertFalse(header.resultMsg.isEmpty)
+    }
+
+    func test_Stop_도시코드목록() async throws {
+        let header = try await requestHeader(
+            StopCityCodeListTarget(),
+            attachmentName: #function
+        )
+        XCTAssertEqual(header.resultCode, "00")
+        XCTAssertFalse(header.resultMsg.isEmpty)
+    }
+
+    func test_Stop_이름번호로정류소목록() async throws {
+        let header = try await requestHeader(
+            StopEndpoint.searchStop(
+                cityCode: Fixture.cityCode,
+                stopName: Fixture.nodeName
+            ),
+            attachmentName: #function
+        )
+        XCTAssertEqual(header.resultCode, "00")
+        XCTAssertFalse(header.resultMsg.isEmpty)
+    }
+
+    func test_Stop_좌표기준정류소() async throws {
+        let header = try await requestHeader(
+            StopEndpoint.getStopsByGps(
+                gpsLati: Fixture.gpsLatitude,
+                gpsLong: Fixture.gpsLongitude
+            ),
+            attachmentName: #function
+        )
+        XCTAssertEqual(header.resultCode, "00")
+        XCTAssertFalse(header.resultMsg.isEmpty)
+    }
+
+    func test_Stop_정류소경유노선목록() async throws {
+        let header = try await requestHeader(
+            StopEndpoint.getStopRoutes(
+                cityCode: Fixture.cityCode,
+                nodeId: Fixture.nodeId
+            ),
+            attachmentName: #function
+        )
+        XCTAssertEqual(header.resultCode, "00")
+        XCTAssertFalse(header.resultMsg.isEmpty)
+    }
+
+    func test_Route_노선기본정보() async throws {
+        let header = try await requestHeader(
+            RouteEndpoint.getRouteInfo(
+                cityCode: Fixture.cityCode,
+                routeId: Fixture.routeId
+            ),
+            attachmentName: #function
+        )
+        XCTAssertEqual(header.resultCode, "00")
+        XCTAssertFalse(header.resultMsg.isEmpty)
+    }
+
+    func test_Route_노선번호검색() async throws {
+        let header = try await requestHeader(
+            RouteEndpoint.searchRoute(
+                cityCode: Fixture.cityCode,
+                routeNo: Fixture.routeNo
+            ),
+            attachmentName: #function
+        )
+        XCTAssertEqual(header.resultCode, "00")
+        XCTAssertFalse(header.resultMsg.isEmpty)
+    }
+
+    func test_Route_노선통과정류장() async throws {
+        let header = try await requestHeader(
+            RouteEndpoint.getRouteStops(
+                cityCode: Fixture.cityCode,
+                routeId: Fixture.routeId
+            ),
+            attachmentName: #function
+        )
+        XCTAssertEqual(header.resultCode, "00")
+        XCTAssertFalse(header.resultMsg.isEmpty)
+    }
+
+    func test_Arrival_도시코드목록() async throws {
+        let header = try await requestHeader(
+            ArrivalCityCodeListTarget(),
+            attachmentName: #function
+        )
+        XCTAssertEqual(header.resultCode, "00")
+        XCTAssertFalse(header.resultMsg.isEmpty)
+    }
+
+    func test_Arrival_정류소전체도착정보() async throws {
+        let header = try await requestHeader(
+            ArrivalEndpoint.getArrivals(
+                cityCode: Fixture.cityCode,
+                nodeId: Fixture.nodeId
+            ),
+            attachmentName: #function
+        )
+        XCTAssertEqual(header.resultCode, "00")
+        XCTAssertFalse(header.resultMsg.isEmpty)
+    }
+
+    func test_Arrival_특정노선도착정보() async throws {
+        let header = try await requestHeader(
+            ArrivalEndpoint.getArrivalsForRoute(
+                cityCode: Fixture.cityCode,
+                nodeId: Fixture.nodeId,
+                routeId: Fixture.routeId
+            ),
+            attachmentName: #function
+        )
+        XCTAssertEqual(header.resultCode, "00")
+        XCTAssertFalse(header.resultMsg.isEmpty)
+    }
+
+    private func requestHeader(
+        _ target: some BusAPITarget,
+        attachmentName: String
+    ) async throws -> APIEnvelope.Header {
+        let data = try await executeRequest(target)
+        attachResponse(data, name: attachmentName)
+        let envelope = try decoder.decode(APIEnvelope.self, from: data)
+        return envelope.response.header
+    }
+
+    private func executeRequest<T: BusAPITarget>(_ target: T) async throws -> Data {
+        let provider = MoyaProvider<T>(plugins: plugins)
+        return try await withCheckedThrowingContinuation { continuation in
             provider.request(target) { result in
                 switch result {
                 case let .success(response):
@@ -38,22 +183,69 @@ final class BusAPITests: XCTestCase {
             }
         }
     }
+
+    private func attachResponse(_ data: Data, name: String) {
+        guard let rawString = String(data: data, encoding: .utf8) else { return }
+        let attachment = XCTAttachment(string: rawString)
+        attachment.name = name
+        attachment.lifetime = .deleteOnSuccess
+        add(attachment)
+    }
 }
 
-private enum CityCodeTarget: BusAPITarget {
-    case cityCodeList
+private enum Fixture {
+    static let cityCode = "25"
+    static let nodeId = "DJB8001793"
+    static let routeId = "DJB30300050"
+    static let nodeName = "강남"
+    static let routeNo = "102"
+    static let gpsLatitude = 35.538377
+    static let gpsLongitude = 129.31136
+}
 
-    var baseURL: URL { URL(string: "https://apis.data.go.kr/1613000")! }
+private struct APIEnvelope: Decodable {
+    let response: Response
 
-    var path: String {
-        switch self {
-        case .cityCodeList:
-            "/BusSttnInfoInqireService/getCtyCodeList"
-        }
+    struct Response: Decodable {
+        let header: Header
     }
 
-    var method: Moya.Method { .get }
-    var sampleData: Data { Data() }
+    struct Header: Decodable {
+        let resultCode: String
+        let resultMsg: String
+    }
+}
+
+private struct LocationRouteListPagedTarget: BusAPITarget {
+    let cityCode: String
+    let routeId: String
+    let pageNo: Int
+    let numOfRows: Int
+
+    var path: String {
+        "/BusLcInfoInqireService/getRouteAcctoBusLcList"
+    }
+
+    var task: Moya.Task {
+        let parameters: [String: Any] = [
+            "cityCode": cityCode,
+            "routeId": routeId,
+            "pageNo": pageNo,
+            "numOfRows": numOfRows,
+            "_type": "json",
+        ]
+        return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+    }
+
+    var serviceKey: String {
+        APIKeyProvider.locationServiceKey
+    }
+}
+
+private struct StopCityCodeListTarget: BusAPITarget {
+    var path: String {
+        "/BusSttnInfoInqireService/getCtyCodeList"
+    }
 
     var task: Moya.Task {
         let parameters: [String: Any] = [
@@ -62,36 +254,24 @@ private enum CityCodeTarget: BusAPITarget {
         return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
     }
 
-    var headers: [String: String]? {
-        ["Content-Type": "application/json"]
+    var serviceKey: String {
+        APIKeyProvider.stopServiceKey
     }
-
-    var serviceKey: String { APIKeyProvider.stopServiceKey }
 }
 
-private struct CityCodeListResponse: Decodable {
-    let response: Response
-
-    struct Response: Decodable {
-        let header: Header
-        let body: Body
+private struct ArrivalCityCodeListTarget: BusAPITarget {
+    var path: String {
+        "/ArvlInfoInqireService/getCtyCodeList"
     }
 
-    struct Header: Decodable {
-        let resultCode: String
-        let resultMsg: String
+    var task: Moya.Task {
+        let parameters: [String: Any] = [
+            "_type": "json",
+        ]
+        return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
     }
 
-    struct Body: Decodable {
-        let items: Items
-    }
-
-    struct Items: Decodable {
-        let item: [City]
-    }
-
-    struct City: Decodable {
-        let citycode: Int
-        let cityname: String
+    var serviceKey: String {
+        APIKeyProvider.arrivalServiceKey
     }
 }
