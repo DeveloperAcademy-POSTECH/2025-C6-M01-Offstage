@@ -2,33 +2,48 @@ import BusAPI
 import Combine
 import Foundation
 import Logging
-import Moya
+
+struct DTOSection: Identifiable {
+    struct Item: Identifiable {
+        let id = UUID()
+        let name: String
+        let value: String
+    }
+
+    let id = UUID()
+    let title: String
+    let items: [Item]
+}
 
 @MainActor
 final class TestViewModel: ObservableObject {
-    // API test state
-    @Published var resultText: String = "API Response will be shown here."
+    @Published var resultText: String = "API 응답이 이 영역에 표시됩니다."
     @Published var isLoading = false
-    @Published var displayData: Any?
-
-    // Dummy model for playground API calls
+    @Published var displaySections: [DTOSection]?
+    @Published var rawResponseText: String?
     @Published var busStopInfo: BusStopInfo
 
     private let locationProvider: LocationProviding
+    private let busRepository: BusRepository
     private var cancellables = Set<AnyCancellable>()
-    private let networkingApi: NetworkingService = NetworkingAPI.shared
+    private let logger = Logger(label: "TestViewModel")
 
-    init(busStopInfo: BusStopInfo? = nil, locationProvider: LocationProviding = LocationManager()) {
+    init(
+        busStopInfo: BusStopInfo? = nil,
+        locationProvider: LocationProviding = LocationManager(),
+        busRepository: BusRepository = DefaultBusRepository()
+    ) {
         self.busStopInfo = busStopInfo ?? BusStopInfo(
-            cityCode: 25, // Daejeon
-            nodeId: "DJB8001793", // Daejeon Station Stop
-            routeId: "DJB30300002", // Route 2
+            cityCode: 25,
+            nodeId: "DJB8001793",
+            routeId: "DJB30300002",
             stopName: "대전역",
             routeNo: "102",
-            gpsLati: 0, // Initial value, will be updated by location services
+            gpsLati: 0,
             gpsLong: 0
         )
         self.locationProvider = locationProvider
+        self.busRepository = busRepository
     }
 
     func onAppear() {
@@ -36,39 +51,174 @@ final class TestViewModel: ObservableObject {
     }
 
     func resetApiDisplay() {
-        displayData = nil
-        resultText = "API Response will be shown here."
+        displaySections = nil
+        rawResponseText = nil
+        resultText = "API 응답이 이 영역에 표시됩니다."
     }
 
-    func performRequest<T: Codable>(target: TargetType, responseType _: T.Type) async {
-        isLoading = true
-        resultText = "Loading..."
-        displayData = nil
-
-        do {
-            let (response, rawData): (ApiResponse<ItemBody<T>>, Data) = try await networkingApi.request(
-                target: target,
-                responseType: ApiResponse<ItemBody<T>>.self
+    func searchStop() async {
+        logger.info("searchStop() called")
+        await performRequest(
+            name: "Stop search"
+        ) {
+            try await busRepository.searchStops(
+                cityCode: String(busStopInfo.cityCode),
+                keyword: busStopInfo.stopName
             )
-            if let firstItem = response.response.body?.items.item.first {
-                displayData = firstItem
-                logInfo("Successfully parsed item: \(String(describing: firstItem))")
-                if let rawString = String(data: rawData, encoding: .utf8) {
-                    logDebug("Raw response for successful parse: \(rawString)")
-                }
-                resultText = ""
-            } else {
-                let rawString = String(data: rawData, encoding: .utf8) ?? "Could not convert data to string"
-                resultText = "No items in response.\n\nRaw Response:\n\(rawString)"
-            }
-        } catch let NetworkError.decodingError(error, data) {
-            let dataString = String(data: data, encoding: .utf8) ?? "Could not convert data to string"
-            resultText = "Decoding Error: \(error.localizedDescription)\n\nRaw Response:\n\(dataString)"
-        } catch {
-            resultText = "Error: \(error.localizedDescription)"
+        } onSuccess: { [weak self] stops in
+            guard let self else { return }
+            updateDisplay(with: stops, title: "정류장", describe: describeStops, emptyMessage: "정류장 정보를 찾을 수 없습니다.")
         }
+    }
 
-        isLoading = false
+    func getArrivals() async {
+        logger.info("getArrivals() called")
+        await performRequest(
+            name: "Stop arrivals"
+        ) {
+            try await busRepository.fetchStopArrivals(
+                cityCode: String(busStopInfo.cityCode),
+                nodeId: busStopInfo.nodeId
+            )
+        } onSuccess: { [weak self] arrivals in
+            guard let self else { return }
+            updateDisplay(with: arrivals, title: "도착 정보", describe: describeArrivals, emptyMessage: "도착 예정 정보가 없습니다.")
+        }
+    }
+
+    func getArrivalsForRoute() async {
+        logger.info("getArrivalsForRoute() called")
+        await performRequest(
+            name: "Route-specific arrivals"
+        ) {
+            try await busRepository.fetchRouteArrivals(
+                cityCode: String(busStopInfo.cityCode),
+                nodeId: busStopInfo.nodeId,
+                routeId: busStopInfo.routeId
+            )
+        } onSuccess: { [weak self] arrivals in
+            guard let self else { return }
+            updateDisplay(with: arrivals, title: "도착 정보", describe: describeArrivals, emptyMessage: "도착 예정 정보가 없습니다.")
+        }
+    }
+
+    func getRouteBusLocations() async {
+        logger.info("getRouteBusLocations() called")
+        await performRequest(
+            name: "Route vehicle locations"
+        ) {
+            try await busRepository.fetchRouteLocations(
+                cityCode: String(busStopInfo.cityCode),
+                routeId: busStopInfo.routeId,
+                page: nil
+            )
+        } onSuccess: { [weak self] locations in
+            guard let self else { return }
+            updateDisplay(
+                with: locations,
+                title: "차량 위치",
+                describe: describeLocations,
+                emptyMessage: "차량 위치 정보를 찾을 수 없습니다."
+            )
+        }
+    }
+
+    func getStopsByGPS() async {
+        logger.info("getStopsByGPS() called")
+        await performRequest(
+            name: "Nearby stops"
+        ) {
+            try await busRepository.fetchStopsNearby(
+                latitude: busStopInfo.gpsLati,
+                longitude: busStopInfo.gpsLong
+            )
+        } onSuccess: { [weak self] stops in
+            guard let self else { return }
+            updateDisplay(with: stops, title: "정류장", describe: describeStops, emptyMessage: "정류장 정보를 찾을 수 없습니다.")
+        }
+    }
+
+    func getStopRoutes() async {
+        logger.info("getStopRoutes() called")
+        await performRequest(
+            name: "Routes by stop"
+        ) {
+            try await busRepository.fetchRoutesPassingThroughStop(
+                cityCode: String(busStopInfo.cityCode),
+                nodeId: busStopInfo.nodeId
+            )
+        } onSuccess: { [weak self] routes in
+            guard let self else { return }
+            updateDisplay(with: routes, title: "노선", describe: describeRoutes, emptyMessage: "노선 정보를 찾을 수 없습니다.")
+        }
+    }
+
+    func getRouteInfo() async {
+        logger.info("getRouteInfo() called")
+        await performRequest(
+            name: "Route info"
+        ) {
+            try await busRepository.fetchRouteInfo(
+                cityCode: String(busStopInfo.cityCode),
+                routeId: busStopInfo.routeId
+            )
+        } onSuccess: { [weak self] route in
+            guard let self else { return }
+            let routes = route.map { [$0] } ?? []
+            updateDisplay(
+                with: routes,
+                title: "노선",
+                describe: { describeRoute($0.first) },
+                emptyMessage: "노선 정보를 찾을 수 없습니다."
+            )
+        }
+    }
+
+    func searchRoute() async {
+        logger.info("searchRoute() called")
+        await performRequest(
+            name: "Route number search"
+        ) {
+            try await busRepository.searchRoutes(
+                cityCode: String(busStopInfo.cityCode),
+                routeNumber: busStopInfo.routeNo
+            )
+        } onSuccess: { [weak self] routes in
+            guard let self else { return }
+            updateDisplay(with: routes, title: "노선", describe: describeRoutes, emptyMessage: "노선 정보를 찾을 수 없습니다.")
+        }
+    }
+
+    func getRouteStops() async {
+        logger.info("getRouteStops() called")
+        await performRequest(
+            name: "Route stations"
+        ) {
+            try await busRepository.fetchRouteStations(
+                cityCode: String(busStopInfo.cityCode),
+                routeId: busStopInfo.routeId
+            )
+        } onSuccess: { [weak self] stations in
+            guard let self else { return }
+            updateDisplay(
+                with: stations,
+                title: "경유 정류장",
+                describe: describeStations,
+                emptyMessage: "경유 정류장 정보를 찾을 수 없습니다."
+            )
+        }
+    }
+
+    func getStopCities() async {
+        logger.info("getStopCities() called")
+        await performRequest(
+            name: "Stop city codes"
+        ) {
+            try await busRepository.fetchCities(for: .stop)
+        } onSuccess: { [weak self] cities in
+            guard let self else { return }
+            updateDisplay(with: cities, title: "도시 코드", describe: describeCities, emptyMessage: "도시 코드 정보를 찾을 수 없습니다.")
+        }
     }
 
     private func subscribeLocation() {
@@ -77,10 +227,9 @@ final class TestViewModel: ObservableObject {
 
         locationProvider.currentLocation
             .receive(on: RunLoop.main)
-            .sink {
-                if case let .failure(error) = $0 {
-                    // TODO: Surface error to UI when design is ready.
-                    logError("Location error: \(error)")
+            .sink { [weak self] completion in
+                if case let .failure(error) = completion {
+                    self?.logger.error("Location error: \(error.localizedDescription)")
                 }
             } receiveValue: { [weak self] coordinate in
                 guard let self else { return }
@@ -97,82 +246,143 @@ final class TestViewModel: ObservableObject {
             .store(in: &cancellables)
     }
 
-    func searchStop() async {
-        logInfo("searchStop() called")
-        await performRequest(
-            target: StopEndpoint.searchStop(cityCode: String(busStopInfo.cityCode), stopName: busStopInfo.stopName),
-            responseType: BusStop.self
-        )
+    private func performRequest<Result>(
+        name: String,
+        operation: () async throws -> Result,
+        onSuccess: (Result) -> Void
+    ) async {
+        isLoading = true
+        resultText = "불러오는 중..."
+        displaySections = nil
+        rawResponseText = nil
+        do {
+            let result = try await operation()
+            onSuccess(result)
+            logger.info("\(name) 성공")
+        } catch {
+            handle(error: error, for: name)
+        }
+        isLoading = false
     }
 
-    func getArrivals() async {
-        logInfo("getArrivals() called")
-        await performRequest(
-            target: ArrivalEndpoint.getArrivals(cityCode: String(busStopInfo.cityCode), nodeId: busStopInfo.nodeId),
-            responseType: BusArrivalInfo.self
-        )
+    private func handle(error: Error, for name: String) {
+        rawResponseText = nil
+        if let busError = error as? BusAPIError {
+            resultText = "버스 API 오류: \(busError.localizedDescription)"
+        } else {
+            resultText = "오류가 발생했습니다: \(error.localizedDescription)"
+        }
+        logger.error("\(name) 실패: \(error.localizedDescription)")
     }
 
-    func getArrivalsForRoute() async {
-        logInfo("getArrivalsForRoute() called")
-        await performRequest(
-            target: ArrivalEndpoint.getArrivalsForRoute(
-                cityCode: String(busStopInfo.cityCode),
-                nodeId: busStopInfo.nodeId,
-                routeId: busStopInfo.routeId
-            ),
-            responseType: BusArrivalInfo.self
-        )
+    private func describeStops(_ stops: [BusStop]) -> String {
+        guard let first = stops.first else {
+            return "정류장 정보를 찾을 수 없습니다."
+        }
+        return "총 \(stops.count)개의 정류장을 받았습니다. 첫 번째 정류장: \(first.name) (\(first.nodeId))"
     }
 
-    func getRouteBusLocations() async {
-        logInfo("getRouteBusLocations() called")
-        await performRequest(
-            target: LocationEndpoint.getRouteBusLocations(
-                cityCode: String(busStopInfo.cityCode),
-                routeId: busStopInfo.routeId
-            ),
-            responseType: BusLocation.self
-        )
+    private func describeRoutes(_ routes: [BusRoute]) -> String {
+        guard let first = routes.first else {
+            return "노선 정보를 찾을 수 없습니다."
+        }
+        return "총 \(routes.count)개의 노선 정보를 받았습니다. 첫 번째 노선: \(first.routeNumber) (\(first.startStopName) → \(first.endStopName))"
     }
 
-    func getStopsByGPS() async {
-        logInfo("getStopsByGPS() called")
-        await performRequest(
-            target: StopEndpoint.getStopsByGps(gpsLati: busStopInfo.gpsLati, gpsLong: busStopInfo.gpsLong),
-            responseType: BusStop.self
-        )
+    private func describeRoute(_ route: BusRoute?) -> String {
+        guard let route else {
+            return "노선 정보를 찾을 수 없습니다."
+        }
+        return "\(route.routeNumber) (\(route.startStopName) → \(route.endStopName))"
     }
 
-    func getStopRoutes() async {
-        logInfo("getStopRoutes() called")
-        await performRequest(
-            target: StopEndpoint.getStopRoutes(cityCode: String(busStopInfo.cityCode), nodeId: busStopInfo.nodeId),
-            responseType: StationRoute.self
-        )
+    private func describeStations(_ stations: [BusRouteStation]) -> String {
+        guard let first = stations.first else {
+            return "경유 정류장 정보를 찾을 수 없습니다."
+        }
+        return "총 \(stations.count)개의 경유 정류장을 받았습니다. 첫 번째: #\(first.stationOrder) \(first.stationName)"
     }
 
-    func getRouteInfo() async {
-        logInfo("getRouteInfo() called")
-        await performRequest(
-            target: RouteEndpoint.getRouteInfo(cityCode: String(busStopInfo.cityCode), routeId: busStopInfo.routeId),
-            responseType: BusRoute.self
-        )
+    private func describeArrivals(_ arrivals: [BusArrival]) -> String {
+        guard let first = arrivals.first else {
+            return "도착 예정 정보가 없습니다."
+        }
+        let remaining = first.remainingStopCount.map { "남은 정류장 \($0)개" } ?? "남은 정류장 정보 없음"
+        let eta = first.estimatedArrivalTime.map { "예상 도착 \($0)초" } ?? "예상 도착 정보 없음"
+        return "총 \(arrivals.count)개의 도착 정보를 받았습니다. 첫 번째: \(first.routeNumber) - \(remaining), \(eta)"
     }
 
-    func searchRoute() async {
-        logInfo("searchRoute() called")
-        await performRequest(
-            target: RouteEndpoint.searchRoute(cityCode: String(busStopInfo.cityCode), routeNo: busStopInfo.routeNo),
-            responseType: BusRoute.self
-        )
+    private func describeLocations(_ locations: [BusLocation]) -> String {
+        guard let first = locations.first else {
+            return "차량 위치 정보를 찾을 수 없습니다."
+        }
+        return "총 \(locations.count)대 차량 위치를 받았습니다. 첫 번째 차량: \(first.nodeName) 인근 (\(first.latitude), \(first.longitude))"
     }
 
-    func getRouteStops() async {
-        logInfo("getRouteStops() called")
-        await performRequest(
-            target: RouteEndpoint.getRouteStops(cityCode: String(busStopInfo.cityCode), routeId: busStopInfo.routeId),
-            responseType: BusStop.self
-        )
+    private func describeCities(_ cities: [BusCity]) -> String {
+        guard let first = cities.first else {
+            return "도시 코드 정보를 찾을 수 없습니다."
+        }
+        return "총 \(cities.count)개의 도시 코드를 받았습니다. 첫 번째: \(first.name) (\(first.code))"
+    }
+
+    private func makeSections(from items: [some Any], title: String) -> [DTOSection] {
+        items.enumerated().map { index, element in
+            DTOSection(
+                title: "\(title) \(index + 1)번",
+                items: makeItems(from: element)
+            )
+        }
+    }
+
+    private func makeItems(from value: Any) -> [DTOSection.Item] {
+        Mirror(reflecting: value).children.compactMap { child in
+            guard let label = child.label else { return nil }
+            let formattedValue = formatValue(child.value)
+            return DTOSection.Item(name: label, value: formattedValue)
+        }
+    }
+
+    private func formatValue(_ value: Any) -> String {
+        if let unwrapped = unwrapOptional(value) {
+            if let describable = unwrapped as? CustomStringConvertible {
+                return describable.description
+            }
+            return "\(unwrapped)"
+        } else {
+            return "nil"
+        }
+    }
+
+    private func unwrapOptional(_ value: Any) -> Any? {
+        let mirror = Mirror(reflecting: value)
+        guard mirror.displayStyle == .optional else {
+            return value
+        }
+        return mirror.children.first?.value
+    }
+
+    private func rawDump(_ value: some Any) -> String {
+        var output = ""
+        dump(value, to: &output)
+        return output
+    }
+
+    private func updateDisplay<T>(
+        with items: [T],
+        title: String,
+        describe: ([T]) -> String,
+        emptyMessage: String
+    ) {
+        guard !items.isEmpty else {
+            displaySections = nil
+            rawResponseText = nil
+            resultText = emptyMessage
+            return
+        }
+
+        displaySections = makeSections(from: items, title: title)
+        rawResponseText = rawDump(items)
+        resultText = describe(items)
     }
 }

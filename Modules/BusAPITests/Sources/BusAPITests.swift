@@ -3,95 +3,116 @@ import Moya
 import XCTest
 
 final class BusAPITests: XCTestCase {
-    private let provider = MoyaProvider<CityCodeTarget>(
-        plugins: [
+    private var repository: DefaultBusRepository!
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        let plugins: [PluginType] = [
             ServiceKeyPlugin(),
             NetworkLoggerPlugin(configuration: .init(logOptions: .verbose)),
         ]
-    )
-    private let decoder = JSONDecoder()
-
-    func testFetchCityCodeList() async throws {
-        let data = try await request(.cityCodeList)
-
-        if let rawString = String(data: data, encoding: .utf8) {
-            print("Received body:\n\(rawString)")
-        } else {
-            print("Received body is not valid UTF-8, size: \(data.count) bytes")
-        }
-
-        let cityCodes = try decoder.decode(CityCodeListResponse.self, from: data)
-
-        XCTAssertEqual(cityCodes.response.header.resultCode, "00")
-        XCTAssertFalse(cityCodes.response.body.items.item.isEmpty)
+        let provider = MoyaProvider<BusAPITarget>(plugins: plugins)
+        repository = DefaultBusRepository(provider: provider)
     }
 
-    private func request(_ target: CityCodeTarget) async throws -> Data {
-        try await withCheckedThrowingContinuation { continuation in
-            provider.request(target) { result in
-                switch result {
-                case let .success(response):
-                    continuation.resume(returning: response.data)
-                case let .failure(error):
-                    continuation.resume(throwing: error)
-                }
-            }
+    override func tearDownWithError() throws {
+        repository = nil
+        try super.tearDownWithError()
+    }
+
+    func testFetchStopCities() async throws {
+        try requireKeys(.stop)
+        let cities = try await repository.fetchCities(for: .stop)
+        XCTAssertFalse(cities.isEmpty)
+        attachSummary(of: cities, name: #function)
+    }
+
+    func testFetchRouteLocations() async throws {
+        try requireKeys(.location)
+        let locations = try await repository.fetchRouteLocations(
+            cityCode: Fixture.cityCode,
+            routeId: Fixture.routeId,
+            page: 1
+        )
+        XCTAssertFalse(locations.isEmpty)
+        attachSummary(of: locations, name: #function)
+    }
+
+    func testSearchStops() async throws {
+        try requireKeys(.stop)
+        let stops = try await repository.searchStops(
+            cityCode: Fixture.cityCode,
+            keyword: Fixture.nodeName
+        )
+        XCTAssertFalse(stops.isEmpty)
+        attachSummary(of: stops, name: #function)
+    }
+
+    func testFetchRouteInfo() async throws {
+        try requireKeys(.route)
+        let route = try await repository.fetchRouteInfo(
+            cityCode: Fixture.cityCode,
+            routeId: Fixture.routeId
+        )
+        XCTAssertNotNil(route)
+        attachSummary(of: [route].compactMap { $0 }, name: #function)
+    }
+
+    func testFetchRouteStations() async throws {
+        try requireKeys(.route)
+        let stations = try await repository.fetchRouteStations(
+            cityCode: Fixture.cityCode,
+            routeId: Fixture.routeId
+        )
+        XCTAssertFalse(stations.isEmpty)
+        attachSummary(of: stations, name: #function)
+    }
+
+    func testFetchStopArrivals() async throws {
+        try requireKeys(.arrival)
+        let arrivals = try await repository.fetchStopArrivals(
+            cityCode: Fixture.cityCode,
+            nodeId: Fixture.nodeId
+        )
+        XCTAssertFalse(arrivals.isEmpty)
+        attachSummary(of: arrivals, name: #function)
+    }
+
+    func testFetchRouteArrivals() async throws {
+        try requireKeys(.arrival)
+        let arrivals = try await repository.fetchRouteArrivals(
+            cityCode: Fixture.cityCode,
+            nodeId: Fixture.nodeId,
+            routeId: Fixture.routeId
+        )
+        XCTAssertFalse(arrivals.isEmpty)
+        attachSummary(of: arrivals, name: #function)
+    }
+
+    private func requireKeys(
+        _ services: BusAPIService...,
+        file _: StaticString = #filePath,
+        line _: UInt = #line
+    ) throws {
+        let missing = services.filter { !BusAPIKey.isConfigured(for: $0) }
+        guard missing.isEmpty else {
+            let description = missing.map(\.infoPlistKey).joined(separator: ", ")
+            throw XCTSkip("Missing Bus API keys: \(description)")
         }
+    }
+
+    private func attachSummary(of items: [some Any], name: String) {
+        let summary = "\(name): count=\(items.count)"
+        let attachment = XCTAttachment(string: summary)
+        attachment.name = name
+        attachment.lifetime = .deleteOnSuccess
+        add(attachment)
     }
 }
 
-private enum CityCodeTarget: BusAPITarget {
-    case cityCodeList
-
-    var baseURL: URL { URL(string: "https://apis.data.go.kr/1613000")! }
-
-    var path: String {
-        switch self {
-        case .cityCodeList:
-            "/BusSttnInfoInqireService/getCtyCodeList"
-        }
-    }
-
-    var method: Moya.Method { .get }
-    var sampleData: Data { Data() }
-
-    var task: Moya.Task {
-        let parameters: [String: Any] = [
-            "_type": "json",
-        ]
-        return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
-    }
-
-    var headers: [String: String]? {
-        ["Content-Type": "application/json"]
-    }
-
-    var serviceKey: String { APIKeyProvider.stopServiceKey }
-}
-
-private struct CityCodeListResponse: Decodable {
-    let response: Response
-
-    struct Response: Decodable {
-        let header: Header
-        let body: Body
-    }
-
-    struct Header: Decodable {
-        let resultCode: String
-        let resultMsg: String
-    }
-
-    struct Body: Decodable {
-        let items: Items
-    }
-
-    struct Items: Decodable {
-        let item: [City]
-    }
-
-    struct City: Decodable {
-        let citycode: Int
-        let cityname: String
-    }
+private enum Fixture {
+    static let cityCode = "25"
+    static let nodeId = "DJB8001793"
+    static let routeId = "DJB30300050"
+    static let nodeName = "강남"
 }

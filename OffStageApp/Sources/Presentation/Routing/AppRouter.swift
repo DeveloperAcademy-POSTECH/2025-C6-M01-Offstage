@@ -19,8 +19,8 @@ enum AppRoute: Routable {
         case let .search(busStopInfo):
             SearchView(busStopInfo: busStopInfo)
 
-        case let .busstation(busStopInfo):
-            BusStationView(busStopInfo: busStopInfo)
+        case .busstation:
+            BusStationView()
 
         case .busvision:
             BusVisionView()

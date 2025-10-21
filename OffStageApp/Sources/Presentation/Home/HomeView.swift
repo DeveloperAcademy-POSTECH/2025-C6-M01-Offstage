@@ -123,14 +123,15 @@ struct HomeView: View {
 
     // Create a sample bus stop info object to pass as a parameter
     private let sampleBusStop = BusStopInfo(
-        cityCode: 25,
-        nodeId: "DGB7021025800",
-        routeId: "DGB30000007000",
-        stopName: "경북대학교북문앞",
-        routeNo: "719",
-        gpsLati: 35.89294,
-        gpsLong: 128.61042,
+        cityCode: 31020,
+        nodeId: "GGB204000163",
+        routeId: "GGB204000163",
+        stopName: "판교",
+        routeNo: "102",
+        gpsLati: 37.394726159,
+        gpsLong: 127.1112090472
     )
+
     @State private var searchText = ""
 
     var body: some View {
