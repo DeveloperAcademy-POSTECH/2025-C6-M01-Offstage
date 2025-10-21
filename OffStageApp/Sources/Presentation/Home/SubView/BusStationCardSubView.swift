@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct BusStationCardSubView: View {
+    @EnvironmentObject var router: Router<AppRoute>
     let stationSempleItem: BusStationData
     // 더미파일(실제 데이터 넣을 때는 삭제)
     @State private var isNotificationOn = false
@@ -27,7 +28,22 @@ struct BusStationCardSubView: View {
                         .foregroundColor(.gray)
                 }
             }
-            .padding()
+            .padding([.top, .leading, .trailing])
+
+            if isNotificationOn == true {
+                Button {
+                    router.push(.busvision)
+                } label: {
+                    Text("나의 버스 추가하기")
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(10)
+                }
+                .padding()
+            }
+
             BusRouteListSubView(buses: stationSempleItem.busRoutes)
         }
         .background(.gray.opacity(0.1))
