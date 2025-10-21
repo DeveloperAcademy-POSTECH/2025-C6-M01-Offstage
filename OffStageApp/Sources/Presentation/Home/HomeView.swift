@@ -210,6 +210,7 @@ struct HomeView: View {
                     Button("비전 버스 켜기") {
                         router.push(.busvision)
                     }
+                    Spacer()
                 }
                 .padding([.top, .leading, .trailing])
             }
