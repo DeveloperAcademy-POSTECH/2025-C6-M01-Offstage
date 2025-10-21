@@ -4,28 +4,49 @@ import SwiftUI
 struct SearchView: View {
     @EnvironmentObject var router: Router<AppRoute>
     let busStopInfo: BusStopInfo
+    let busStops = BusStopForSearch.sampleBusStop
+    @State private var name = ""
 
     var body: some View {
-        VStack(spacing: 16) {
-            Text("버스 검색 화면")
-                .font(.largeTitle)
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading) {
+                    VStack {
+                        Text("주변 정류장")
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.horizontal, 16)
 
-            Text("전달받은 정류소: \(busStopInfo.stopName)")
-
-            Button("버스 정류장 상세 보기") {
-                router.push(.busstation(busStopInfo: busStopInfo))
-            }
-
-            Button("이전 화면으로 돌아가기 (pop)") {
-                router.pop()
-            }
-
-            Button("홈으로 돌아가기 (popToRoot)") {
-                router.popToRoot()
+                    VStack(spacing: 0) {
+                        ForEach(busStops) { busStop in
+                            Button(action: {
+                                router.push(.busstation(busStopInfo: busStopInfo))
+                            }) {
+                                SearchResultsView(busStop: busStop)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                        Divider()
+                            .overlay(Color.gray.opacity(0.2))
+                    }
+                }
+                .padding(.horizontal, 16)
+                .navigationBarItems(leading:
+                    Button(action: {
+                        router.popToRoot()
+                    }, label: {
+                        Image(systemName: "chevron.left")
+                    })
+                )
+                .toolbar {
+                    ToolbarItem(placement: .principal) { // 툴바 항목 배치
+                        TextField("검색...", text: $name)
+                            .textFieldStyle(RoundedBorderTextFieldStyle()) // 텍스트 필드 스타일
+                            .padding(.vertical, 4) // 좌우 여백 추가
+                    }
+                }
             }
         }
-        .padding()
-        .navigationTitle("Bus Search")
     }
 }
 
