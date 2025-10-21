@@ -195,6 +195,21 @@ struct HomeView: View {
                             }
                         }
                     }
+                    Button("버스 검색으로 이동") {
+                        router.push(.search(busStopInfo: sampleBusStop))
+                    }
+                    
+                    Button("버스 정류장으로 이동 (데이터 전달)") {
+                        router.push(.busstation(busStopInfo: sampleBusStop))
+                    }
+                    
+                    Button("TestView로 이동 (데이터 전달)") {
+                        router.push(.test(busStopInfo: sampleBusStop))
+                    }
+                    
+                    Button("비전 버스 켜기") {
+                        router.push(.busvision)
+                    }
                 }
                 .padding([.top, .leading, .trailing])
             }
