@@ -10,7 +10,7 @@ struct SearchView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack (alignment: .leading) {
+                VStack(alignment: .leading) {
                     VStack {
                         Text("주변 정류장")
                             .foregroundColor(.gray)
@@ -18,7 +18,6 @@ struct SearchView: View {
                     .padding(.horizontal, 16)
 
                     VStack(spacing: 0) {
-
                         ForEach(busStops) { busStop in
                             Button(action: {
                                 router.push(.busstation(busStopInfo: busStopInfo))
@@ -30,7 +29,6 @@ struct SearchView: View {
                         Divider()
                             .overlay(Color.gray.opacity(0.2))
                     }
-                    
                 }
                 .padding(.horizontal, 16)
                 .navigationBarItems(leading:
@@ -47,7 +45,6 @@ struct SearchView: View {
                             .padding(.vertical, 4) // 좌우 여백 추가
                     }
                 }
-                
             }
         }
     }
