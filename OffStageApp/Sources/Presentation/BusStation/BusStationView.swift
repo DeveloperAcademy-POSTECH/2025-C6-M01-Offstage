@@ -47,12 +47,12 @@ struct BusStationView: View {
         .navigationBarItems(
             leading:
             Button(action: {
-                router.popToRoot()
+                router.pop()
             }, label: {
                 Image(systemName: "chevron.left")
             }),
             trailing: Button(action: {
-                router.pop()
+                router.popToRoot()
             }, label: {
                 Image(systemName: "house")
             })
