@@ -28,7 +28,7 @@ struct BusStationCardSubView: View {
                 }
             }
             .padding()
-            BusRouteListSubView()
+            BusRouteListSubView(buses: stationSempleItem.busRoutes)
         }
         .background(.gray.opacity(0.1))
         .cornerRadius(15)

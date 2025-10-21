@@ -6,22 +6,24 @@ import SwiftUI
 // 버스 데이터
 @Model
 class BusSampleData {
-    var id: UUID
+    var id: UUID = UUID()
     var routeNumber: String
     var endnodenm: String
     var arrivalMinutes1: Int
     var arrivalMinutes2: Int
     var stopsAway1: Int
     var stopsAway2: Int
+    var stationNumber: String
 
     init(
-        id: UUID,
+        id: UUID = UUID(),
         routeNumber: String,
         endnodenm: String,
         arrivalMinutes1: Int,
         arrivalMinutes2: Int,
         stopsAway1: Int,
-        stopsAway2: Int
+        stopsAway2: Int,
+        stationNumber: String
     ) {
         self.id = id
         self.routeNumber = routeNumber
@@ -30,6 +32,7 @@ class BusSampleData {
         self.arrivalMinutes2 = arrivalMinutes2
         self.stopsAway1 = stopsAway1
         self.stopsAway2 = stopsAway2
+        self.stationNumber = stationNumber
     }
 }
 
@@ -64,7 +67,8 @@ let busSampleData: [BusSampleData] = [
         arrivalMinutes1: 480,
         arrivalMinutes2: 1320,
         stopsAway1: 2,
-        stopsAway2: 13
+        stopsAway2: 13,
+        stationNumber: "12341234"
     ),
     BusSampleData(
         id: UUID(),
@@ -73,7 +77,28 @@ let busSampleData: [BusSampleData] = [
         arrivalMinutes1: 470,
         arrivalMinutes2: 1310,
         stopsAway1: 1,
-        stopsAway2: 12
+        stopsAway2: 12,
+        stationNumber: "12341234"
+    ),
+    BusSampleData(
+        id: UUID(),
+        routeNumber: "212",
+        endnodenm: "효자시장방면",
+        arrivalMinutes1: 470,
+        arrivalMinutes2: 1310,
+        stopsAway1: 1,
+        stopsAway2: 12,
+        stationNumber: "12312312"
+    ),
+    BusSampleData(
+        id: UUID(),
+        routeNumber: "212",
+        endnodenm: "효자시장방면",
+        arrivalMinutes1: 470,
+        arrivalMinutes2: 1310,
+        stopsAway1: 1,
+        stopsAway2: 12,
+        stationNumber: "12312312"
     ),
 ]
 // 더미 데이터
@@ -83,12 +108,13 @@ let busStationData: [BusStationData] = [
         stationName: "포항공과대학교",
         stationNumber: "12341234",
         busRoutes: busSampleData
+            .filter { $0.stationNumber == "12341234" }
     ),
     BusStationData(
         id: UUID(),
         stationName: "효자시장",
         stationNumber: "12312312",
-        busRoutes: busSampleData
+        busRoutes: busSampleData.filter { $0.stationNumber == "12312312" }
     ),
 ]
 
@@ -159,6 +185,7 @@ struct HomeView: View {
                     } else {
                         ScrollView {
                             ForEach(busStationData) { station in
+                                //정류소 번호를 전달(버스 필터링용)
                                 BusStationCardSubView(stationSempleItem: station)
                             }
                             .padding(.bottom)
@@ -168,26 +195,24 @@ struct HomeView: View {
                             }
                         }
                     }
-
-//                    Button("버스 검색으로 이동") {
-//                        router.push(.search(busStopInfo: sampleBusStop))
-//                    }
-//
-//                    Button("버스 정류장으로 이동 (데이터 전달)") {
-//                        router.push(.busstation(busStopInfo: sampleBusStop))
-//                    }
-//
-//                    Button("TestView로 이동 (데이터 전달)") {
-//                        router.push(.test(busStopInfo: sampleBusStop))
-//                    }
-//
-//                    Button("비전 버스 켜기") {
-//                        router.push(.busvision)
-//                    }
                 }
                 .padding([.top, .leading, .trailing])
-
-//                Spacer()
+                //Button("버스 검색으로 이동") {
+                //                        router.push(.search(busStopInfo: sampleBusStop))
+                //                    }
+                //
+                //Button("버스 정류장으로 이동 (데이터 전달)") {
+                //                        router.push(.busstation(busStopInfo: sampleBusStop))
+                //                    }
+                //
+                //Button("TestView로 이동 (데이터 전달)") {
+                //                        router.push(.test(busStopInfo: sampleBusStop))
+                //                    }
+                //
+                //Button("비전 버스 켜기") {
+                //                        router.push(.busvision)
+                //                    }
+                //                Spacer()
             }
         }
     }
