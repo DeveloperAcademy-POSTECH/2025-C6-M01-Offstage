@@ -34,7 +34,7 @@ struct BusStationCardSubView: View {
                 Button {
                     router.push(.busvision)
                 } label: {
-                    Text("나의 버스 추가하기")
+                    Text("\(Image(systemName: "camera")) 버스 인식하기")
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
