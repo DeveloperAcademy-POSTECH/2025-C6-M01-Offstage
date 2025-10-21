@@ -3,31 +3,39 @@ import SwiftUI
 
 struct SearchView: View {
     @EnvironmentObject var router: Router<AppRoute>
-    let busStopInfo: BusStopInfo
-    let busStops = BusStopForSearch.sampleBusStop
-    @State private var name = ""
+    @StateObject private var viewModel: SearchViewModel
+
+    init(viewModel: SearchViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
 
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading) {
-                    VStack {
-                        Text("주변 정류장")
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.horizontal, 16)
+                    Text("주변 정류장")
+                        .foregroundColor(.gray)
+                        .padding(.horizontal, 16)
 
-                    VStack(spacing: 0) {
-                        ForEach(busStops) { busStop in
-                            Button(action: {
-                                router.push(.busstation(busStopInfo: busStopInfo))
-                            }) {
-                                SearchResultsView(busStop: busStop)
+                    switch viewModel.viewState {
+                    case .idle, .loading:
+                        ActivityIndicator(isAnimating: .constant(true), style: .large)
+                    case let .success(busStops):
+                        VStack(spacing: 0) {
+                            ForEach(busStops) { busStop in
+                                Button(action: {
+                                    // TODO: Fix navigation
+                                    // router.push(.busstation(busStopInfo: busStopInfo))
+                                }) {
+                                    SearchResultsView(busStop: busStop)
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             }
-                            .buttonStyle(PlainButtonStyle())
+                            Divider()
+                                .overlay(Color.gray.opacity(0.2))
                         }
-                        Divider()
-                            .overlay(Color.gray.opacity(0.2))
+                    case let .error(error):
+                        Text("Error: \(error.localizedDescription)")
                     }
                 }
                 .padding(.horizontal, 16)
@@ -40,7 +48,7 @@ struct SearchView: View {
                 )
                 .toolbar {
                     ToolbarItem(placement: .principal) { // 툴바 항목 배치
-                        TextField("검색...", text: $name)
+                        TextField("검색...", text: $viewModel.searchTerm)
                             .textFieldStyle(RoundedBorderTextFieldStyle()) // 텍스트 필드 스타일
                             .padding(.vertical, 4) // 좌우 여백 추가
                     }
@@ -51,15 +59,8 @@ struct SearchView: View {
 }
 
 #Preview {
-    let sampleBusStop = BusStopInfo(
-        cityCode: 25,
-        nodeId: "DGB7021025800",
-        routeId: "DGB30000007000",
-        stopName: "경북대학교북문앞",
-        routeNo: "719",
-        gpsLati: 35.89294,
-        gpsLong: 128.61042
-    )
-    // 미리보기용 Mock Router
-    return RouterView(router: Router<AppRoute>(root: .search(busStopInfo: sampleBusStop)))
+    let viewModel = SearchViewModel(busRepository: DefaultBusRepository(), locationManager: LocationManager())
+    viewModel.viewState = .success(BusStopForSearch.sampleBusStop)
+    return SearchView(viewModel: viewModel)
+        .environmentObject(Router<AppRoute>(root: .search))
 }
