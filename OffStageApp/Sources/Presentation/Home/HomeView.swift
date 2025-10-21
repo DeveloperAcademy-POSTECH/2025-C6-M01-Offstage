@@ -131,6 +131,7 @@ struct HomeView: View {
         gpsLati: 37.394726159,
         gpsLong: 127.1112090472
     )
+
     @State private var searchText = ""
 
     var body: some View {
