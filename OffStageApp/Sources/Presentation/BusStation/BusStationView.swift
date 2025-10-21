@@ -3,51 +3,63 @@ import SwiftUI
 
 struct BusStationView: View {
     @EnvironmentObject var router: Router<AppRoute>
-    let busStopInfo: BusStopInfo
+    var buses: [BusSampleData] = []
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(busStopInfo.stopName)
-                .font(.largeTitle)
-
+        VStack(spacing: 16) {
             HStack {
-                Text(busStopInfo.routeNo)
+                VStack(alignment: .leading, spacing: 8) {
+                    // busStopInfo.stopName
+                    Text("포항성모병원")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                    // busStopInfo.nodeId
+                    Text("300013")
+                }
+
                 Spacer()
-                Text("\(busStopInfo.cityCode)")
             }
-            .font(.headline)
+            .frame(maxWidth: .infinity)
+            .padding(16)
+            .background(Color(.systemGray6))
 
-            Text("정류소 ID: \(busStopInfo.nodeId)")
-            Text("노선 ID: \(busStopInfo.routeId)")
-            Text("좌표: (\(busStopInfo.gpsLati), \(busStopInfo.gpsLong))")
+            // 스크롤 영역
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    // 안내 문구
+                    Text("자주 이용하는 버스를 등록해 주세요.")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 16)
+                        .foregroundStyle(.gray)
 
-            Spacer()
-
-            Button("이전 화면으로 돌아가기 (pop)") {
-                router.pop()
-            }
-
-            Button("홈으로 돌아가기 (popToRoot)") {
-                router.popToRoot()
+                    // 버스 리스트
+                    if buses.isEmpty {
+                        Text("노선 정보가 없습니다.")
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .foregroundColor(.secondary)
+                            .padding(.vertical, 40)
+                    } else {
+                        BusStationListSubView(buses: buses)
+                    }
+                }
             }
         }
-        .padding()
-        .navigationTitle(busStopInfo.stopName)
+        .navigationBarItems(
+            leading:
+            Button(action: {
+                router.popToRoot()
+            }, label: {
+                Image(systemName: "chevron.left")
+            }),
+            trailing: Button(action: {
+                router.pop()
+            }, label: {
+                Image(systemName: "house")
+            })
+        )
     }
 }
 
 #Preview {
-    let mockBusStop = BusStopInfo(
-        cityCode: 25,
-        nodeId: "DGB7021025800",
-        routeId: "DGB30000007000",
-        stopName: "경북대학교북문앞",
-        routeNo: "719",
-        gpsLati: 35.89294,
-        gpsLong: 128.61042
-    )
-
-    let router = Router<AppRoute>(root: .busstation(busStopInfo: mockBusStop))
-
-    return RouterView(router: router)
+    BusStationView(buses: busSampleData)
 }

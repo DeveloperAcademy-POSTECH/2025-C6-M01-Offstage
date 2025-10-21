@@ -129,8 +129,9 @@ struct HomeView: View {
         stopName: "경북대학교북문앞",
         routeNo: "719",
         gpsLati: 35.89294,
-        gpsLong: 128.61042,
+        gpsLong: 128.61042
     )
+
     @State private var searchText = ""
 
     var body: some View {
