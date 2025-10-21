@@ -111,7 +111,8 @@ struct HomeView: View {
         VStack {
             VStack {
                 Button {
-                    router.push(.search(busStopInfo: sampleBusStop)) // 검색 페이지로 이동
+                    // 검색 페이지로 이동
+                    router.push(.search(busStopInfo: sampleBusStop))
                 } label: {
                     HStack {
                         Image(systemName: "magnifyingglass")
