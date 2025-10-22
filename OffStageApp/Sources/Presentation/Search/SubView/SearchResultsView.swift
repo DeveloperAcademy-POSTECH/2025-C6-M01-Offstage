@@ -17,6 +17,10 @@ struct SearchResultsView: View {
                 Text(busStop.nodenm)
                     .font(.title2)
                     .fontWeight(.bold)
+                if let nodeno = busStop.nodeno, !nodeno.isEmpty {
+                    Text("ID: \(nodeno)")
+                        .foregroundColor(.gray)
+                }
                 if let distance = busStop.distance {
                     Text(distance)
                         .fontWeight(.bold)

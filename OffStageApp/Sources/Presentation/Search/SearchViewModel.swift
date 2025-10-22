@@ -196,7 +196,7 @@ final class SearchViewModel: ObservableObject {
 
                     let result = BusStopForSearch(
                         nodenm: entry.stop.name,
-                        nodeid: entry.stop.nodeId,
+                        nodeno: entry.stop.number,
                         routes: routes,
                         distance: entry.distance
                     )
