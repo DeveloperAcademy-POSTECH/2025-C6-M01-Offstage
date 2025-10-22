@@ -191,7 +191,7 @@ struct HomeView: View {
                             .padding(.bottom)
 
                             Button("편집") {
-                                router.push(.homeedit)
+                                router.push(.homeedit(busStationData))
                             }
                         }
                     }

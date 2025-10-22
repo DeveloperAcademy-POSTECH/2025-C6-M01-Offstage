@@ -6,7 +6,7 @@ enum AppRoute: Routable {
     case search(busStopInfo: BusStopInfo)
     case busstation(busStopInfo: BusStopInfo)
     case busvision
-    case homeedit
+    case homeedit([BusStationData])
     case onboarding
     case test(busStopInfo: BusStopInfo)
 
@@ -25,8 +25,8 @@ enum AppRoute: Routable {
         case .busvision:
             BusVisionView()
 
-        case .homeedit:
-            HomeEditView()
+        case let .homeedit(stations):
+            HomeEditView(stations: stations)
 
         case .onboarding:
             OnboardingView()
