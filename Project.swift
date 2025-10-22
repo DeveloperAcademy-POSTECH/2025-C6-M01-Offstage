@@ -66,21 +66,7 @@ let app = Target.target(
         "NSCameraUsageDescription": "버스 인식을 위해 카메라 접근이 필요합니다.",
     ]),
     sources: ["OffStageApp/Sources/**"],
-    resources: ["OffStageApp/Resources/**"],
-    scripts: [formatScript, lintScript],
-    dependencies: [
-        .target(name: "BusAPI"),
-    ]
-)
-
-let busAI = Target.target(
-    name: "BusAI",
-    destinations: [.iPhone],
-    product: .app,
-    bundleId: "\(organizationName).BusAI",
-    infoPlist: .extendingDefault(with: baseInfoPlist),
-    sources: ["BusAI/Sources/**"],
-    resources: ["BusAI/Resources/**"],
+    resources: ["OffStageApp/Resources/**", "OffStageApp/Resources/*.mlmodel"],
     scripts: [formatScript, lintScript],
     dependencies: [
         .target(name: "BusAPI"),
@@ -98,5 +84,5 @@ let settings = Settings.settings(
 let project = Project(
     name: "OffStage",
     settings: settings,
-    targets: [busAPI, busAPITests, app, busAI]
+    targets: [busAPI, busAPITests, app]
 )
