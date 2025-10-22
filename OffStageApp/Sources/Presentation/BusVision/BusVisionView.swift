@@ -4,7 +4,7 @@ import SwiftUI
 struct BusVisionView: View {
     // properties
     var routeNumbers: [String]
-    
+
     @EnvironmentObject var router: Router<AppRoute>
 
     // init
