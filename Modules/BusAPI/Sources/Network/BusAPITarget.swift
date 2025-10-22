@@ -114,14 +114,14 @@ public extension BusAPITarget {
                     "cityCode": cityCode,
                     "routeId": routeId,
                     "pageNo": page,
-                    "numOfRows": rows ?? 50,
+                    // "numOfRows": rows ?? 50,
                 ]
             case let .stopSearch(cityCode, nodeName, nodeNumber):
                 [
                     "cityCode": cityCode,
                     "nodeNm": nodeName,
                     "nodeNo": nodeNumber,
-                    "numOfRows": 30,
+                    // "numOfRows": 30,
                 ]
             case let .stopsNearby(latitude, longitude):
                 [
@@ -132,7 +132,7 @@ public extension BusAPITarget {
                 [
                     "cityCode": cityCode,
                     "nodeId": nodeId,
-                    "numOfRows": 50,
+                    // "numOfRows": 50,
                 ]
             case let .routeInfo(cityCode, routeId):
                 [
@@ -143,19 +143,19 @@ public extension BusAPITarget {
                 [
                     "cityCode": cityCode,
                     "routeNo": routeNumber,
-                    "numOfRows": 30,
+                    // "numOfRows": 30,
                 ]
             case let .routeStations(cityCode, routeId):
                 [
                     "cityCode": cityCode,
                     "routeId": routeId,
-                    "numOfRows": 100,
+                    // "numOfRows": 100,
                 ]
             case let .stopArrivals(cityCode, nodeId):
                 [
                     "cityCode": cityCode,
                     "nodeId": nodeId,
-                    "numOfRows": 50,
+                    // "numOfRows": 50,
                 ]
             case let .routeArrivals(cityCode, nodeId, routeId):
                 [
