@@ -62,9 +62,7 @@ let app = Target.target(
     destinations: [.iPhone],
     product: .app,
     bundleId: "\(organizationName).App",
-    infoPlist: .extendingDefault(with: [
-        "NSCameraUsageDescription": "버스 인식을 위해 카메라 접근이 필요합니다.",
-    ]),
+    infoPlist: .extendingDefault(with: baseInfoPlist),
     sources: ["OffStageApp/Sources/**"],
     resources: ["OffStageApp/Resources/**", "OffStageApp/Resources/*.mlmodel"],
     scripts: [formatScript, lintScript],
