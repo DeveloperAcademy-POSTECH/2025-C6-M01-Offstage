@@ -5,7 +5,7 @@ enum AppRoute: Routable {
     case home
     case search
     case busstation(busStopInfo: BusStopInfo)
-    case busvision
+    case busvision(routeToDetect: [String])
     case homeedit
     case onboarding
     case test(busStopInfo: BusStopInfo)
@@ -24,8 +24,8 @@ enum AppRoute: Routable {
         case .busstation:
             BusStationView()
 
-        case .busvision:
-            BusVisionView()
+        case let .busvision(routeToDetect):
+            BusVisionView(routeNumbers: routeToDetect)
 
         case .homeedit:
             HomeEditView()

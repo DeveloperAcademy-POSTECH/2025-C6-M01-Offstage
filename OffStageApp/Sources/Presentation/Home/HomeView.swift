@@ -208,8 +208,9 @@ struct HomeView: View {
                         router.push(.test(busStopInfo: sampleBusStop))
                     }
 
+                    // 더미 버튼
                     Button("비전 버스 켜기") {
-                        router.push(.busvision)
+                        router.push(.busvision(routeToDetect: ["1142"]))
                     }
                     Spacer()
                 }

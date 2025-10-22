@@ -8,8 +8,12 @@ import SwiftUI
 
 /// BusDetectionViewController를 SwiftUI에서 쓸 수 있도록 처리
 struct BusDetectionView: UIViewControllerRepresentable {
+    let routeNumbers: [String]
+
     func makeUIViewController(context _: Context) -> BusDetectionViewController {
-        BusDetectionViewController()
+        let vc = BusDetectionViewController()
+        vc.routeNumbersToDetect = routeNumbers
+        return vc
     }
 
     func updateUIViewController(_: BusDetectionViewController, context _: Context) {}

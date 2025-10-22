@@ -2,8 +2,8 @@ import SwiftUI
 
 struct BusStationCardSubView: View {
     @EnvironmentObject var router: Router<AppRoute>
-    let stationSempleItem: BusStationData
     // 더미파일(실제 데이터 넣을 때는 삭제)
+    let stationSempleItem: BusStationData
     @State private var isNotificationOn = false
 
     var body: some View {
@@ -32,7 +32,7 @@ struct BusStationCardSubView: View {
 
             if isNotificationOn == true {
                 Button {
-                    router.push(.busvision)
+                    router.push(.busvision(routeToDetect: routes))
                 } label: {
                     Text("\(Image(systemName: "camera")) 버스 인식하기")
                         .foregroundColor(.white)
@@ -48,6 +48,13 @@ struct BusStationCardSubView: View {
         }
         .background(.gray.opacity(0.1))
         .cornerRadius(15)
+    }
+}
+
+extension BusStationCardSubView {
+    /// busvision에 전달하기 위한 계산 프로퍼티
+    var routes: [String] {
+        stationSempleItem.busRoutes.compactMap(\.routeNumber)
     }
 }
 
