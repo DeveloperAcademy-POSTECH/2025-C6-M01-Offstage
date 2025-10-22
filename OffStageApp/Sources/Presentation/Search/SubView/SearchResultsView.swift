@@ -4,28 +4,7 @@
 //
 //  Created by Murphy on 10/20/25.
 //
-// import BusAPI
 import SwiftUI
-
-struct BusStopForSearch: Identifiable {
-    let id = UUID()
-    /// 정류소이름
-    let nodenm: String
-    /// 정류소 아이디
-    let nodeid: String
-    /// 노선번호들
-    let routes: [String]
-    /// 거리(검색결과일 땐 안보이는)
-    let distance: String // 타입&이름수정확률높음
-}
-
-extension BusStopForSearch {
-    static let sampleBusStop = [
-        BusStopForSearch(nodenm: "포항제철공고", nodeid: "299015", routes: ["111", "216"], distance: "559m"),
-        BusStopForSearch(nodenm: "포항제철공고", nodeid: "299004", routes: ["111", "216"], distance: "731m"),
-        BusStopForSearch(nodenm: "포항성모병원", nodeid: "300019", routes: ["111", "216"], distance: "1.3km"),
-    ]
-}
 
 struct SearchResultsView: View {
     let busStop: BusStopForSearch
@@ -38,13 +17,26 @@ struct SearchResultsView: View {
                 Text(busStop.nodenm)
                     .font(.title2)
                     .fontWeight(.bold)
-                Text(busStop.nodeid)
-                Text(busStop.distance)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.green)
-                HStack {
+                if let nodeno = busStop.nodeno, !nodeno.isEmpty {
+                    Text("ID: \(nodeno)")
+                        .foregroundColor(.gray)
+                }
+                if let distance = busStop.distance {
+                    Text(distance)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.green)
+                }
+                HStack(alignment: .top, spacing: 8) {
                     Image(systemName: "bus.fill")
-                    Text(busStop.routes.joined(separator: ", "))
+                        .foregroundStyle(.blue)
+                    if busStop.routes.isEmpty {
+                        Text("노선 정보를 불러올 수 없습니다.")
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text(busStop.routes.joined(separator: ", "))
+                            .font(.callout)
+                            .foregroundColor(.primary)
+                    }
                     Spacer()
                 }
             }

@@ -139,7 +139,7 @@ struct HomeView: View {
             VStack {
                 Button {
                     // 검색 페이지로 이동
-                    router.push(.search(busStopInfo: sampleBusStop))
+                    router.push(.search)
                 } label: {
                     HStack {
                         Image(systemName: "magnifyingglass")
@@ -171,7 +171,7 @@ struct HomeView: View {
                             .padding(.bottom, 30)
 
                         Button {
-                            router.push(.search(busStopInfo: sampleBusStop))
+                            router.push(.search)
                         } label: {
                             Text("나의 버스 추가하기")
                                 .foregroundColor(.white)
@@ -197,7 +197,7 @@ struct HomeView: View {
                         }
                     }
                     Button("버스 검색으로 이동") {
-                        router.push(.search(busStopInfo: sampleBusStop))
+                        router.push(.search)
                     }
 
                     Button("버스 정류장으로 이동 (데이터 전달)") {

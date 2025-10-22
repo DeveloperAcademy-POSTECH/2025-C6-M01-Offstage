@@ -3,31 +3,40 @@ import SwiftUI
 
 struct SearchView: View {
     @EnvironmentObject var router: Router<AppRoute>
-    let busStopInfo: BusStopInfo
-    let busStops = BusStopForSearch.sampleBusStop
-    @State private var name = ""
+    @StateObject private var viewModel: SearchViewModel
+
+    init(viewModel: SearchViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
 
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(alignment: .leading) {
-                    VStack {
+                VStack(alignment: .leading, spacing: 12) {
+                    if viewModel.searchTerm.isEmpty {
                         Text("주변 정류장")
                             .foregroundColor(.gray)
+                            .padding(.horizontal, 16)
                     }
-                    .padding(.horizontal, 16)
 
-                    VStack(spacing: 0) {
-                        ForEach(busStops) { busStop in
-                            Button(action: {
-                                router.push(.busstation(busStopInfo: busStopInfo))
-                            }) {
-                                SearchResultsView(busStop: busStop)
-                            }
-                            .buttonStyle(PlainButtonStyle())
+                    switch viewModel.viewState {
+                    case .idle, .loading:
+                        if viewModel.searchTerm.isEmpty, !viewModel.nearbyStopsCache.isEmpty {
+                            stopList(viewModel.nearbyStopsCache)
+                        } else {
+                            ActivityIndicator(isAnimating: .constant(true), style: .large)
                         }
-                        Divider()
-                            .overlay(Color.gray.opacity(0.2))
+                    case let .success(busStops):
+                        let dataSource = viewModel.searchTerm.isEmpty ? viewModel.nearbyStopsCache : busStops
+                        if dataSource.isEmpty {
+                            Text("표시할 정류장이 없습니다.")
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal, 16)
+                        } else {
+                            stopList(dataSource)
+                        }
+                    case let .error(error):
+                        Text("Error: \(error.localizedDescription)")
                     }
                 }
                 .padding(.horizontal, 16)
@@ -40,8 +49,12 @@ struct SearchView: View {
                 )
                 .toolbar {
                     ToolbarItem(placement: .principal) { // 툴바 항목 배치
-                        TextField("검색...", text: $name)
+                        TextField("검색...", text: $viewModel.searchTerm)
                             .textFieldStyle(RoundedBorderTextFieldStyle()) // 텍스트 필드 스타일
+                            .submitLabel(.search)
+                            .onSubmit {
+                                viewModel.submitSearch()
+                            }
                             .padding(.vertical, 4) // 좌우 여백 추가
                     }
                 }
@@ -50,16 +63,28 @@ struct SearchView: View {
     }
 }
 
+private extension SearchView {
+    @ViewBuilder
+    func stopList(_ stops: [BusStopForSearch]) -> some View {
+        VStack(spacing: 0) {
+            ForEach(stops) { busStop in
+                Button(action: {
+                    // TODO: Fix navigation
+                    // router.push(.busstation(busStopInfo: busStopInfo))
+                }) {
+                    SearchResultsView(busStop: busStop)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            Divider()
+                .overlay(Color.gray.opacity(0.2))
+        }
+    }
+}
+
 #Preview {
-    let sampleBusStop = BusStopInfo(
-        cityCode: 25,
-        nodeId: "DGB7021025800",
-        routeId: "DGB30000007000",
-        stopName: "경북대학교북문앞",
-        routeNo: "719",
-        gpsLati: 35.89294,
-        gpsLong: 128.61042
-    )
-    // 미리보기용 Mock Router
-    return RouterView(router: Router<AppRoute>(root: .search(busStopInfo: sampleBusStop)))
+    let viewModel = SearchViewModel(busRepository: DefaultBusRepository(), locationManager: LocationManager())
+    viewModel.viewState = .success(BusStopForSearch.sampleBusStop)
+    return SearchView(viewModel: viewModel)
+        .environmentObject(Router<AppRoute>(root: .search))
 }
