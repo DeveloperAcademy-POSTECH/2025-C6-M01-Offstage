@@ -9,7 +9,7 @@ struct BusStopForSearch: Identifiable {
     /// 노선번호들
     let routes: [String]
     /// 거리(검색결과일 땐 안보이는)
-    let distance: String // 타입&이름수정확률높음
+    let distance: String?
 }
 
 extension BusStopForSearch {

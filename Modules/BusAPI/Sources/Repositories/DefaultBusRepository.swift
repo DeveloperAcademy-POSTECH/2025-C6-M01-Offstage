@@ -36,8 +36,11 @@ public final class DefaultBusRepository: BusRepository {
         )
     }
 
-    public func searchStops(cityCode: String, keyword: String) async throws -> [BusStop] {
-        try await items(for: .stopSearch(cityCode: cityCode, keyword: keyword), type: BusStop.self)
+    public func searchStops(cityCode: String, nodeName: String?, nodeNumber: String?) async throws -> [BusStop] {
+        try await items(
+            for: .stopSearch(cityCode: cityCode, nodeName: nodeName, nodeNumber: nodeNumber),
+            type: BusStop.self
+        )
     }
 
     public func fetchStopsNearby(latitude: Double, longitude: Double) async throws -> [BusStop] {

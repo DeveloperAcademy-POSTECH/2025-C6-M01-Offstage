@@ -17,9 +17,11 @@ struct SearchResultsView: View {
                 Text(busStop.nodenm)
                     .font(.title2)
                     .fontWeight(.bold)
-                Text(busStop.distance)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.green)
+                if let distance = busStop.distance {
+                    Text(distance)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.green)
+                }
                 HStack(alignment: .top, spacing: 8) {
                     Image(systemName: "bus.fill")
                         .foregroundStyle(.blue)
