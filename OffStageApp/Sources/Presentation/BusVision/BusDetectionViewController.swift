@@ -4,13 +4,14 @@ import UIKit
 import Vision
 
 final class BusDetectionViewController: UIViewController {
+    /// 인식할 노선번호
+    var routeNumbersToDetect: [String] = []
+
     private var captureSession: AVCaptureSession?
     private var request: VNCoreMLRequest?
 
     private var drawingBoxesView: DrawingBoxesView?
     private var currentPixelBuffer: CVPixelBuffer?
-
-    let busNumberToDetect: [String] = ["1142", "0411"]
 
     // MARK: Life Cycle
 
@@ -202,8 +203,8 @@ extension BusDetectionViewController {
                 print(ocrText)
 
                 // OCR 텍스트에 찾던 버스번호 있는지 검사
-                for busNumber in self.busNumberToDetect {
-                    if ocrText.contains(busNumber) {
+                for routeNo in self.routeNumbersToDetect {
+                    if ocrText.contains(routeNo) {
                         // 검사 결과에 있다면 바운딩박스에 추가
                         finalPredictions.append(prediction)
                     }
