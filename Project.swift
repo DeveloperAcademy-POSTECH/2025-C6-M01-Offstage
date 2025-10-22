@@ -14,6 +14,7 @@ let baseInfoPlist: [String: Plist.Value] = [
     "STOP_SERVICE_KEY": "$(STOP_SERVICE_KEY)",
     "ROUTE_SERVICE_KEY": "$(ROUTE_SERVICE_KEY)",
     "NSLocationWhenInUseUsageDescription": "현재 위치를 기반으로 주변 정류장 정보를 제공하기 위해 위치 정보가 필요합니다.",
+    "NSCameraUsageDescription": "버스 인식을 위해 카메라 접근이 필요합니다.",
     "ITSAppUsesNonExemptEncryption": .boolean(false),
     "UIDesignRequiresCompatibility": .boolean(true),
     "UIUserInterfaceStyle": "Dark",
@@ -35,7 +36,7 @@ let busAPI = Target.target(
     destinations: [.iPhone],
     product: .framework,
     bundleId: "\(organizationName).BusAPI",
-    infoPlist: .default,
+    infoPlist: .extendingDefault(with: baseInfoPlist),
     sources: ["Modules/BusAPI/Sources/**"],
     dependencies: [
         .external(name: "Moya"),
@@ -63,21 +64,7 @@ let app = Target.target(
     bundleId: "\(organizationName).App",
     infoPlist: .extendingDefault(with: baseInfoPlist),
     sources: ["OffStageApp/Sources/**"],
-    resources: ["OffStageApp/Resources/**"],
-    scripts: [formatScript, lintScript],
-    dependencies: [
-        .target(name: "BusAPI"),
-    ]
-)
-
-let busAI = Target.target(
-    name: "BusAI",
-    destinations: [.iPhone],
-    product: .app,
-    bundleId: "\(organizationName).BusAI",
-    infoPlist: .extendingDefault(with: baseInfoPlist),
-    sources: ["BusAI/Sources/**"],
-    resources: ["BusAI/Resources/**"],
+    resources: ["OffStageApp/Resources/**", "OffStageApp/Resources/*.mlmodel"],
     scripts: [formatScript, lintScript],
     dependencies: [
         .target(name: "BusAPI"),
@@ -95,5 +82,5 @@ let settings = Settings.settings(
 let project = Project(
     name: "OffStage",
     settings: settings,
-    targets: [busAPI, busAPITests, app, busAI]
+    targets: [busAPI, busAPITests, app]
 )
