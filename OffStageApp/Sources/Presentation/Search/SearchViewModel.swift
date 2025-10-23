@@ -28,6 +28,8 @@ final class SearchViewModel: ObservableObject {
     private let busRepository: BusRepository
     private let locationManager: LocationProviding
     private var lastKnownCityCode: Int?
+    private var nearbyStopInputs: [UUID: BusStationViewInput] = [:]
+    private var searchStopInputs: [UUID: BusStationViewInput] = [:]
 
     private struct StopPresentation {
         let stop: BusStop
@@ -49,6 +51,7 @@ final class SearchViewModel: ObservableObject {
                         fetchNearbyStops()
                     } else {
                         viewState = .success(nearbyStopsCache)
+                        searchStopInputs = [:]
                     }
                 }
             }
@@ -66,6 +69,7 @@ final class SearchViewModel: ObservableObject {
                 fetchNearbyStops()
             } else {
                 viewState = .success(nearbyStopsCache)
+                searchStopInputs = [:]
             }
             return
         }
@@ -126,8 +130,10 @@ final class SearchViewModel: ObservableObject {
                 )
             }
 
-            let nearbyStops = await makeDisplayStops(from: presentations)
+            let (nearbyStops, inputs) = await makeDisplayStops(from: presentations)
 
+            nearbyStopInputs = inputs
+            searchStopInputs = [:]
             nearbyStopsCache = nearbyStops
             viewState = .success(nearbyStops)
         } catch {
@@ -158,23 +164,32 @@ final class SearchViewModel: ObservableObject {
                 StopPresentation(stop: stop, distance: nil)
             }
 
-            let searchResults = await makeDisplayStops(from: presentations, fallbackCityCode: lastKnownCityCode)
+            let (searchResults, inputs) = await makeDisplayStops(
+                from: presentations,
+                fallbackCityCode: lastKnownCityCode
+            )
+            searchStopInputs = inputs
             viewState = .success(searchResults)
         } catch {
             viewState = .error(error)
         }
     }
 
+    func destinationInput(for busStop: BusStopForSearch) -> BusStationViewInput? {
+        let inputs = searchTerm.isEmpty ? nearbyStopInputs : searchStopInputs
+        return inputs[busStop.id] ?? nearbyStopInputs[busStop.id]
+    }
+
     private func makeDisplayStops(
         from stops: [StopPresentation],
         fallbackCityCode: Int? = nil
-    ) async -> [BusStopForSearch] {
-        guard !stops.isEmpty else { return [] }
+    ) async -> ([BusStopForSearch], [UUID: BusStationViewInput]) {
+        guard !stops.isEmpty else { return ([], [:]) }
         let repository = busRepository
 
         return await withTaskGroup(
-            of: (Int, BusStopForSearch?).self,
-            returning: [BusStopForSearch].self
+            of: (Int, BusStopForSearch?, BusStationViewInput?).self,
+            returning: ([BusStopForSearch], [UUID: BusStationViewInput]).self
         ) { group in
             for (index, entry) in stops.enumerated() {
                 group.addTask {
@@ -194,22 +209,41 @@ final class SearchViewModel: ObservableObject {
                         routes = []
                     }
 
+                    let identifier = UUID()
                     let result = BusStopForSearch(
+                        id: identifier,
                         nodenm: entry.stop.name,
                         nodeno: entry.stop.number,
                         routes: routes,
                         distance: entry.distance
                     )
-                    return (index, result)
+
+                    let input: BusStationViewInput? = if let cityCode = resolvedCityCode {
+                        BusStationViewInput(
+                            cityCode: String(cityCode),
+                            nodeId: entry.stop.nodeId,
+                            nodeName: entry.stop.name,
+                            nodeNumber: entry.stop.number,
+                            routes: routes
+                        )
+                    } else {
+                        nil
+                    }
+
+                    return (index, result, input)
                 }
             }
 
             var orderedResults = [BusStopForSearch?](repeating: nil, count: stops.count)
-            for await (index, value) in group {
+            var inputs = [UUID: BusStationViewInput]()
+            for await (index, value, input) in group {
                 orderedResults[index] = value
+                if let stop = value, let input {
+                    inputs[stop.id] = input
+                }
             }
 
-            return orderedResults.compactMap { $0 }
+            return (orderedResults.compactMap { $0 }, inputs)
         }
     }
 

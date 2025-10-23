@@ -1,15 +1,23 @@
+import BusAPI // Import BusAPI for BusArrival
 import SwiftUI
 
 struct BusRouteListSubView: View {
-    let buses: [BusSampleData]
+    let busArrivals: [BusArrival]
+
     var body: some View {
         VStack {
-            // 배열에 있는 버스 정보들를 표시
-            ForEach(buses) { sampleItem in
-                BusRouteRowSubView(sampleItem: sampleItem)
-                // 버스들 중간에 들어가는 분리 선, 표시되는 버스가 마지막 버스가 아니면 분리 선 표시!
-                if sampleItem.id != buses.last?.id {
-                    Divider()
+            // Group arrivals by route number
+            ForEach(busArrivals.groupedByRouteNumber().keys.sorted(), id: \.self) {
+                routeNumber in
+                if let arrivalsForRoute = busArrivals.groupedByRouteNumber()[routeNumber] {
+                    BusRouteRowSubView(
+                        routeNumber: routeNumber,
+                        arrivals: arrivalsForRoute
+                    )
+                    // Add a Divider if it's not the last route
+                    if routeNumber != busArrivals.groupedByRouteNumber().keys.sorted().last {
+                        Divider()
+                    }
                 }
             }
             .padding(5)
@@ -20,6 +28,46 @@ struct BusRouteListSubView: View {
     }
 }
 
+// Helper extension to group BusArrivals by routeNumber
+extension [BusArrival] {
+    func groupedByRouteNumber() -> [String: [BusArrival]] {
+        Dictionary(grouping: self, by: \.routeNumber)
+    }
+}
+
 #Preview {
-    BusRouteListSubView(buses: busSampleData)
+    // Sample BusArrival data for preview
+    let sampleArrivals: [BusArrival] = [
+        BusArrival(
+            routeId: "GGB204000013",
+            routeNumber: "111",
+            routeType: "일반버스",
+            nodeId: "GGB204000163",
+            nodeName: "판교",
+            remainingStopCount: 2,
+            estimatedArrivalTime: 480,
+            vehicleType: "저상"
+        ),
+        BusArrival(
+            routeId: "GGB204000013",
+            routeNumber: "111",
+            routeType: "일반버스",
+            nodeId: "GGB204000163",
+            nodeName: "판교",
+            remainingStopCount: 13,
+            estimatedArrivalTime: 1320,
+            vehicleType: nil
+        ),
+        BusArrival(
+            routeId: "GGB204000065",
+            routeNumber: "9607",
+            routeType: "직행좌석버스",
+            nodeId: "GGB204000163",
+            nodeName: "판교",
+            remainingStopCount: 1,
+            estimatedArrivalTime: 300,
+            vehicleType: nil
+        ),
+    ]
+    return BusRouteListSubView(busArrivals: sampleArrivals)
 }

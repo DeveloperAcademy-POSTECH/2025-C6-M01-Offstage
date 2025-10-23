@@ -2,35 +2,31 @@ import BusAPI
 import SwiftUI
 
 struct BusRouteRowSubView: View {
-    let sampleItem: BusSampleData
+    let routeNumber: String
+    let arrivals: [BusArrival]
 
     var body: some View {
         VStack {
             HStack {
                 // 버스 번호 표시
-                Text("\(Image(systemName: "bus.fill")) \(sampleItem.routeNumber)")
+                Text("\(Image(systemName: "bus.fill")) \(routeNumber)")
                     .font(.title3)
                 Spacer()
             }
             HStack {
-                // 방면 표시(종점)
-                Text("\(sampleItem.endnodenm)") // 방면 표시(종점)
-                    .foregroundColor(.gray)
-                Spacer()
-            }
-            HStack {
-                // 1번째 도착버스 도착시간표시(초단위로 받을 시 분으로 표시)
-                Text("\(sampleItem.arrivalMinutes1 / 60)분")
-                    .foregroundColor(.green)
-                // 1번째 도착버스 몇정거장 전인지 표시
-                Text("\(sampleItem.stopsAway1)번째전")
-                    .foregroundColor(.gray)
-                // 2번째 도착버스 도착시간표시(초단위로 받을 시 분으로 표시)
-                Text("\(sampleItem.arrivalMinutes2 / 60)분")
-                    .foregroundColor(.green)
-                // 2번째 도착버스 몇정거장 전인지 표시
-                Text("\(sampleItem.stopsAway2)번째전")
-                    .foregroundColor(.gray)
+                // Display up to two arrivals
+                ForEach(arrivals.prefix(2).indices, id: \.self) {
+                    index in
+                    let arrival = arrivals[index]
+                    if let estimatedArrivalTime = arrival.estimatedArrivalTime {
+                        Text("\(estimatedArrivalTime / 60)분")
+                            .foregroundColor(.green)
+                    }
+                    if let remainingStopCount = arrival.remainingStopCount {
+                        Text("\(remainingStopCount)번째전")
+                            .foregroundColor(.gray)
+                    }
+                }
                 Spacer()
             }
         }
@@ -38,5 +34,28 @@ struct BusRouteRowSubView: View {
 }
 
 #Preview {
-    BusRouteRowSubView(sampleItem: busSampleData[0])
+    // Sample BusArrival data for preview
+    let sampleArrivals: [BusArrival] = [
+        BusArrival(
+            routeId: "GGB204000013",
+            routeNumber: "111",
+            routeType: "일반버스",
+            nodeId: "GGB204000163",
+            nodeName: "판교",
+            remainingStopCount: 2,
+            estimatedArrivalTime: 480,
+            vehicleType: "저상"
+        ),
+        BusArrival(
+            routeId: "GGB204000013",
+            routeNumber: "111",
+            routeType: "일반버스",
+            nodeId: "GGB204000163",
+            nodeName: "판교",
+            remainingStopCount: 13,
+            estimatedArrivalTime: 1320,
+            vehicleType: nil
+        ),
+    ]
+    return BusRouteRowSubView(routeNumber: "111", arrivals: sampleArrivals)
 }

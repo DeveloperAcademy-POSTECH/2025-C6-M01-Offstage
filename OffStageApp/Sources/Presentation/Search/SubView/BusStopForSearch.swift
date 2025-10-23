@@ -1,7 +1,7 @@
 import Foundation
 
 struct BusStopForSearch: Identifiable {
-    let id = UUID()
+    let id: UUID
     /// 정류소이름
     let nodenm: String
     /// 정류소 번호
@@ -11,6 +11,20 @@ struct BusStopForSearch: Identifiable {
     let routes: [String]
     /// 거리(검색결과일 땐 안보이는)
     let distance: String?
+
+    init(
+        id: UUID = UUID(),
+        nodenm: String,
+        nodeno: String?,
+        routes: [String],
+        distance: String?
+    ) {
+        self.id = id
+        self.nodenm = nodenm
+        self.nodeno = nodeno
+        self.routes = routes
+        self.distance = distance
+    }
 }
 
 extension BusStopForSearch {
