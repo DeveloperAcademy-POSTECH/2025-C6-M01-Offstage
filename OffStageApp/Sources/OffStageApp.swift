@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 @main
@@ -8,5 +9,6 @@ struct OffStageApp: App {
         WindowGroup {
             RouterView(router: router)
         }
+        .modelContainer(for: Favorite.self)
     }
 }

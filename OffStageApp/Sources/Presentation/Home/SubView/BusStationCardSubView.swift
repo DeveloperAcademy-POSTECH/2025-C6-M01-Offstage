@@ -9,25 +9,32 @@ struct BusStationCardSubView: View {
     let stationNumber: String
     let nodeId: String
     let cityCode: String
-
-    // 더미파일(실제 데이터 넣을 때는 삭제)
-    @State private var isNotificationOn = false
+    let favorites: [Favorite]
+    let isNotificationOn: Bool
+    let onNotificationTap: () -> Void
 
     init(
         stationName: String,
         stationNumber: String,
         nodeId: String,
         cityCode: String,
+        favorites: [Favorite],
+        isNotificationOn: Bool,
+        onNotificationTap: @escaping () -> Void,
         busRepository: BusRepository = DefaultBusRepository()
     ) {
         self.stationName = stationName
         self.stationNumber = stationNumber
         self.nodeId = nodeId
         self.cityCode = cityCode
+        self.favorites = favorites
+        self.isNotificationOn = isNotificationOn
+        self.onNotificationTap = onNotificationTap
         _viewModel = StateObject(wrappedValue: BusStationCardViewModel(
             busRepository: busRepository,
             nodeId: nodeId,
-            cityCode: cityCode
+            cityCode: cityCode,
+            favorites: favorites
         ))
     }
 
@@ -44,23 +51,24 @@ struct BusStationCardSubView: View {
                 }
                 Spacer()
                 // 알림 버튼
-                //                Button(action: activateNotification) {
-                //                    Image(systemName: isNotificationOn ? "bell.fill" : "bell")
-                //                        .font(.title2)
-                //                        .foregroundColor(isNotificationOn ? .white : .gray)
-                //                        .padding(8)
-                //                        .background {
-                //                            Circle()
-                //                                .stroke(lineWidth: 2)
-                //                                .foregroundStyle(isNotificationOn ? .blue : .gray)
-                //                        }
-                //                }
+                Button(action: onNotificationTap) {
+                    Image(systemName: isNotificationOn ? "bell.fill" : "bell")
+                        .font(.title2)
+                        .foregroundColor(isNotificationOn ? .white : .gray)
+                        .padding(8)
+                        .background {
+                            Circle()
+                                .fill(isNotificationOn ? Color.blue : Color.clear)
+                                .foregroundStyle(isNotificationOn ? .blue : .gray)
+                        }
+                }
             }
             .padding([.top, .leading, .trailing])
 
             if isNotificationOn == true {
                 Button {
-                    router.push(.busvision(routeToDetect: [""]))
+                    let destination = AppRoute.busvision(routeToDetect: favorites.map(\.routeNo))
+                    router.push(destination)
                 } label: {
                     Text("\(Image(systemName: "camera")) 버스 인식하기")
                         .foregroundColor(.white)
@@ -76,6 +84,13 @@ struct BusStationCardSubView: View {
         }
         .background(.gray.opacity(0.1))
         .cornerRadius(15)
+        .overlay {
+            RoundedRectangle(cornerRadius: 15)
+                .stroke(
+                    isNotificationOn ? .blue : .clear,
+                    lineWidth: 2
+                )
+        }
         .task {
             await viewModel.fetchArrivals()
         }
@@ -83,6 +98,14 @@ struct BusStationCardSubView: View {
 }
 
 #Preview {
-    BusStationCardSubView(stationName: "포항공과대학교", stationNumber: "12341234", nodeId: "GGB204000163", cityCode: "31020")
-        .environmentObject(Router<AppRoute>(root: .home))
+    BusStationCardSubView(
+        stationName: "포항공과대학교",
+        stationNumber: "12341234",
+        nodeId: "GGB204000163",
+        cityCode: "31020",
+        favorites: [],
+        isNotificationOn: false,
+        onNotificationTap: {}
+    )
+    .environmentObject(Router<AppRoute>(root: .home))
 }
