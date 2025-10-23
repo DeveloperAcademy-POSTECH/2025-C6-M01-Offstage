@@ -2,28 +2,20 @@ import BusAPI
 import SwiftUI
 
 struct BusStationView: View {
-    @EnvironmentObject var router: Router<AppRoute>
-    var buses: [BusSampleData] = []
+    @EnvironmentObject private var router: Router<AppRoute>
+    @StateObject private var viewModel: BusStationViewModel
+
+    init(input: BusStationViewInput, busRepository: BusRepository = DefaultBusRepository()) {
+        _viewModel = StateObject(wrappedValue: BusStationViewModel(input: input, busRepository: busRepository))
+    }
+
+    init(viewModel: BusStationViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
 
     var body: some View {
         VStack(spacing: 16) {
-            HStack {
-                VStack(alignment: .leading, spacing: 8) {
-                    // busStopInfo.stopName
-                    Text("포항성모병원")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                    // busStopInfo.nodeId
-                    Text("300013")
-                }
-
-                Spacer()
-            }
-            .frame(maxWidth: .infinity)
-            .padding(16)
-            .background(Color(.systemGray6))
-
-            // 스크롤 영역
+            header
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     // 안내 문구
@@ -33,33 +25,77 @@ struct BusStationView: View {
                         .foregroundStyle(.gray)
 
                     // 버스 리스트
-                    if buses.isEmpty {
-                        Text("노선 정보가 없습니다.")
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .foregroundColor(.secondary)
-                            .padding(.vertical, 40)
-                    } else {
-                        BusStationListSubView(buses: buses)
-                    }
+                    content
                 }
             }
         }
+        .task { viewModel.load() }
+        // TODO: arrivalDescription에 대한 동적 새로고침 로직을 구현해야 합니다.
+        // 남은 시간이 길 때는 (예:25분 이상?) 5분마다 새로고침하고,
+        // 시간이 줄어들수록 더 자주 새로고침해야 합니다.
         .navigationBarItems(
-            leading:
-            Button(action: {
-                router.pop()
-            }, label: {
-                Image(systemName: "chevron.left")
-            }),
-            trailing: Button(action: {
-                router.popToRoot()
-            }, label: {
+            trailing:
+            Button(action: { router.popToRoot() }) {
                 Image(systemName: "house")
-            })
+            }
         )
     }
-}
 
-#Preview {
-    BusStationView(buses: busSampleData)
+    private var header: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(viewModel.input.nodeName)
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                Text(viewModel.input.nodeNumber ?? "-")
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .padding(16)
+        .background(Color(.systemGray6))
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch viewModel.viewState {
+        case .idle, .loading:
+            ActivityIndicator(isAnimating: .constant(true), style: .large)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.vertical, 40)
+
+        case let .success(routes):
+            if routes.isEmpty {
+                Group {
+                    if viewModel.input.routes.isEmpty {
+                        Text("경유 노선 정보를 찾을 수 없습니다.")
+                    } else {
+                        Text("도착 예정 정보가 없습니다.")
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .foregroundColor(.secondary)
+                .padding(.vertical, 40)
+            } else {
+                BusStationListSubView(routes: routes)
+                    .padding(.horizontal, 16)
+            }
+
+        case let .error(error):
+            VStack(spacing: 12) {
+                Text("정류장 정보를 불러오지 못했습니다.")
+                    .foregroundColor(.secondary)
+                Text(error.localizedDescription)
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                Button("다시 시도") {
+                    viewModel.refresh()
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.vertical, 32)
+        }
+    }
 }

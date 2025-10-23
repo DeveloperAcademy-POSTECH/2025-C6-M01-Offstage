@@ -45,6 +45,8 @@ class BusStopForHome {
     var nodenm: String
     /// 정류소 번호
     var nodeno: String
+    var nodeId: String
+    var cityCode: String
     /// 이 정류장을 지나는 버스들
     var routes: [BusSampleData]
 
@@ -52,11 +54,15 @@ class BusStopForHome {
         id: UUID = UUID(),
         stationName: String,
         stationNumber: String,
+        nodeId: String,
+        cityCode: String,
         busRoutes: [BusSampleData]
     ) {
         self.id = id
         nodenm = stationName
         nodeno = stationNumber
+        self.nodeId = nodeId
+        self.cityCode = cityCode
         routes = busRoutes
     }
 }
@@ -109,13 +115,17 @@ let busStationData: [BusStopForHome] = [
     BusStopForHome(
         id: UUID(),
         stationName: "포항공과대학교",
-        stationNumber: "12341234",
+        stationNumber: "37710",
+        nodeId: "PHB8000123",
+        cityCode: "37010",
         busRoutes: busSampleData.filter { $0.stationNumber == "12341234" }
     ),
     BusStopForHome(
         id: UUID(),
         stationName: "효자시장",
-        stationNumber: "12312312",
+        stationNumber: "37734",
+        nodeId: "PHB8000124",
+        cityCode: "37010",
         busRoutes: busSampleData.filter { $0.stationNumber == "12312312" }
     ),
 ]
@@ -141,94 +151,81 @@ struct HomeView: View {
 
     var body: some View {
         VStack {
-            Button {
-                // 검색 페이지로 이동
-                router.push(.search)
-            } label: {
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.gray)
+            VStack {
+                Button {
+                    // 검색 페이지로 이동
+                    router.push(.search)
+                } label: {
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.gray)
 
-                    Text("버스 노선, 정류장 검색")
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        Text("버스 노선, 정류장 검색")
+                            .foregroundColor(.gray)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(10)
                 }
                 .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(10)
-            }
-            .padding()
-            .background(.gray.opacity(0.1))
+                .background(.gray.opacity(0.1))
 
-            ScrollView {
-                Text("홈")
-                    .font(.largeTitle)
-                    .frame(maxWidth: .infinity, alignment: .init(horizontal: .leading, vertical: .center))
-                    .padding(.horizontal)
-
-                if let busStationData {
-                    ForEach(busStationData) { station in
-                        // 정류소 번호를 전달(버스 필터링용)
-                        BusStationCardSubView(
-                            busStopData: station,
-                            isNotificationOn: activatedNodeID == station.id.uuidString,
-                            activateNotification: {
-                                if activatedNodeID == station.id.uuidString {
-                                    activatedNodeID = ""
-                                } else {
-                                    activatedNodeID = station.id.uuidString
-                                }
-                            }
-                        )
+                ScrollView {
+                    Text("홈")
+                        .font(.largeTitle)
+                        .frame(maxWidth: .infinity, alignment: .init(horizontal: .leading, vertical: .center))
                         .padding(.horizontal)
-                    }
-                    .padding(.vertical)
 
-                    Button("편집") {
-                        router.push(.homeedit)
-                    }
-                    .padding(.bottom)
+                    if let busStationData {
+                        ForEach(busStationData) { station in
+                            BusStationCardSubView(
+                                stationName: station.nodenm,
+                                stationNumber: station.nodeno,
+                                nodeId: station.nodeId,
+                                cityCode: station.cityCode
+                            )
+                            .padding(.horizontal)
+                        }
+                        .padding(.vertical)
 
-                } else {
-                    Text("저장된 내역이 없습니다.")
-                        .foregroundColor(.gray)
-                        .padding(.top, 50)
+                        Button("편집") {
+                            router.push(.homeedit)
+                        }
                         .padding(.bottom)
-                    Text("자주 이용하는 버스를 추가해 주세요.")
-                        .foregroundColor(.gray)
-                        .padding(.bottom, 30)
+                    } else {
+                        Text("저장된 내역이 없습니다.")
+                            .foregroundColor(.gray)
+                            .padding(.top, 50)
+                            .padding(.bottom)
+                        Text("자주 이용하는 버스를 추가해 주세요.")
+                            .foregroundColor(.gray)
+                            .padding(.bottom, 30)
 
-                    Button {
-                        router.push(.search)
-                    } label: {
-                        Text("나의 버스 추가하기")
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 10)
-                            .background(Color.blue)
-                            .cornerRadius(20)
+                        Button {
+                            router.push(.search)
+                        } label: {
+                            Text("나의 버스 추가하기")
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 10)
+                                .background(Color.blue)
+                                .cornerRadius(20)
+                        }
+
+                        Spacer()
                     }
 
-                    Spacer()
-                }
-                Button("버스 검색으로 이동") {
-                    router.push(.search)
-                }
-
-                Button("버스 정류장으로 이동 (데이터 전달)") {
-                    router.push(.busstation(busStopInfo: sampleBusStop))
-                }
-
-                Button("TestView로 이동 (데이터 전달)") {
-                    router.push(.test(busStopInfo: sampleBusStop))
-                }
-
-                Button("비전 버스 켜기") {
-                    router.push(.busvision(routeToDetect: ["1142"]))
+                    Divider()
+                    Button("TestView로 이동 (데이터 전달)") {
+                        router.push(.test(busStopInfo: sampleBusStop))
+                    }
+                    Button("비전 버스 켜기") {
+                        router.push(.busvision(routeToDetect: ["1142"]))
+                    }
                 }
             }
-        }
-        .onAppear {
+        }.onAppear {
             fetchData()
         }
     }
@@ -241,7 +238,9 @@ extension HomeView {
             BusStopForHome(
                 id: UUID(),
                 stationName: "포항공과대학교",
-                stationNumber: "12341234",
+                stationNumber: "37710",
+                nodeId: "PHB8000123",
+                cityCode: "37010",
                 busRoutes: busSampleData.filter {
                     $0.stationNumber == "12341234"
                 }
@@ -249,7 +248,9 @@ extension HomeView {
             BusStopForHome(
                 id: UUID(),
                 stationName: "효자시장",
-                stationNumber: "12312312",
+                stationNumber: "37734",
+                nodeId: "PHB8000124",
+                cityCode: "37010",
                 busRoutes: busSampleData.filter {
                     $0.stationNumber == "12312312"
                 }

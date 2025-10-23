@@ -7,24 +7,19 @@
 import SwiftUI
 
 struct BusStationListSubView: View {
-    let buses: [BusSampleData]
+    let routes: [BusStationViewModel.RouteDetail]
 
     var body: some View {
-        VStack {
-            ForEach(buses) { sampleItem in
-                BusStationRowSubView(sampleItem: sampleItem)
-                // 버스들 중간에 들어가는 분리 선, 표시되는 버스가 마지막 버스가 아니면 분리 선 표시!
-                if sampleItem.id != buses.last?.id {
+        VStack(spacing: 0) {
+            ForEach(routes) { route in
+                BusStationRowSubView(route: route)
+                if route.id != routes.last?.id {
                     Divider()
                 }
             }
-            .padding(5)
         }
         .padding()
-        .background(.gray.opacity(0.2))
+        .background(Color(.systemGray6))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
-}
-
-#Preview {
-    BusStationListSubView(buses: busSampleData)
 }

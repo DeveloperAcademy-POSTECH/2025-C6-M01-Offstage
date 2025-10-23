@@ -40,13 +40,6 @@ struct SearchView: View {
                     }
                 }
                 .padding(.horizontal, 16)
-                .navigationBarItems(leading:
-                    Button(action: {
-                        router.popToRoot()
-                    }, label: {
-                        Image(systemName: "chevron.left")
-                    })
-                )
                 .toolbar {
                     ToolbarItem(placement: .principal) { // 툴바 항목 배치
                         TextField("검색...", text: $viewModel.searchTerm)
@@ -68,13 +61,10 @@ private extension SearchView {
     func stopList(_ stops: [BusStopForSearch]) -> some View {
         VStack(spacing: 0) {
             ForEach(stops) { busStop in
-                Button(action: {
-                    // TODO: Fix navigation
-                    // router.push(.busstation(busStopInfo: busStopInfo))
-                }) {
-                    SearchResultsView(busStop: busStop)
+                SearchResultsView(busStop: busStop) {
+                    guard let input = viewModel.destinationInput(for: busStop) else { return }
+                    router.push(.busstation(input: input))
                 }
-                .buttonStyle(PlainButtonStyle())
             }
             Divider()
                 .overlay(Color.gray.opacity(0.2))
