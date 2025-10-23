@@ -4,11 +4,36 @@
 //
 //  Created by Murphy on 10/21/25.
 //
+import SwiftData
 import SwiftUI
 
 struct BusStationRowSubView: View {
+    @Environment(\.modelContext) private var modelContext
     let route: BusStationViewModel.RouteDetail
-    @State private var isSavedOn = false
+    let cityCode: String
+    let nodeId: String
+    let nodeNo: String?
+    let nodeName: String
+
+    @Query private var favorites: [Favorite]
+
+    init(route: BusStationViewModel.RouteDetail, cityCode: String, nodeId: String, nodeNo: String?, nodeName: String) {
+        self.route = route
+        self.cityCode = cityCode
+        self.nodeId = nodeId
+        self.nodeNo = nodeNo
+        self.nodeName = nodeName
+
+        let favoriteId = "\(cityCode)-\(nodeId)-\(route.routeId)"
+        _favorites = Query(filter: #Predicate { $0.id == favoriteId })
+        print(
+            "BusStationRowSubView init: cityCode=\(cityCode), nodeId=\(nodeId), routeId=\(route.routeId), favoriteId=\(favoriteId)"
+        )
+    }
+
+    private var isSavedOn: Bool {
+        !favorites.isEmpty
+    }
 
     var body: some View {
         HStack(alignment: .top) {
@@ -17,6 +42,8 @@ struct BusStationRowSubView: View {
                     Label(route.routeNumber, systemImage: "bus.fill")
                         .font(.title3)
                         .fontWeight(.semibold)
+                    Text(route.direction)
+                        .font(.subheadline)
                     Spacer()
                 }
                 if let routeType = route.routeType, !routeType.isEmpty {
@@ -52,11 +79,58 @@ struct BusStationRowSubView: View {
                 }
             }
 
-            CircularToggleButton(isOn: $isSavedOn)
+            CircularToggleButton(isOn: isSavedOn) {
+                if isSavedOn {
+                    removeFavorite()
+                } else {
+                    addFavorite()
+                }
+            }
+        }
+    }
+
+    private func addFavorite() {
+        print("Adding favorite: cityCode=\(cityCode), nodeId=\(nodeId), routeId=\(route.routeId)")
+        let favorite = Favorite(
+            cityCode: cityCode,
+            nodeId: nodeId,
+            nodeNo: nodeNo,
+            routeId: route.routeId,
+            nodeName: nodeName,
+            routeNo: route.routeNumber,
+            direction: route.direction
+        )
+        modelContext.insert(favorite)
+        do {
+            try modelContext.save()
+            print("Successfully saved favorite")
+        } catch {
+            print("Failed to save favorite: \(error)")
+        }
+    }
+
+    private func removeFavorite() {
+        print("Removing favorite: cityCode=\(cityCode), nodeId=\(nodeId), routeId=\(route.routeId)")
+        if let favorite = favorites.first {
+            modelContext.delete(favorite)
+            do {
+                try modelContext.save()
+                print("Successfully removed favorite")
+            } catch {
+                print("Failed to remove favorite: \(error)")
+            }
         }
     }
 }
 
 #Preview {
-    BusStationRowSubView(route: .sample)
+    let container = try! ModelContainer(for: Favorite.self, configurations: .init(isStoredInMemoryOnly: true))
+    return BusStationRowSubView(
+        route: .sample,
+        cityCode: "25",
+        nodeId: "DJB8001793",
+        nodeNo: "12345",
+        nodeName: "포항성모병원"
+    )
+    .modelContainer(container)
 }

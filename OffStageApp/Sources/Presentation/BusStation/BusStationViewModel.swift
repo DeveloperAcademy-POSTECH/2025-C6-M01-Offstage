@@ -33,20 +33,24 @@ final class BusStationViewModel: ObservableObject {
             }
         }
 
+        let routeId: String
         let routeNumber: String
         let routeType: String?
+        let direction: String
         let arrivals: [Arrival]
 
-        var id: String { routeNumber }
+        var id: String { routeId }
     }
 
     let input: BusStationViewInput
     @Published private(set) var viewState: ViewState = .idle
 
     private let arrivalsFetcher: @Sendable (String, String) async throws -> [BusArrival]
+    private let busRepository: BusRepository
 
     init(input: BusStationViewInput, busRepository: BusRepository) {
         self.input = input
+        self.busRepository = busRepository
         arrivalsFetcher = { cityCode, nodeId in
             try await busRepository.fetchStopArrivals(cityCode: cityCode, nodeId: nodeId)
         }
@@ -54,10 +58,12 @@ final class BusStationViewModel: ObservableObject {
 
     init(
         input: BusStationViewInput,
-        arrivalsFetcher: @escaping @Sendable (String, String) async throws -> [BusArrival]
+        arrivalsFetcher: @escaping @Sendable (String, String) async throws -> [BusArrival],
+        busRepository: BusRepository
     ) {
         self.input = input
         self.arrivalsFetcher = arrivalsFetcher
+        self.busRepository = busRepository
     }
 
     func load() {
@@ -76,28 +82,49 @@ final class BusStationViewModel: ObservableObject {
             let arrivals = try await arrivalsFetcher(input.cityCode, input.nodeId)
             print("BusStationViewModel - Fetched arrivals: \(arrivals)")
 
-            let grouped = Dictionary(grouping: arrivals, by: \.routeNumber)
+            let groupedByRouteId = Dictionary(grouping: arrivals, by: \.routeId)
 
-            let details = grouped.keys.sorted().map { routeNumber -> RouteDetail in
-                let arrivalsForRoute = (grouped[routeNumber] ?? [])
-                    .sorted {
-                        ($0.estimatedArrivalTime ?? Int.max) < ($1.estimatedArrivalTime ?? Int.max)
+            let details = await withTaskGroup(of: RouteDetail?.self, returning: [RouteDetail].self) { group in
+                for (routeId, arrivalsForRoute) in groupedByRouteId {
+                    group.addTask {
+                        guard let firstArrival = arrivalsForRoute.first else { return nil }
+
+                        let routeInfo = try? await self.busRepository.fetchRouteInfo(
+                            cityCode: self.input.cityCode,
+                            routeId: routeId
+                        )
+
+                        let mappedArrivals = arrivalsForRoute
+                            .sorted {
+                                ($0.estimatedArrivalTime ?? Int.max) < ($1.estimatedArrivalTime ?? Int.max)
+                            }
+                            .map { arrival in
+                                RouteDetail.Arrival(
+                                    secondsUntilArrival: arrival.estimatedArrivalTime,
+                                    remainingStops: arrival.remainingStopCount,
+                                    vehicleType: arrival.vehicleType
+                                )
+                            }
+
+                        return RouteDetail(
+                            routeId: routeId,
+                            routeNumber: firstArrival.routeNumber,
+                            routeType: firstArrival.routeType,
+                            direction: routeInfo?.endStopName ?? "",
+                            arrivals: mappedArrivals
+                        )
                     }
-
-                let mappedArrivals = arrivalsForRoute.map { arrival in
-                    RouteDetail.Arrival(
-                        secondsUntilArrival: arrival.estimatedArrivalTime,
-                        remainingStops: arrival.remainingStopCount,
-                        vehicleType: arrival.vehicleType
-                    )
                 }
 
-                return RouteDetail(
-                    routeNumber: routeNumber,
-                    routeType: arrivalsForRoute.first?.routeType,
-                    arrivals: mappedArrivals
-                )
+                var results = [RouteDetail]()
+                for await result in group {
+                    if let result {
+                        results.append(result)
+                    }
+                }
+                return results.sorted(by: { $0.routeNumber < $1.routeNumber })
             }
+
             print("DETAIL \n\n\n\n\n\(details)\n\n\n\n\n\n")
 
             viewState = .success(details)
@@ -109,8 +136,10 @@ final class BusStationViewModel: ObservableObject {
 
 extension BusStationViewModel.RouteDetail {
     static let sample: Self = .init(
+        routeId: "DJB30300004",
         routeNumber: "111",
         routeType: "간선버스",
+        direction: "시청 방면",
         arrivals: [
             .init(secondsUntilArrival: 480, remainingStops: 2, vehicleType: "저상"),
             .init(secondsUntilArrival: 1320, remainingStops: 12, vehicleType: nil),

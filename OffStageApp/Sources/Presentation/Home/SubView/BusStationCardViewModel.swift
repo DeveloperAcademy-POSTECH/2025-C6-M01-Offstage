@@ -7,18 +7,37 @@ final class BusStationCardViewModel: ObservableObject {
     private let busRepository: BusRepository
     private let nodeId: String
     private let cityCode: String
+    private let favorites: [Favorite]
 
-    init(busRepository: BusRepository, nodeId: String, cityCode: String) {
+    init(busRepository: BusRepository, nodeId: String, cityCode: String, favorites: [Favorite]) {
         self.busRepository = busRepository
         self.nodeId = nodeId
         self.cityCode = cityCode
+        self.favorites = favorites
     }
 
     func fetchArrivals() async {
         do {
-            let arrivals = try await busRepository.fetchStopArrivals(cityCode: cityCode, nodeId: nodeId)
-            print("BusStationCardViewModel - Fetched arrivals: \(arrivals)")
-            busArrivals = arrivals
+            busArrivals = try await withThrowingTaskGroup(
+                of: [BusArrival].self,
+                returning: [BusArrival].self
+            ) { group in
+                for favorite in favorites {
+                    group.addTask {
+                        try await self.busRepository.fetchRouteArrivals(
+                            cityCode: self.cityCode,
+                            nodeId: self.nodeId,
+                            routeId: favorite.routeId
+                        )
+                    }
+                }
+
+                var result = [BusArrival]()
+                for try await arrivals in group {
+                    result.append(contentsOf: arrivals)
+                }
+                return result.sorted(by: { $0.routeNumber < $1.routeNumber })
+            }
         } catch {
             print("Error fetching arrivals: \(error)")
             // Handle error appropriately, e.g., set an error state

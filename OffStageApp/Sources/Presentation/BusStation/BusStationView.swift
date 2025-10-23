@@ -78,7 +78,7 @@ struct BusStationView: View {
                 .foregroundColor(.secondary)
                 .padding(.vertical, 40)
             } else {
-                BusStationListSubView(routes: routes)
+                BusStationListSubView(routes: routes, viewInput: viewModel.input)
                     .padding(.horizontal, 16)
             }
 

@@ -7,14 +7,11 @@
 import SwiftUI
 
 struct CircularToggleButton: View {
-    @Binding var isOn: Bool
+    let isOn: Bool
+    let action: () -> Void
 
     var body: some View {
-        Button(action: {
-            withAnimation(.spring(response: 0.1)) {
-                isOn.toggle()
-            }
-        }) {
+        Button(action: action) {
             ZStack {
                 Circle()
                     .fill(isOn ? Color.blue : Color.clear)
