@@ -4,20 +4,39 @@ struct HomeEditView: View {
     @EnvironmentObject var router: Router<AppRoute>
 
     var body: some View {
-        VStack(spacing: 16) {
-            Text("홈 편집 화면")
-                .font(.largeTitle)
-
-            Button("이전 화면으로 돌아가기 (pop)") {
-                router.pop()
+        VStack {
+            Rectangle()
+                .foregroundColor(.black)
+                .frame(height: 100)
+            
+            Text("추후 개발 예정입니다.")
+                .font(.title3)
+                .foregroundColor(.gray)
+            
+            Spacer()
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    router.pop()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.gray)
+                }
             }
 
-            Button("홈으로 돌아가기 (popToRoot)") {
-                router.popToRoot()
+            ToolbarItem(placement: .principal) {
+                VStack {
+                    Text("홈 화면 편집")
+                        .font(.title2)
+                        .foregroundColor(.gray)
+                }
+                .frame(height: 400)
             }
         }
-        .padding()
-        .navigationTitle("Home Edit")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.visible, for: .navigationBar)
     }
 }
 
