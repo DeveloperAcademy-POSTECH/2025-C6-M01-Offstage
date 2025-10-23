@@ -6,6 +6,8 @@ import Vision
 final class BusDetectionViewController: UIViewController {
     /// 인식할 노선번호
     var routeNumbersToDetect: [String] = []
+    /// 감지된 노선번호 배열이 변경될 때 SwiftUI에서 처리하기 위한 클로저
+    var onDetectedRouteNumbersChanged: (([String]) -> Void)?
 
     private var captureSession: AVCaptureSession?
     private var request: VNCoreMLRequest?
@@ -183,6 +185,8 @@ extension BusDetectionViewController {
         guard let predictions =
             (request.results as? [VNRecognizedObjectObservation])
         else { return }
+
+        var tempDetected: [String] = []
         var finalPredictions: [VNRecognizedObjectObservation] = []
 
         for prediction in predictions {
@@ -207,11 +211,16 @@ extension BusDetectionViewController {
                     if ocrText.contains(routeNo) {
                         // 검사 결과에 있다면 바운딩박스에 추가
                         finalPredictions.append(prediction)
+                        if !tempDetected.contains(routeNo) {
+                            tempDetected.append(routeNo)
+                        }
                     }
                 }
             }
         }
+
         DispatchQueue.main.async {
+            self.onDetectedRouteNumbersChanged?(tempDetected)
             self.drawingBoxesView?.drawBox(with: finalPredictions)
         }
     }
