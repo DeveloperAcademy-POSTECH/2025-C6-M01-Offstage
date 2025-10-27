@@ -13,7 +13,6 @@ public struct BusStop: Decodable, Hashable, Identifiable {
 
     private enum CodingKeys: String, CodingKey {
         case nodeIdLower = "nodeid"
-        case nodeIdUpper = "nodeId"
         case nameLower = "nodenm"
         case nameUpper = "nodeNm"
         case numberLower = "nodeno"
@@ -51,7 +50,7 @@ public struct BusStop: Decodable, Hashable, Identifiable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        nodeId = try container.decodeFlexibleString(forKey: .nodeIdLower, fallbackKeys: [.nodeIdUpper])
+        nodeId = try container.decodeFlexibleString(forKey: .nodeIdLower)
         name = try container.decodeFlexibleString(forKey: .nameLower, fallbackKeys: [.nameUpper])
         number = container.decodeOptionalFlexibleString(forKey: .numberLower, fallbackKeys: [.numberUpper])
         cityCode = container.decodeOptionalFlexibleInt(forKey: .cityCodeLower, fallbackKeys: [.cityCodeUpper])

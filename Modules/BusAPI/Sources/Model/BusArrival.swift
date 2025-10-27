@@ -20,7 +20,6 @@ public struct BusArrival: Decodable, Hashable, Identifiable {
         case routeTypeLower = "routetp"
         case routeTypeUpper = "routeTp"
         case nodeIdLower = "nodeid"
-        case nodeIdUpper = "nodeId"
         case nodeNameLower = "nodenm"
         case nodeNameUpper = "nodeNm"
         case remainingStopsLower = "arrprevstationcnt"
@@ -56,7 +55,7 @@ public struct BusArrival: Decodable, Hashable, Identifiable {
         routeId = try container.decodeFlexibleString(forKey: .routeIdLower, fallbackKeys: [.routeIdUpper])
         routeNumber = try container.decodeFlexibleString(forKey: .routeNumberLower, fallbackKeys: [.routeNumberUpper])
         routeType = try container.decodeFlexibleString(forKey: .routeTypeLower, fallbackKeys: [.routeTypeUpper])
-        nodeId = try container.decodeFlexibleString(forKey: .nodeIdLower, fallbackKeys: [.nodeIdUpper])
+        nodeId = try container.decodeFlexibleString(forKey: .nodeIdLower)
         nodeName = try container.decodeFlexibleString(forKey: .nodeNameLower, fallbackKeys: [.nodeNameUpper])
         remainingStopCount = container.decodeOptionalFlexibleInt(
             forKey: .remainingStopsLower,

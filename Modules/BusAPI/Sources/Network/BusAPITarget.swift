@@ -131,7 +131,7 @@ public extension BusAPITarget {
             case let .stopRoutes(cityCode, nodeId):
                 [
                     "cityCode": cityCode,
-                    "nodeId": nodeId,
+                    "nodeid": nodeId,
                     // "numOfRows": 50,
                 ]
             case let .routeInfo(cityCode, routeId):
@@ -154,13 +154,13 @@ public extension BusAPITarget {
             case let .stopArrivals(cityCode, nodeId):
                 [
                     "cityCode": cityCode,
-                    "nodeId": nodeId,
+                    "nodeid": nodeId,
                     // "numOfRows": 50,
                 ]
             case let .routeArrivals(cityCode, nodeId, routeId):
                 [
                     "cityCode": cityCode,
-                    "nodeId": nodeId,
+                    "nodeid": nodeId,
                     "routeId": routeId,
                 ]
             }
