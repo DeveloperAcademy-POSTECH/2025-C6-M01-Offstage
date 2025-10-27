@@ -8,11 +8,11 @@ struct HomeEditView: View {
             Rectangle()
                 .foregroundColor(.black)
                 .frame(height: 100)
-            
+
             Text("추후 개발 예정입니다.")
                 .font(.title3)
                 .foregroundColor(.gray)
-            
+
             Spacer()
         }
         .navigationBarBackButtonHidden(true)
