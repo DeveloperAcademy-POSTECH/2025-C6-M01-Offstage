@@ -17,7 +17,7 @@ struct BusVisionView: View {
         ZStack(alignment: .bottom) {
             // 뷰파인더 + 바운딩박스
             BusDetectionView(
-                routeNumbersToDetect: routeNumbers,
+                routeNumbersToDetect: routeNumbers.map { removeParenthesesContent($0) },
                 detectedRouteNumbers: $detectedRouteNumbers
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -40,5 +40,14 @@ struct BusVisionView: View {
                     .foregroundStyle(.black)
             }
         }
+    }
+}
+
+extension BusVisionView {
+    private func removeParenthesesContent(_ text: String) -> String {
+        if let range = text.range(of: "\\(.*\\)", options: .regularExpression) {
+            return text.replacingCharacters(in: range, with: "").trimmingCharacters(in: .whitespaces)
+        }
+        return text
     }
 }
