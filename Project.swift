@@ -3,6 +3,7 @@ import ProjectDescription
 let organizationName = "2025C6.OffStage"
 
 let baseInfoPlist: [String: Plist.Value] = [
+    "CFBundleDisplayName": "$(APP_DISPLAY_NAME)",
     "UILaunchScreen": [
         "UIColorName": "",
         "UIImageName": "",
@@ -61,7 +62,7 @@ let app = Target.target(
     name: "OffStageApp",
     destinations: [.iPhone],
     product: .app,
-    bundleId: "\(organizationName).App",
+    bundleId: "$(PRODUCT_BUNDLE_IDENTIFIER)",
     infoPlist: .extendingDefault(with: baseInfoPlist),
     sources: ["OffStageApp/Sources/**"],
     resources: ["OffStageApp/Resources/**", "OffStageApp/Resources/*.mlmodel"],

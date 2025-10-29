@@ -1,1 +1,4 @@
 #include "Secrets.xcconfig"
+
+APP_DISPLAY_NAME = OffStage
+PRODUCT_BUNDLE_IDENTIFIER = com.offstage.app
