@@ -37,7 +37,7 @@ let busAPI = Target.target(
     product: .framework,
     bundleId: "\(organizationName).BusAPI",
     infoPlist: .extendingDefault(with: baseInfoPlist),
-    sources: ["Modules/BusAPI/Sources/**"],
+    sources: ["Modules/BusAPI/Sources/**", "Modules/BusAPI/Resources/**"],
     dependencies: [
         .external(name: "Moya"),
         .external(name: "Logging"),
@@ -68,6 +68,7 @@ let app = Target.target(
     scripts: [formatScript, lintScript],
     dependencies: [
         .target(name: "BusAPI"),
+        .external(name: "GRDB"),
     ]
 )
 
