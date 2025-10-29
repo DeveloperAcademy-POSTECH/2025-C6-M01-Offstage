@@ -13,6 +13,7 @@ final class BusDetectionViewController: UIViewController {
     private var request: VNCoreMLRequest?
 
     private var drawingBoxesView: DrawingBoxesView?
+    private var tempStrokeBoxesView: TempStokeBoxesView?
     private var currentPixelBuffer: CVPixelBuffer?
 
     // MARK: Life Cycle
@@ -46,6 +47,7 @@ final class BusDetectionViewController: UIViewController {
         view.layer.sublayers?.first(where: { $0 is AVCaptureVideoPreviewLayer }
         )?.frame = fullFrame
         drawingBoxesView?.frame = fullFrame
+        tempStrokeBoxesView?.frame = fullFrame
     }
 
     // MARK: Functions
@@ -95,18 +97,21 @@ final class BusDetectionViewController: UIViewController {
     /// 바운딩박스 뷰 서브뷰 설정
     private func setupBoxesView() {
         let drawingBoxesView = DrawingBoxesView()
+        let strokeBoxesView = TempStokeBoxesView()
         drawingBoxesView.frame = view.frame
+        strokeBoxesView.frame = view.frame
 
+        view.addSubview(strokeBoxesView)
         view.addSubview(drawingBoxesView)
+
         self.drawingBoxesView = drawingBoxesView
+        tempStrokeBoxesView = strokeBoxesView
     }
 }
 
 // MARK: - Video Delegate
 
-extension BusDetectionViewController:
-    AVCaptureVideoDataOutputSampleBufferDelegate
-{
+extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     /// 실시간 캡쳐 Delegate
     func captureOutput(
         _: AVCaptureOutput,
@@ -222,6 +227,10 @@ extension BusDetectionViewController {
         DispatchQueue.main.async {
             self.onDetectedRouteNumbersChanged?(tempDetected)
             self.drawingBoxesView?.drawBox(with: finalPredictions)
+            self.tempStrokeBoxesView?.drawBox(with: predictions.filter { prediction in
+                prediction.confidence >= 0.6 &&
+                    !finalPredictions.contains(where: { $0.uuid == prediction.uuid })
+            })
         }
     }
 
