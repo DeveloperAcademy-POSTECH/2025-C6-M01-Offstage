@@ -25,6 +25,7 @@ final class TestViewModel: ObservableObject {
 
     private let locationProvider: LocationProviding
     private let busRepository: BusRepository
+    private let localBusStopRepository: LocalBusStopRepository
     private var cancellables = Set<AnyCancellable>()
     private let logger = Logger(label: "TestViewModel")
 
@@ -44,6 +45,11 @@ final class TestViewModel: ObservableObject {
         )
         self.locationProvider = locationProvider
         self.busRepository = busRepository
+        do {
+            localBusStopRepository = try LocalBusStopRepository()
+        } catch {
+            fatalError("Could not initialize LocalBusStopRepository: \(error)")
+        }
     }
 
     func onAppear() {
@@ -61,10 +67,7 @@ final class TestViewModel: ObservableObject {
         await performRequest(
             name: "Stop search"
         ) {
-            try await busRepository.searchStops(
-                cityCode: String(busStopInfo.cityCode),
-                keyword: busStopInfo.stopName
-            )
+            try await localBusStopRepository.searchStops(byName: busStopInfo.stopName, page: 1)
         } onSuccess: { [weak self] stops in
             guard let self else { return }
             updateDisplay(with: stops, title: "정류장", describe: describeStops, emptyMessage: "정류장 정보를 찾을 수 없습니다.")
@@ -128,9 +131,11 @@ final class TestViewModel: ObservableObject {
         await performRequest(
             name: "Nearby stops"
         ) {
-            try await busRepository.fetchStopsNearby(
+            try await localBusStopRepository.findNearbyStops(
                 latitude: busStopInfo.gpsLati,
-                longitude: busStopInfo.gpsLong
+                longitude: busStopInfo.gpsLong,
+                radiusInMeters: 1000,
+                page: 1
             )
         } onSuccess: { [weak self] stops in
             guard let self else { return }
@@ -206,18 +211,6 @@ final class TestViewModel: ObservableObject {
                 describe: describeStations,
                 emptyMessage: "경유 정류장 정보를 찾을 수 없습니다."
             )
-        }
-    }
-
-    func getStopCities() async {
-        logger.info("getStopCities() called")
-        await performRequest(
-            name: "Stop city codes"
-        ) {
-            try await busRepository.fetchCities(for: .stop)
-        } onSuccess: { [weak self] cities in
-            guard let self else { return }
-            updateDisplay(with: cities, title: "도시 코드", describe: describeCities, emptyMessage: "도시 코드 정보를 찾을 수 없습니다.")
         }
     }
 

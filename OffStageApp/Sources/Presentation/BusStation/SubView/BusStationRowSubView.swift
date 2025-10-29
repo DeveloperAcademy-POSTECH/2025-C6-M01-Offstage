@@ -124,13 +124,17 @@ struct BusStationRowSubView: View {
 }
 
 #Preview {
-    let container = try! ModelContainer(for: Favorite.self, configurations: .init(isStoredInMemoryOnly: true))
-    return BusStationRowSubView(
-        route: .sample,
-        cityCode: "25",
-        nodeId: "DJB8001793",
-        nodeNo: "12345",
-        nodeName: "포항성모병원"
-    )
-    .modelContainer(container)
+    do {
+        let container = try ModelContainer(for: Favorite.self, configurations: .init(isStoredInMemoryOnly: true))
+        return BusStationRowSubView(
+            route: .sample,
+            cityCode: "25",
+            nodeId: "DJB8001793",
+            nodeNo: "12345",
+            nodeName: "포항성모병원"
+        )
+        .modelContainer(container)
+    } catch {
+        return Text("Failed to create preview: \(error.localizedDescription)")
+    }
 }

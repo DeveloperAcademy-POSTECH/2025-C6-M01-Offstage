@@ -1,6 +1,6 @@
 import Foundation
 
-struct BusStopForSearch: Identifiable {
+struct BusStopForSearch: Identifiable, Equatable {
     let id: UUID
     /// 정류소이름
     let nodenm: String
