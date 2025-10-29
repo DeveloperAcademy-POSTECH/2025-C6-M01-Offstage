@@ -37,7 +37,7 @@ let busAPI = Target.target(
     product: .framework,
     bundleId: "\(organizationName).BusAPI",
     infoPlist: .extendingDefault(with: baseInfoPlist),
-    sources: ["Modules/BusAPI/Sources/**", "Modules/BusAPI/Resources/**"],
+    sources: ["Modules/BusAPI/Sources/**"],
     dependencies: [
         .external(name: "Moya"),
         .external(name: "Logging"),
