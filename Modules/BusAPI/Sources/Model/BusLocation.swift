@@ -26,7 +26,6 @@ public struct BusLocation: Decodable, Hashable, Identifiable {
         case vehicleUpper = "vehicleNo"
         case vehiclePlain = "plainNo"
         case nodeIdLower = "nodeid"
-        case nodeIdUpper = "nodeId"
         case nodeNameLower = "nodenm"
         case nodeNameUpper = "nodeNm"
         case nodeOrderLower = "nodeord"
@@ -83,7 +82,7 @@ public struct BusLocation: Decodable, Hashable, Identifiable {
             forKey: .vehicleLower,
             fallbackKeys: [.vehicleUpper, .vehiclePlain]
         ) ?? ""
-        nodeId = container.decodeOptionalFlexibleString(forKey: .nodeIdLower, fallbackKeys: [.nodeIdUpper]) ?? ""
+        nodeId = container.decodeOptionalFlexibleString(forKey: .nodeIdLower) ?? ""
         nodeName = container.decodeOptionalFlexibleString(forKey: .nodeNameLower, fallbackKeys: [.nodeNameUpper]) ?? ""
         nodeOrder = container.decodeOptionalFlexibleInt(forKey: .nodeOrderLower, fallbackKeys: [.nodeOrderUpper]) ?? 0
 

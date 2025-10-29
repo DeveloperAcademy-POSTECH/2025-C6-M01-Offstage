@@ -12,7 +12,6 @@ public struct BusRouteStation: Decodable, Hashable, Identifiable {
 
     private enum CodingKeys: String, CodingKey {
         case stationIdLower = "nodeid"
-        case stationIdUpper = "nodeId"
         case stationNameLower = "nodenm"
         case stationNameUpper = "nodeNm"
         case stationOrderLower = "nodeord"
@@ -45,7 +44,7 @@ public struct BusRouteStation: Decodable, Hashable, Identifiable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        stationId = try container.decodeFlexibleString(forKey: .stationIdLower, fallbackKeys: [.stationIdUpper])
+        stationId = try container.decodeFlexibleString(forKey: .stationIdLower)
         stationName = try container.decodeFlexibleString(forKey: .stationNameLower, fallbackKeys: [.stationNameUpper])
         stationOrder = try container.decodeFlexibleInt(forKey: .stationOrderLower, fallbackKeys: [.stationOrderUpper])
         turnYn = container.decodeOptionalFlexibleString(forKey: .turnYn, fallbackKeys: [.turnYnUpper])
