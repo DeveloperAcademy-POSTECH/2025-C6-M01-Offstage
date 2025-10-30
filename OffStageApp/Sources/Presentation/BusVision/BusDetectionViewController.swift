@@ -198,7 +198,10 @@ extension BusDetectionViewController {
             if prediction.confidence < 0.6 { continue }
 
             // 이미지 자르기
-            guard let image = cropImage(prediction: prediction) else {
+            guard let image = cropImage(
+                pixelBuffer: currentPixelBuffer,
+                prediction: prediction
+            ) else {
                 print("이미지 자르기 실패")
                 continue
             }
@@ -234,27 +237,41 @@ extension BusDetectionViewController {
         }
     }
 
-    /// 바운딩박스에 맞춰 이미지 자르기
-    private func cropImage(prediction: VNRecognizedObjectObservation)
-        -> CGImage?
-    {
-        guard let pixelBuffer = currentPixelBuffer else { return nil }
+// MARK: Refine Image
+
+extension BusDetectionViewController {
+    /// 프레임이미지 버스에 맞게 자르기
+    func cropImage(
+        pixelBuffer: CVPixelBuffer?,
+        prediction: VNRecognizedObjectObservation
+    ) -> CGImage? {
+        guard let pixelBuffer else { return nil }
 
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
         let context = CIContext()
 
-        let imageWidth = CGFloat(CVPixelBufferGetWidth(pixelBuffer))
-        let imageHeight = CGFloat(CVPixelBufferGetHeight(pixelBuffer))
+        let imageSize = CGSize(
+            width: CGFloat(CVPixelBufferGetWidth(pixelBuffer)),
+            height: CGFloat(CVPixelBufferGetHeight(pixelBuffer))
+        )
 
-        let boundingBox = prediction.boundingBox
+        var boundingBox = convertToAbsoluteCoordinates(
+            imageSize: imageSize,
+            boundingBox: prediction.boundingBox
+        )
 
-        let x = boundingBox.origin.x * imageWidth
-        let y = (1 - boundingBox.origin.y - boundingBox.height) * imageHeight
-        let width = boundingBox.width * imageWidth
-        let height = boundingBox.height * imageHeight
+        // 버스 앞면인 경우 번호판 제거
+        if prediction.labels.first?.identifier == "bus_front" {
+            boundingBox = cropFrontBusBottom(boundingBox: boundingBox)
+        }
 
-        let cropRect = CGRect(x: x, y: y, width: width, height: height)
-        let croppedCIImage = ciImage.cropped(to: cropRect)
+        // 마진 추가하여 최종 자르기틀 생성
+        let rectToCrop = addMargins(
+            imageSize: imageSize,
+            boundingBox: boundingBox
+        )
+
+        let croppedCIImage = ciImage.cropped(to: rectToCrop)
 
         guard let cgImage = context.createCGImage(
             croppedCIImage,
@@ -263,5 +280,44 @@ extension BusDetectionViewController {
         else { return nil }
 
         return cgImage
+    }
+
+    /// 이미지에서 바운딩박스 영역을 나타내는 CGRect 구하기
+    func convertToAbsoluteCoordinates(imageSize: CGSize, boundingBox: CGRect) -> CGRect {
+        CGRect(
+            x: boundingBox.origin.x * imageSize.width,
+            y: (1 - boundingBox.origin.y - boundingBox.height) * imageSize.height,
+            width: boundingBox.width * imageSize.width,
+            height: boundingBox.height * imageSize.height
+        )
+    }
+
+    /// 버스번호판 자르기용 하단부 자르기
+    /// - 상단부의 80%만 남기고 하단부 20% 날리기
+    func cropFrontBusBottom(boundingBox: CGRect) -> CGRect {
+        CGRect(
+            x: boundingBox.origin.x,
+            y: boundingBox.origin.y,
+            width: boundingBox.width,
+            height: boundingBox.height * 0.8
+        )
+    }
+
+    /// ocr 이미지를 위한 영역조절: 인식된 범위보다 조금씩 여유 가지고 자르도록 하기
+    func addMargins(imageSize: CGSize, boundingBox: CGRect) -> CGRect {
+        // 이미지 크기의 5% 계산
+        let marginPercent: CGFloat = 0.05
+        let horizontalMargin = imageSize.width * marginPercent
+        let verticalMargin = imageSize.height * marginPercent
+
+        // 좌측, 우측 horizontalMargin 추가
+        let newX = max(0, boundingBox.origin.x - horizontalMargin)
+        let newWidth = min(imageSize.width - newX, boundingBox.width + horizontalMargin * 2)
+
+        // 상단에만 verticalMargin 추가 (하단은 그대로)
+        let newY = max(0, boundingBox.origin.y - verticalMargin)
+        let newHeight = min(imageSize.height - newY, boundingBox.height + verticalMargin)
+
+        return CGRect(x: newX, y: newY, width: newWidth, height: newHeight)
     }
 }
