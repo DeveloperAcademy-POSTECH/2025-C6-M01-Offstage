@@ -58,6 +58,13 @@ let busAPITests = Target.target(
     ]
 )
 
+let configurations: [Configuration] = [
+    .debug(name: "Debug-Dev", xcconfig: .relativeToRoot("Config/Dev.xcconfig")),
+    .release(name: "Release-Dev", xcconfig: .relativeToRoot("Config/Dev.xcconfig")),
+    .debug(name: "Debug-Prod", xcconfig: .relativeToRoot("Config/Prod.xcconfig")),
+    .release(name: "Release-Prod", xcconfig: .relativeToRoot("Config/Prod.xcconfig")),
+]
+
 let app = Target.target(
     name: "OffStageApp",
     destinations: [.iPhone],
@@ -70,19 +77,28 @@ let app = Target.target(
     dependencies: [
         .target(name: "BusAPI"),
         .external(name: "GRDB"),
-    ]
+    ],
+    settings: .settings(configurations: configurations)
 )
 
-let settings = Settings.settings(
-    base: [:],
-    configurations: [
-        .debug(name: "Debug", xcconfig: .relativeToRoot("Config/Debug.xcconfig")),
-        .release(name: "Release", xcconfig: .relativeToRoot("Config/Release.xcconfig")),
-    ]
-)
+let settings = Settings.settings(configurations: configurations)
 
 let project = Project(
     name: "OffStage",
     settings: settings,
-    targets: [busAPI, busAPITests, app]
+    targets: [busAPI, busAPITests, app],
+    schemes: [
+        .scheme(
+            name: "OffStageApp-Dev",
+            buildAction: .buildAction(targets: ["OffStageApp"]),
+            runAction: .runAction(configuration: .configuration("Debug-Dev")),
+            archiveAction: .archiveAction(configuration: .configuration("Release-Dev"))
+        ),
+        .scheme(
+            name: "OffStageApp-Prod",
+            buildAction: .buildAction(targets: ["OffStageApp"]),
+            runAction: .runAction(configuration: .configuration("Debug-Prod")),
+            archiveAction: .archiveAction(configuration: .configuration("Release-Prod"))
+        ),
+    ]
 )
