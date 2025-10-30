@@ -95,7 +95,7 @@ let project = Project(
             archiveAction: .archiveAction(configuration: .configuration("Release-Dev"))
         ),
         .scheme(
-            name: "OffStageApp-Prod",
+            name: "OffStageApp",
             buildAction: .buildAction(targets: ["OffStageApp"]),
             runAction: .runAction(configuration: .configuration("Debug-Prod")),
             archiveAction: .archiveAction(configuration: .configuration("Release-Prod"))
