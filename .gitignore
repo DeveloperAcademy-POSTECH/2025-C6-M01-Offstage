@@ -115,3 +115,4 @@ Tuist/Dependencies/graph.json
 *.p12
 ./minio\n# Secrets\nConfig/Secrets.xcconfig
 Config/Secrets.xcconfig
+Tuist/Package.resolved
