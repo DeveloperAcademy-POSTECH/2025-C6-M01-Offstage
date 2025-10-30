@@ -206,8 +206,14 @@ extension BusDetectionViewController {
                 continue
             }
 
+            // 이미지 크기 조정
+            guard let resizedImage = resizeImage(image) else {
+                print("이미지 크기 조정 실패")
+                continue
+            }
+
             // 자른 이미지 OCR 처리하기
-            OCRManager.recognizeText(from: image) { ocrText in
+            OCRManager.recognizeText(from: resizedImage) { ocrText in
                 guard let ocrText else {
                     print("OCR 처리 실패")
                     return
@@ -236,6 +242,7 @@ extension BusDetectionViewController {
             })
         }
     }
+}
 
 // MARK: Refine Image
 
@@ -280,6 +287,30 @@ extension BusDetectionViewController {
         else { return nil }
 
         return cgImage
+    }
+
+    /// 이미지 크기 표준화
+    func resizeImage(_ cgimage: CGImage, targetSize: CGSize = .init(width: 500, height: 500)) -> CGImage? {
+        let image = UIImage(cgImage: cgimage)
+        let size = image.size
+
+        let widthRatio = targetSize.width / size.width
+        let heightRatio = targetSize.height / size.height
+
+        // 비율을 유지하면서 targetSize 안에 맞춤
+        let scaleFactor = min(widthRatio, heightRatio)
+
+        let scaledSize = CGSize(
+            width: size.width * scaleFactor,
+            height: size.height * scaleFactor
+        )
+
+        let renderer = UIGraphicsImageRenderer(size: scaledSize)
+        let scaledImage = renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: scaledSize))
+        }
+
+        return scaledImage.cgImage
     }
 
     /// 이미지에서 바운딩박스 영역을 나타내는 CGRect 구하기
