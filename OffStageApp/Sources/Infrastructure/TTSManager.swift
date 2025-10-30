@@ -26,7 +26,11 @@ final class TTSManager: NSObject, ObservableObject {
         do {
             // .playback: 스피커/이어폰 등으로 출력, 백그라운드 재생 옵션도 유리
             // .duckOthers: 다른 앱 소리 볼륨을 살짝 줄여줌(겹칠 때 가독성↑)
-            try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP])
+            try session.setCategory(
+                .playAndRecord,
+                mode: .default,
+                options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP]
+            )
             try session.setActive(true)
         } catch {
             print("오디오 세션 설정 실패: \(error.localizedDescription)")

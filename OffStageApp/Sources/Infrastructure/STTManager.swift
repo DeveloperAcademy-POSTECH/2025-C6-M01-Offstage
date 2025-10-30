@@ -1,22 +1,16 @@
-//
-//  STTManager.swift
-//  OffStageApp
-//
-//  Created by 신민규 on 10/30/25.
-//
-
+import AVFoundation // 마이크 캡처를 위한 오디오 세션/엔진
+import Combine // @Published와 ObservableObject를 통해 상태 변경을 UI에 전달하기 위해 필요
 import Foundation
-import Combine         // @Published와 ObservableObject를 통해 상태 변경을 UI에 전달하기 위해 필요
-import Speech          // SFSpeechRecognizer 등 음성 인식 API
-import AVFoundation    // 마이크 캡처를 위한 오디오 세션/엔진
+import Speech // SFSpeechRecognizer 등 음성 인식 API
 
 final class STTManager: NSObject, ObservableObject {
-
     // MARK: - 외부(UI)에서 관찰할 상태 값
-    @Published var transcript: String = ""   // 실시간 인식 결과 텍스트
+
+    @Published var transcript: String = "" // 실시간 인식 결과 텍스트
     @Published var isListening: Bool = false // 현재 듣는 중 여부 (버튼 토글에 사용)
 
     // MARK: - 내부 구성 요소
+
     // 인식기: 언어를 한국어("ko-KR")로 지정.
     private let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "ko-KR"))
     // 마이크 입력을 다루는 오디오 엔진. installTap으로 버퍼를 받아온다.
@@ -27,12 +21,14 @@ final class STTManager: NSObject, ObservableObject {
     private var recognitionTask: SFSpeechRecognitionTask?
 
     // MARK: - 초기화
+
     override init() {
         super.init()
         requestAuthorization()
     }
-    
+
     // MARK: - 권한 요청
+
     private func requestAuthorization() {
         // iOS가 음성 인식 권한 팝업을 표시(처음 1회).
         SFSpeechRecognizer.requestAuthorization { authStatus in
@@ -50,6 +46,7 @@ final class STTManager: NSObject, ObservableObject {
     }
 
     // MARK: - 인식 시작 (실시간 스트리밍)
+
     func startListening() {
         // 이미 실행 중이면 중복으로 시작하지 않음
         guard !audioEngine.isRunning else { return }
@@ -65,9 +62,9 @@ final class STTManager: NSObject, ObservableObject {
 
         // 2) 인식 작업 생성: 결과가 나올 때마다 콜백 호출
         recognitionTask = recognizer?.recognitionTask(with: request) { [weak self] result, error in
-            guard let self = self else { return }
+            guard let self else { return }
 
-            if let result = result {
+            if let result {
                 // bestTranscription: 현재까지 인식된 최적의 문장
                 // UI 업데이트는 메인 스레드에서
                 DispatchQueue.main.async {
@@ -75,16 +72,16 @@ final class STTManager: NSObject, ObservableObject {
                 }
             }
 
-            if let error = error {
+            if let error {
                 // 오류가 발생하면 안전하게 정리하고 중지
                 print("인식 오류: \(error.localizedDescription)")
-                self.stopListening()
+                stopListening()
             }
         }
 
         // 3) 마이크 → 버퍼 → 요청 으로 이어지는 오디오 파이프라인 구성
-        let inputNode = audioEngine.inputNode               // 마이크 입력 노드
-        let format = inputNode.outputFormat(forBus: 0)      // 마이크 출력 포맷(샘플레이트 등)
+        let inputNode = audioEngine.inputNode // 마이크 입력 노드
+        let format = inputNode.outputFormat(forBus: 0) // 마이크 출력 포맷(샘플레이트 등)
 
         // 혹시 이전에 설치한 탭이 남아있을 수 있으니 선제적으로 제거(중복 탭 방지)
         inputNode.removeTap(onBus: 0)
@@ -107,6 +104,7 @@ final class STTManager: NSObject, ObservableObject {
     }
 
     // MARK: - 인식 중지 (리소스 정리)
+
     func stopListening() {
         // 오디오 입력 정지
         audioEngine.stop()
