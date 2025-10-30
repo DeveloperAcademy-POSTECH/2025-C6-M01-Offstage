@@ -21,7 +21,7 @@ cd 2025-C6-M01-Offstage
 make setup
 
 # 👉 이후 Xcode 실행을 위해 프로젝트를 생성해야 합니다
-make tuist-generate
+make gen
 ```
 
 `make setup`은 다음을 자동으로 실행합니다:
@@ -41,7 +41,7 @@ make tuist-generate
    ▸ If the error is not actionable, let's discuss it in the Troubleshooting & how to
    ▸ If you are very certain it's a bug, file an issue
    ▸ Check out the logs at /Users/shinmingyu/.local/state/tuist/logs/05629AC4-224F-422E-A896-A44FE268C3AA.log
-make: *** [tuist-generate] Error 1
+make: *** [gen] Error 1
 ```
 
 Xcode를 관리자 권한으로 전환합니다.
@@ -116,7 +116,7 @@ How:
 ## 4. 개발/검증 워크플로우
 
 우리 팀은 **코드 품질 관리**를 위해 포맷터(정렬), 린터(코드 규칙 검사), 그리고 Tuist(프로젝트 생성)를 자동화했습니다.  
-아래 명령어로 개발 시점과 CI(검증) 시점에 필요한 절차를 쉽게 실행할 수 있습니다.  
+아래 명령어로 개발 시점에 필요한 절차를 쉽게 실행할 수 있습니다.  
 
 ### 🔹 `make verify` (로컬 개발용)
 👉 **내가 작성한 코드를 정리하고 검사한 후, 프로젝트를 다시 생성**
@@ -132,24 +132,12 @@ How:
 
 ---
 
-### 🔹 `make verify-ci` (CI/CD용)
-👉 **자동화 환경에서, 코드가 규칙을 어겼는지 검사 (수정은 하지 않음)**
-
-실행 단계:
-1. **SwiftFormat lint-only** → 코드 포맷 검사만 (수정 안 함)
-2. **SwiftLint strict** → 모든 경고를 오류로 처리
-3. **Tuist generate** → 프로젝트 생성 검증
-
-사용 시점:
-- GitHub Actions 같은 CI 서버에서 PR 검사 시 실행됨
-
----
-
 ### 🔹 개별 실행 커맨드
 - `make format` → SwiftFormat 적용 (수정 모드)
 - `make lint` → SwiftLint 검사 (non-strict)
-- `make tuist-generate` → Tuist 기반 Xcode 프로젝트 생성
+- `make gen` → Tuist 기반 Xcode 프로젝트 생성
 - `make clean` → 생성물 정리 (Derived, *.xcodeproj, *.xcworkspace 등)
+- `make run [command]` → `mise`로 관리되는 도구 직접 실행 (예: `make run tuist edit`)
 
 ---
 
@@ -159,20 +147,15 @@ How:
 - `pre-commit` → 브랜치명 검사 + SwiftFormat  
 - `commit-msg` → 커밋 메시지 규칙 검사  
 
-테스트는 아래 명령어로 가능합니다:
-```bash
-make test-hooks
-```
-
 ---
 
 ## ✅ 요약
 
 1. `make setup` → 환경 준비 완료 (mise 도구 설치 + hooks + commit 템플릿)  
-2. `make tuist-generate` → Xcode 실행 준비  
+2. `make gen` → Xcode 실행 준비  
 3. 브랜치는 `feature/번호-설명` 형식으로 생성  
 4. 커밋 메시지는 `<Gitmoji> Type. 요약` + Why/How/Tags  
-5. 개발 시 `make verify`, CI는 `make verify-ci`로 검사  
+5. 개발 시 `make verify`로 검사  
 6. PR은 항상 규칙에 맞춘 브랜치와 커밋만 제출  
 
 ---
