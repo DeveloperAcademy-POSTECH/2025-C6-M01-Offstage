@@ -198,13 +198,22 @@ extension BusDetectionViewController {
             if prediction.confidence < 0.6 { continue }
 
             // 이미지 자르기
-            guard let image = cropImage(prediction: prediction) else {
+            guard let image = cropImage(
+                pixelBuffer: currentPixelBuffer,
+                prediction: prediction
+            ) else {
                 print("이미지 자르기 실패")
                 continue
             }
 
+            // 이미지 크기 조정
+            guard let resizedImage = resizeImage(image) else {
+                print("이미지 크기 조정 실패")
+                continue
+            }
+
             // 자른 이미지 OCR 처리하기
-            OCRManager.recognizeText(from: image) { ocrText in
+            OCRManager.recognizeText(from: resizedImage) { ocrText in
                 guard let ocrText else {
                     print("OCR 처리 실패")
                     return
@@ -232,36 +241,5 @@ extension BusDetectionViewController {
                     !finalPredictions.contains(where: { $0.uuid == prediction.uuid })
             })
         }
-    }
-
-    /// 바운딩박스에 맞춰 이미지 자르기
-    private func cropImage(prediction: VNRecognizedObjectObservation)
-        -> CGImage?
-    {
-        guard let pixelBuffer = currentPixelBuffer else { return nil }
-
-        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
-        let context = CIContext()
-
-        let imageWidth = CGFloat(CVPixelBufferGetWidth(pixelBuffer))
-        let imageHeight = CGFloat(CVPixelBufferGetHeight(pixelBuffer))
-
-        let boundingBox = prediction.boundingBox
-
-        let x = boundingBox.origin.x * imageWidth
-        let y = (1 - boundingBox.origin.y - boundingBox.height) * imageHeight
-        let width = boundingBox.width * imageWidth
-        let height = boundingBox.height * imageHeight
-
-        let cropRect = CGRect(x: x, y: y, width: width, height: height)
-        let croppedCIImage = ciImage.cropped(to: cropRect)
-
-        guard let cgImage = context.createCGImage(
-            croppedCIImage,
-            from: croppedCIImage.extent
-        )
-        else { return nil }
-
-        return cgImage
     }
 }
