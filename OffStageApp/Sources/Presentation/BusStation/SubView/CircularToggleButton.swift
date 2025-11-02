@@ -23,7 +23,7 @@ struct CircularToggleButton: View {
                         .fill(Color.clear)
                         .frame(width: 48, height: 48)
                 }
-                Image(systemName: isOn ? "pin.fill" : "pin")
+                Image(systemName: isOn ? "star.fill" : "star")
                     .foregroundColor(isOn ? .white : .gray.opacity(0.6))
                     .font(.system(size: 24, weight: .regular))
             }
