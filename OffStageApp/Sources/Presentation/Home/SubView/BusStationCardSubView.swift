@@ -12,6 +12,7 @@ struct BusStationCardSubView: View {
     let favorites: [Favorite]
     let isNotificationOn: Bool
     let onNotificationTap: () -> Void
+    let refreshTrigger: UUID
 
     init(
         stationName: String,
@@ -21,6 +22,7 @@ struct BusStationCardSubView: View {
         favorites: [Favorite],
         isNotificationOn: Bool,
         onNotificationTap: @escaping () -> Void,
+        refreshTrigger: UUID,
         busRepository: BusRepository = DefaultBusRepository()
     ) {
         self.stationName = stationName
@@ -30,6 +32,7 @@ struct BusStationCardSubView: View {
         self.favorites = favorites
         self.isNotificationOn = isNotificationOn
         self.onNotificationTap = onNotificationTap
+        self.refreshTrigger = refreshTrigger
         _viewModel = StateObject(wrappedValue: BusStationCardViewModel(
             busRepository: busRepository,
             nodeId: nodeId,
@@ -94,6 +97,11 @@ struct BusStationCardSubView: View {
         .task {
             await viewModel.fetchArrivals()
         }
+        .onChange(of: refreshTrigger) {
+            Task {
+                await viewModel.fetchArrivals()
+            }
+        }
     }
 }
 
@@ -105,7 +113,8 @@ struct BusStationCardSubView: View {
         cityCode: "31020",
         favorites: [],
         isNotificationOn: false,
-        onNotificationTap: {}
+        onNotificationTap: {},
+        refreshTrigger: UUID()
     )
     .environmentObject(Router<AppRoute>(root: .home))
 }
