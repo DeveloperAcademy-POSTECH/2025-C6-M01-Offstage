@@ -10,8 +10,6 @@ struct BusStationCardSubView: View {
     let nodeId: String
     let cityCode: String
     let favorites: [Favorite]
-    let isNotificationOn: Bool
-    let onNotificationTap: () -> Void
     let refreshTrigger: UUID
 
     init(
@@ -20,8 +18,6 @@ struct BusStationCardSubView: View {
         nodeId: String,
         cityCode: String,
         favorites: [Favorite],
-        isNotificationOn: Bool,
-        onNotificationTap: @escaping () -> Void,
         refreshTrigger: UUID,
         busRepository: BusRepository = DefaultBusRepository()
     ) {
@@ -30,8 +26,6 @@ struct BusStationCardSubView: View {
         self.nodeId = nodeId
         self.cityCode = cityCode
         self.favorites = favorites
-        self.isNotificationOn = isNotificationOn
-        self.onNotificationTap = onNotificationTap
         self.refreshTrigger = refreshTrigger
         _viewModel = StateObject(wrappedValue: BusStationCardViewModel(
             busRepository: busRepository,
@@ -53,47 +47,26 @@ struct BusStationCardSubView: View {
                         .foregroundColor(.gray)
                 }
                 Spacer()
-                // 알림 버튼
-                Button(action: onNotificationTap) {
-                    Image(systemName: isNotificationOn ? "bell.fill" : "bell")
-                        .font(.title2)
-                        .foregroundColor(isNotificationOn ? .white : .gray)
-                        .padding(8)
-                        .background {
-                            Circle()
-                                .fill(isNotificationOn ? Color.blue : Color.clear)
-                                .foregroundStyle(isNotificationOn ? .blue : .gray)
-                        }
-                }
             }
             .padding([.top, .leading, .trailing])
 
-            if isNotificationOn == true {
-                Button {
-                    let destination = AppRoute.busvision(routeToDetect: favorites.map(\.routeNo))
-                    router.push(destination)
-                } label: {
-                    Text("\(Image(systemName: "camera")) 버스 인식하기")
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                }
-                .padding()
+            Button {
+                let destination = AppRoute.busvision(routeToDetect: favorites.map(\.routeNo))
+                router.push(destination)
+            } label: {
+                Text("\(Image(systemName: "camera")) 버스 인식하기")
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .cornerRadius(10)
             }
+            .padding()
 
             BusRouteListSubView(busArrivals: viewModel.busArrivals)
         }
         .background(.gray.opacity(0.1))
         .cornerRadius(15)
-        .overlay {
-            RoundedRectangle(cornerRadius: 15)
-                .stroke(
-                    isNotificationOn ? .blue : .clear,
-                    lineWidth: 2
-                )
-        }
         .task {
             await viewModel.fetchArrivals()
         }
@@ -112,8 +85,6 @@ struct BusStationCardSubView: View {
         nodeId: "GGB204000163",
         cityCode: "31020",
         favorites: [],
-        isNotificationOn: false,
-        onNotificationTap: {},
         refreshTrigger: UUID()
     )
     .environmentObject(Router<AppRoute>(root: .home))
