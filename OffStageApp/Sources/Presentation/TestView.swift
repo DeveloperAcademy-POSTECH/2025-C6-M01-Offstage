@@ -158,15 +158,15 @@ struct TestView: View {
         [
             APIAction(
                 title: "정류장 키워드 검색",
-                subtitle: "도시 코드와 정류장 이름으로 조회",
+                subtitle: "도시 코드와 정류장 이름으로 조회"
             ) { await viewModel.searchStop() },
             APIAction(
                 title: "현위치 주변 정류장",
-                subtitle: "현재 좌표 기준으로 반경 검색",
+                subtitle: "현재 좌표 기준으로 반경 검색"
             ) { await viewModel.getStopsByGPS() },
             APIAction(
                 title: "정류장을 지나는 노선",
-                subtitle: "선택한 정류장을 통과하는 노선 목록",
+                subtitle: "선택한 정류장을 통과하는 노선 목록"
             ) { await viewModel.getStopRoutes() },
         ]
     }
@@ -175,11 +175,11 @@ struct TestView: View {
         [
             APIAction(
                 title: "정류장 도착 정보",
-                subtitle: "정류장 기준 전체 도착 예정 정보",
+                subtitle: "정류장 기준 전체 도착 예정 정보"
             ) { await viewModel.getArrivals() },
             APIAction(
                 title: "특정 노선 도착 정보",
-                subtitle: "정류장 + 노선 조합으로 도착 조회",
+                subtitle: "정류장 + 노선 조합으로 도착 조회"
             ) { await viewModel.getArrivalsForRoute() },
         ]
     }
@@ -188,19 +188,19 @@ struct TestView: View {
         [
             APIAction(
                 title: "차량 실시간 위치",
-                subtitle: "선택한 노선의 차량 위치 추적",
+                subtitle: "선택한 노선의 차량 위치 추적"
             ) { await viewModel.getRouteBusLocations() },
             APIAction(
                 title: "노선 기본 정보",
-                subtitle: "첫/막차 시간 등 노선 상세 확인",
+                subtitle: "첫/막차 시간 등 노선 상세 확인"
             ) { await viewModel.getRouteInfo() },
             APIAction(
                 title: "노선 번호 검색",
-                subtitle: "노선 번호 키워드로 노선 찾기",
+                subtitle: "노선 번호 키워드로 노선 찾기"
             ) { await viewModel.searchRoute() },
             APIAction(
                 title: "노선 경유 정류장",
-                subtitle: "노선이 지나가는 정류장 순서 확인",
+                subtitle: "노선이 지나가는 정류장 순서 확인"
             ) { await viewModel.getRouteStops() },
         ]
     }

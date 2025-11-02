@@ -1,4 +1,5 @@
 import BusAPI
+import SwiftData
 import SwiftUI
 
 struct BusStationView: View {
@@ -7,6 +8,15 @@ struct BusStationView: View {
     @State private var countdown: Int = 10
     @State private var timer: Timer?
     @State private var rotationAngle: Angle = .zero
+    @Query private var favorites: [Favorite]
+
+    private var favoritedRoutesInThisStation: [Favorite] {
+        favorites.filter { $0.nodeId == viewModel.input.nodeId }
+    }
+
+    private var isBusRecognitionDisabled: Bool {
+        favoritedRoutesInThisStation.isEmpty
+    }
 
     init(input: BusStationViewInput, busRepository: BusRepository = DefaultBusRepository()) {
         _viewModel = StateObject(wrappedValue: BusStationViewModel(input: input, busRepository: busRepository))
@@ -32,6 +42,19 @@ struct BusStationView: View {
                         content
                     }
                 }
+                Button {
+                    let destination = AppRoute.busvision(routeToDetect: favoritedRoutesInThisStation.map(\.routeNo))
+                    router.push(destination)
+                } label: {
+                    Text("\(Image(systemName: "camera")) 버스 인식하기")
+                        .foregroundColor(isBusRecognitionDisabled ? .gray : .white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(isBusRecognitionDisabled ? Color(.systemGray5) : Color.blue)
+                        .cornerRadius(10)
+                }
+                .disabled(isBusRecognitionDisabled)
+                .frame(maxWidth: .infinity)
             }
             .onAppear(perform: startTimer)
             .onDisappear(perform: stopTimer)
