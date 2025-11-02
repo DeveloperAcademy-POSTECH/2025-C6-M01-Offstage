@@ -3,6 +3,7 @@ import SwiftUI
 
 #if DEBUG_MODE
     struct DebugOverlay<Content: View>: View {
+        @ObservedObject var router: Router<AppRoute>
         @ViewBuilder let content: Content
         @State private var showDebugSheet = false
 
@@ -23,6 +24,7 @@ import SwiftUI
                 }
                 .sheet(isPresented: $showDebugSheet) {
                     DebugView()
+                        .environmentObject(router)
                 }
             }
         }
@@ -36,7 +38,7 @@ struct OffStageApp: App {
     var body: some Scene {
         WindowGroup {
             #if DEBUG_MODE
-                DebugOverlay {
+                DebugOverlay(router: router) {
                     RouterView(router: router)
                 }
             #else

@@ -9,6 +9,7 @@ enum AppRoute: Routable {
     case homeedit
     case onboarding
     case test(busStopInfo: BusStopInfo)
+    case sttstest
 
     @MainActor
     @ViewBuilder
@@ -35,6 +36,9 @@ enum AppRoute: Routable {
 
         case let .test(busStopInfo):
             TestView(busStopInfo: busStopInfo)
+
+        case .sttstest:
+            STTandTTSTestView()
         }
     }
 }
