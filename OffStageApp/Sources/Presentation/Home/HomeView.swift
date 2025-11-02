@@ -24,7 +24,7 @@ struct HomeView: View {
 
     @State private var searchText = ""
     @Query(sort: [
-        SortDescriptor<Favorite>(\Favorite.nodeName),
+        SortDescriptor<Favorite>(\Favorite.order),
         SortDescriptor<Favorite>(\Favorite.routeNo),
     ]) private var favorites: [Favorite]
 
@@ -32,13 +32,7 @@ struct HomeView: View {
         let grouped = Dictionary(grouping: favorites, by: { $0.nodeId })
         return grouped.map { _, favorites in
             FavoritedStop(favorites: favorites)
-        }.sorted {
-            if $0.nodeName != $1.nodeName {
-                $0.nodeName < $1.nodeName
-            } else {
-                $0.nodeId < $1.nodeId
-            }
-        }
+        }.sorted { $0.order < $1.order }
     }
 
     var body: some View {
@@ -162,5 +156,6 @@ extension HomeView {
         var nodeName: String { favorites.first?.nodeName ?? "" }
         var nodeNo: String? { favorites.first?.nodeNo }
         var cityCode: String { favorites.first?.cityCode ?? "" }
+        var order: Int { favorites.first?.order ?? 0 }
     }
 }

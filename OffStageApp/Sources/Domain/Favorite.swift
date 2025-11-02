@@ -19,6 +19,7 @@ final class Favorite {
     let routeNo: String
     /// 노선 방향
     let direction: String
+    var order: Int
 
     init(
         cityCode: String,
@@ -27,7 +28,8 @@ final class Favorite {
         routeId: String,
         nodeName: String,
         routeNo: String,
-        direction: String
+        direction: String,
+        order: Int
     ) {
         id = "\(cityCode)-\(nodeId)-\(routeId)"
         self.cityCode = cityCode
@@ -37,5 +39,6 @@ final class Favorite {
         self.nodeName = nodeName
         self.routeNo = routeNo
         self.direction = direction
+        self.order = order
     }
 }

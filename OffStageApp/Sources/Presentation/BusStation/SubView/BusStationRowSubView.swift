@@ -14,25 +14,10 @@ struct BusStationRowSubView: View {
     let nodeId: String
     let nodeNo: String?
     let nodeName: String
-
-    @Query private var favorites: [Favorite]
-
-    init(route: BusStationViewModel.RouteDetail, cityCode: String, nodeId: String, nodeNo: String?, nodeName: String) {
-        self.route = route
-        self.cityCode = cityCode
-        self.nodeId = nodeId
-        self.nodeNo = nodeNo
-        self.nodeName = nodeName
-
-        let favoriteId = "\(cityCode)-\(nodeId)-\(route.routeId)"
-        _favorites = Query(filter: #Predicate { $0.id == favoriteId })
-        print(
-            "BusStationRowSubView init: cityCode=\(cityCode), nodeId=\(nodeId), routeId=\(route.routeId), favoriteId=\(favoriteId)"
-        )
-    }
+    let isFavorite: Bool
 
     private var isSavedOn: Bool {
-        !favorites.isEmpty
+        isFavorite
     }
 
     var body: some View {
@@ -66,12 +51,6 @@ struct BusStationRowSubView: View {
                                     Text(remaining)
                                         .foregroundColor(.secondary)
                                 }
-                                /** voice over 라벨링으로 활용
-                                  if let vehicle = arrival.vehicleDescription {
-                                      Text(vehicle)
-                                          .foregroundColor(.secondary)
-                                  }
-                                 */
                             }
                             .font(.footnote)
                         }
@@ -90,7 +69,10 @@ struct BusStationRowSubView: View {
     }
 
     private func addFavorite() {
-        print("Adding favorite: cityCode=\(cityCode), nodeId=\(nodeId), routeId=\(route.routeId)")
+        let fetchDescriptor = FetchDescriptor<Favorite>()
+        let allFavorites = (try? modelContext.fetch(fetchDescriptor)) ?? []
+        let stationCount = Dictionary(grouping: allFavorites, by: { $0.nodeId }).count
+
         let favorite = Favorite(
             cityCode: cityCode,
             nodeId: nodeId,
@@ -98,28 +80,17 @@ struct BusStationRowSubView: View {
             routeId: route.routeId,
             nodeName: nodeName,
             routeNo: route.routeNumber,
-            direction: route.direction
+            direction: route.direction,
+            order: stationCount
         )
         modelContext.insert(favorite)
-        do {
-            try modelContext.save()
-            print("Successfully saved favorite")
-        } catch {
-            print("Failed to save favorite: \(error)")
-        }
+        try? modelContext.save()
     }
 
     private func removeFavorite() {
-        print("Removing favorite: cityCode=\(cityCode), nodeId=\(nodeId), routeId=\(route.routeId)")
-        if let favorite = favorites.first {
-            modelContext.delete(favorite)
-            do {
-                try modelContext.save()
-                print("Successfully removed favorite")
-            } catch {
-                print("Failed to remove favorite: \(error)")
-            }
-        }
+        let favoriteId = "\(cityCode)-\(nodeId)-\(route.routeId)"
+        try? modelContext.delete(model: Favorite.self, where: #Predicate { $0.id == favoriteId })
+        try? modelContext.save()
     }
 }
 
@@ -131,7 +102,8 @@ struct BusStationRowSubView: View {
             cityCode: "25",
             nodeId: "DJB8001793",
             nodeNo: "12345",
-            nodeName: "포항성모병원"
+            nodeName: "포항성모병원",
+            isFavorite: false
         )
         .modelContainer(container)
     } catch {
