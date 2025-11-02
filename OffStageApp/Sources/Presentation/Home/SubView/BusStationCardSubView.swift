@@ -50,6 +50,8 @@ struct BusStationCardSubView: View {
             }
             .padding([.top, .leading, .trailing])
 
+            BusRouteListSubView(busArrivals: viewModel.busArrivals)
+
             Button {
                 let destination = AppRoute.busvision(routeToDetect: favorites.map(\.routeNo))
                 router.push(destination)
@@ -62,8 +64,6 @@ struct BusStationCardSubView: View {
                     .cornerRadius(10)
             }
             .padding()
-
-            BusRouteListSubView(busArrivals: viewModel.busArrivals)
         }
         .background(.gray.opacity(0.1))
         .cornerRadius(15)
