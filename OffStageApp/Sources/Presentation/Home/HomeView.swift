@@ -38,7 +38,7 @@ struct HomeView: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             VStack {
-                VStack {
+                HStack {
                     Button {
                         // 검색 페이지로 이동
                         router.push(.search)
@@ -57,52 +57,60 @@ struct HomeView: View {
                     }
                     .padding()
                     .background(.gray.opacity(0.1))
+                    Button {
+                        router.push(.quickCamera)
+                    } label: {
+                        Image(systemName: "camera")
+                            .font(.title2)
+                            .foregroundColor(.gray)
+                            .padding(.trailing)
+                    }
+                }
 
-                    ScrollView {
-                        Text("홈")
-                            .font(.largeTitle)
-                            .frame(maxWidth: .infinity, alignment: .init(horizontal: .leading, vertical: .center))
+                ScrollView {
+                    Text("홈")
+                        .font(.largeTitle)
+                        .frame(maxWidth: .infinity, alignment: .init(horizontal: .leading, vertical: .center))
+                        .padding(.horizontal)
+
+                    if !favoritedStops.isEmpty {
+                        ForEach(favoritedStops) { station in
+                            BusStationCardSubView(
+                                stationName: station.nodeName,
+                                stationNumber: station.nodeNo ?? "",
+                                nodeId: station.nodeId,
+                                cityCode: station.cityCode,
+                                favorites: station.favorites,
+                                refreshTrigger: refreshTrigger
+                            )
                             .padding(.horizontal)
-
-                        if !favoritedStops.isEmpty {
-                            ForEach(favoritedStops) { station in
-                                BusStationCardSubView(
-                                    stationName: station.nodeName,
-                                    stationNumber: station.nodeNo ?? "",
-                                    nodeId: station.nodeId,
-                                    cityCode: station.cityCode,
-                                    favorites: station.favorites,
-                                    refreshTrigger: refreshTrigger
-                                )
-                                .padding(.horizontal)
-                            }
-
-                            Button("편집") {
-                                router.push(.homeedit)
-                            }
-                            .padding(.bottom)
-                        } else {
-                            Text("저장된 내역이 없습니다.")
-                                .foregroundColor(.gray)
-                                .padding(.top, 50)
-                                .padding(.bottom)
-                            Text("자주 이용하는 버스를 추가해 주세요.")
-                                .foregroundColor(.gray)
-                                .padding(.bottom, 30)
-
-                            Button {
-                                router.push(.search)
-                            } label: {
-                                Text("나의 버스 추가하기")
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 20)
-                                    .padding(.vertical, 10)
-                                    .background(Color.blue)
-                                    .cornerRadius(20)
-                            }
-
-                            Spacer()
                         }
+
+                        Button("편집") {
+                            router.push(.homeedit)
+                        }
+                        .padding(.bottom)
+                    } else {
+                        Text("저장된 내역이 없습니다.")
+                            .foregroundColor(.gray)
+                            .padding(.top, 50)
+                            .padding(.bottom)
+                        Text("자주 이용하는 버스를 추가해 주세요.")
+                            .foregroundColor(.gray)
+                            .padding(.bottom, 30)
+
+                        Button {
+                            router.push(.search)
+                        } label: {
+                            Text("나의 버스 추가하기")
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 10)
+                                .background(Color.blue)
+                                .cornerRadius(20)
+                        }
+
+                        Spacer()
                     }
                 }
             }
