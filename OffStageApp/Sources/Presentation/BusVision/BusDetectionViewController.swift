@@ -13,7 +13,9 @@ final class BusDetectionViewController: UIViewController {
     private var request: VNCoreMLRequest?
 
     private var drawingBoxesView: DrawingBoxesView?
-    private var tempStrokeBoxesView: TempStokeBoxesView?
+    #if DEBUG_MODE
+        private var tempStrokeBoxesView: TempStokeBoxesView?
+    #endif
     private var currentPixelBuffer: CVPixelBuffer?
 
     // MARK: Life Cycle
@@ -47,7 +49,9 @@ final class BusDetectionViewController: UIViewController {
         view.layer.sublayers?.first(where: { $0 is AVCaptureVideoPreviewLayer }
         )?.frame = fullFrame
         drawingBoxesView?.frame = fullFrame
-        tempStrokeBoxesView?.frame = fullFrame
+        #if DEBUG_MODE
+            tempStrokeBoxesView?.frame = fullFrame
+        #endif
     }
 
     // MARK: Functions
@@ -97,15 +101,16 @@ final class BusDetectionViewController: UIViewController {
     /// 바운딩박스 뷰 서브뷰 설정
     private func setupBoxesView() {
         let drawingBoxesView = DrawingBoxesView()
-        let strokeBoxesView = TempStokeBoxesView()
         drawingBoxesView.frame = view.frame
-        strokeBoxesView.frame = view.frame
-
-        view.addSubview(strokeBoxesView)
         view.addSubview(drawingBoxesView)
-
         self.drawingBoxesView = drawingBoxesView
-        tempStrokeBoxesView = strokeBoxesView
+
+        #if DEBUG_MODE
+            let strokeBoxesView = TempStokeBoxesView()
+            strokeBoxesView.frame = view.frame
+            view.addSubview(strokeBoxesView)
+            tempStrokeBoxesView = strokeBoxesView
+        #endif
     }
 }
 
@@ -191,6 +196,14 @@ extension BusDetectionViewController {
             (request.results as? [VNRecognizedObjectObservation])
         else { return }
 
+        // 박스 초기화
+        DispatchQueue.main.async {
+            self.drawingBoxesView?.drawBox(with: [])
+            #if DEBUG_MODE
+                self.tempStrokeBoxesView?.drawBox(with: [])
+            #endif
+        }
+
         var tempDetected: [String] = []
         var finalPredictions: [VNRecognizedObjectObservation] = []
 
@@ -230,16 +243,17 @@ extension BusDetectionViewController {
                         }
                     }
                 }
-            }
-        }
 
-        DispatchQueue.main.async {
-            self.onDetectedRouteNumbersChanged?(tempDetected)
-            self.drawingBoxesView?.drawBox(with: finalPredictions)
-            self.tempStrokeBoxesView?.drawBox(with: predictions.filter { prediction in
-                prediction.confidence >= 0.6 &&
-                    !finalPredictions.contains(where: { $0.uuid == prediction.uuid })
-            })
+                DispatchQueue.main.async {
+                    self.onDetectedRouteNumbersChanged?(tempDetected)
+                    self.drawingBoxesView?.drawBox(with: finalPredictions)
+                }
+            }
+            #if DEBUG_MODE
+                DispatchQueue.main.async {
+                    self.tempStrokeBoxesView?.drawBox(with: predictions.filter { $0.confidence > 0.8 })
+                }
+            #endif
         }
     }
 }
