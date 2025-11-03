@@ -25,8 +25,8 @@ final class SearchViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let busRepository: BusRepository // For real-time data
-    private let localBusStopRepository: LocalBusStopRepository // For local search
+    private let busRepository: BusRepository // 실시간 데이터용
+    private let localBusStopRepository: LocalBusStopRepository // 로컬 검색용
     private let locationManager: LocationProviding
     private var cancellables = Set<AnyCancellable>()
 
@@ -41,7 +41,7 @@ final class SearchViewModel: ObservableObject {
             fatalError("Could not initialize LocalBusStopRepository: \(error)")
         }
 
-        // Subscribe to search term changes
+        // 검색어 변경 구독
         $searchTerm
             .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
             .removeDuplicates()
@@ -50,7 +50,7 @@ final class SearchViewModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        // Perform an initial nearby search
+        // 초기 주변 정류장 검색 수행
         performSearch(keyword: "")
     }
 
@@ -69,8 +69,8 @@ final class SearchViewModel: ObservableObject {
     private func performSearch(keyword: String) {
         let trimmedKeyword = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmedKeyword.isEmpty {
-            // If search term is empty, show nearby stops
-            // Use cache if available, otherwise fetch new data
+            // 검색어가 비어 있으면 주변 정류장 표시
+            // 캐시가 있으면 사용하고, 없으면 새로 가져오기
             if nearbyStopsCache.isEmpty {
                 fetchNearbyStops()
             } else {
@@ -106,15 +106,15 @@ final class SearchViewModel: ObservableObject {
                 latitude: location.latitude,
                 longitude: location.longitude,
                 radiusInMeters: 500,
-                page: 1, // Fetch first page only
-                pageSize: 20 // Get up to 20 stops
+                page: 1, // 첫 페이지만 가져오기
+                pageSize: 20 // 최대 20개 정류장 가져오기
             )
 
             let presentations = processStops(stops, with: location.asCLLocation)
             let (displayStops, inputs) = await makeDisplayStops(from: presentations)
 
             destinationInputs = inputs
-            nearbyStopsCache = displayStops // Cache the nearby results
+            nearbyStopsCache = displayStops // 주변 검색 결과 캐시
             viewState = .success(displayStops)
         } catch {
             if !Task.isCancelled {
@@ -131,10 +131,10 @@ final class SearchViewModel: ObservableObject {
             do {
                 let stops = try await localBusStopRepository.searchStops(
                     byName: keyword,
-                    page: 1, // Fetch first page only
-                    pageSize: 50 // Get up to 50 results
+                    page: 1, // 첫 페이지만 가져오기
+                    pageSize: 50 // 최대 50개 결과 가져오기
                 )
-                let presentations = processStops(stops, with: nil) // No location for name search
+                let presentations = processStops(stops, with: nil) // 이름 검색에는 위치 정보 없음
                 let (displayStops, inputs) = await makeDisplayStops(from: presentations)
                 self.destinationInputs = inputs
                 self.viewState = .success(displayStops)
@@ -207,6 +207,26 @@ final class SearchViewModel: ObservableObject {
                     inputs[stop.id] = input
                 }
             }
+
+            // 검색 유형에 따라 결과 정렬
+            if stops.first?.distance != nil {
+                // 주변 검색: 거리순으로 정렬
+                func distanceInMeters(from distanceString: String?) -> Double {
+                    guard let distanceString else { return Double.greatestFiniteMagnitude }
+                    if distanceString.hasSuffix("km") {
+                        let value = Double(distanceString.dropLast(2)) ?? 0.0
+                        return value * 1000
+                    } else if distanceString.hasSuffix("m") {
+                        return Double(distanceString.dropLast(1)) ?? 0.0
+                    }
+                    return Double.greatestFiniteMagnitude
+                }
+                results.sort { distanceInMeters(from: $0.distance) < distanceInMeters(from: $1.distance) }
+            } else {
+                // 이름 검색: 이름순으로 정렬
+                results.sort { $0.nodenm < $1.nodenm }
+            }
+
             return (results, inputs)
         }
     }
