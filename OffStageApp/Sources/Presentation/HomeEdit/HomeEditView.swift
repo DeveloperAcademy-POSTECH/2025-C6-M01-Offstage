@@ -23,56 +23,32 @@ struct HomeEditView: View {
     }
 
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             List {
                 ForEach(editableStops) { station in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(station.nodeName)
-                                .font(.headline)
-                            Text(station.nodeNo ?? "")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                            Text(station.favorites.map(\.routeNo).joined(separator: ", "))
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        Spacer()
-                    }
+                    HomeEditListRowView(
+                        nodeName: station.nodeName,
+                        nodeNo: station.nodeNo,
+                        routes: station.favorites.map(\.routeNo),
+                    )
                 }
                 .onDelete(perform: deleteStations)
                 .onMove(perform: moveStations)
             }
+            .listStyle(.plain)
             .environment(\.editMode, .constant(.active))
 
-            footerButtons
+            HomeEditFooterButtomsView(
+                isSaveBtnDisabled: !hasChanges,
+                cancelChanges: cancelChanges,
+                saveChanges: saveChanges
+            )
+            .padding(.vertical, 4)
+            .padding(.horizontal, 20)
         }
         .onAppear(perform: setupInitialState)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("홈 화면 편집")
-                    .font(.title2)
-            }
-        }
         .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private var footerButtons: some View {
-        HStack(spacing: 12) {
-            Button(action: cancelChanges) {
-                Text("취소")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.bordered)
-
-            Button(action: saveChanges) {
-                Text("저장")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(!hasChanges)
-        }
-        .padding()
+        .navigationTitle("즐겨찾기 편집")
     }
 
     private func setupInitialState() {
