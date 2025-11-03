@@ -54,7 +54,7 @@ let busAPITests = Target.target(
     sources: ["Modules/BusAPITests/Sources/**"],
     dependencies: [
         .target(name: "BusAPI"),
-        .target(name: "OffStageApp"),
+        .target(name: "OffStage"),
     ]
 )
 
@@ -66,7 +66,7 @@ let configurations: [Configuration] = [
 ]
 
 let app = Target.target(
-    name: "OffStageApp",
+    name: "OffStage",
     destinations: [.iPhone],
     product: .app,
     bundleId: "$(PRODUCT_BUNDLE_IDENTIFIER)",
@@ -89,14 +89,14 @@ let project = Project(
     targets: [busAPI, busAPITests, app],
     schemes: [
         .scheme(
-            name: "OffStageApp-Dev",
-            buildAction: .buildAction(targets: ["OffStageApp"]),
+            name: "OffStage-Dev",
+            buildAction: .buildAction(targets: ["OffStage"]),
             runAction: .runAction(configuration: .configuration("Debug-Dev")),
             archiveAction: .archiveAction(configuration: .configuration("Release-Dev"))
         ),
         .scheme(
-            name: "OffStageApp",
-            buildAction: .buildAction(targets: ["OffStageApp"]),
+            name: "OffStage",
+            buildAction: .buildAction(targets: ["OffStage"]),
             runAction: .runAction(configuration: .configuration("Debug-Prod")),
             archiveAction: .archiveAction(configuration: .configuration("Release-Prod"))
         ),
