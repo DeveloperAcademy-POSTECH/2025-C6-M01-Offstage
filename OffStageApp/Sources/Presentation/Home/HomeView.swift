@@ -7,6 +7,10 @@ struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var locationProvider: LocationProviding = LocationManager()
     @State private var notificationOnStationId: String?
+    @State private var refreshTrigger = UUID()
+    @State private var countdown: Int = 10
+    @State private var timer: Timer?
+    @State private var rotationAngle: Angle = .zero
 
     /// 숏컷 진입을 위한 더미 데이터. 추후 숏컷 삭제 시 함께 삭제
     private let sampleBusStop = BusStopInfo(
@@ -39,85 +43,123 @@ struct HomeView: View {
     }
 
     var body: some View {
-        VStack {
+        ZStack(alignment: .bottomTrailing) {
             VStack {
-                Button {
-                    // 검색 페이지로 이동
-                    router.push(.search)
-                } label: {
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.gray)
+                VStack {
+                    Button {
+                        // 검색 페이지로 이동
+                        router.push(.search)
+                    } label: {
+                        HStack {
+                            Image(systemName: "magnifyingglass")
+                                .foregroundColor(.gray)
 
-                        Text("버스 노선, 정류장 검색")
-                            .foregroundColor(.gray)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                            Text("버스 노선, 정류장 검색")
+                                .foregroundColor(.gray)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
                     }
                     .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(10)
-                }
-                .padding()
-                .background(.gray.opacity(0.1))
+                    .background(.gray.opacity(0.1))
 
-                ScrollView {
-                    Text("홈")
-                        .font(.largeTitle)
-                        .frame(maxWidth: .infinity, alignment: .init(horizontal: .leading, vertical: .center))
-                        .padding(.horizontal)
-
-                    if !favoritedStops.isEmpty {
-                        ForEach(favoritedStops) { station in
-                            BusStationCardSubView(
-                                stationName: station.nodeName,
-                                stationNumber: station.nodeNo ?? "",
-                                nodeId: station.nodeId,
-                                cityCode: station.cityCode,
-                                favorites: station.favorites,
-                                isNotificationOn: station.id == notificationOnStationId,
-                                onNotificationTap: {
-                                    if notificationOnStationId == station.id {
-                                        notificationOnStationId = nil
-                                    } else {
-                                        notificationOnStationId = station.id
-                                    }
-                                }
-                            )
+                    ScrollView {
+                        Text("홈")
+                            .font(.largeTitle)
+                            .frame(maxWidth: .infinity, alignment: .init(horizontal: .leading, vertical: .center))
                             .padding(.horizontal)
-                        }
 
-                        Button("편집") {
-                            router.push(.homeedit)
-                        }
-                        .padding(.bottom)
-                    } else {
-                        Text("저장된 내역이 없습니다.")
-                            .foregroundColor(.gray)
-                            .padding(.top, 50)
+                        if !favoritedStops.isEmpty {
+                            ForEach(favoritedStops) { station in
+                                BusStationCardSubView(
+                                    stationName: station.nodeName,
+                                    stationNumber: station.nodeNo ?? "",
+                                    nodeId: station.nodeId,
+                                    cityCode: station.cityCode,
+                                    favorites: station.favorites,
+                                    isNotificationOn: station.id == notificationOnStationId,
+                                    onNotificationTap: {
+                                        if notificationOnStationId == station.id {
+                                            notificationOnStationId = nil
+                                        } else {
+                                            notificationOnStationId = station.id
+                                        }
+                                    },
+                                    refreshTrigger: refreshTrigger
+                                )
+                                .padding(.horizontal)
+                            }
+
+                            Button("편집") {
+                                router.push(.homeedit)
+                            }
                             .padding(.bottom)
-                        Text("자주 이용하는 버스를 추가해 주세요.")
-                            .foregroundColor(.gray)
-                            .padding(.bottom, 30)
+                        } else {
+                            Text("저장된 내역이 없습니다.")
+                                .foregroundColor(.gray)
+                                .padding(.top, 50)
+                                .padding(.bottom)
+                            Text("자주 이용하는 버스를 추가해 주세요.")
+                                .foregroundColor(.gray)
+                                .padding(.bottom, 30)
 
-                        Button {
-                            router.push(.search)
-                        } label: {
-                            Text("나의 버스 추가하기")
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 10)
-                                .background(Color.blue)
-                                .cornerRadius(20)
+                            Button {
+                                router.push(.search)
+                            } label: {
+                                Text("나의 버스 추가하기")
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 10)
+                                    .background(Color.blue)
+                                    .cornerRadius(20)
+                            }
+
+                            Spacer()
                         }
-
-                        Spacer()
                     }
                 }
             }
+            .onAppear {
+                locationProvider.requestLocationPermission()
+                startTimer()
+            }
+            .onDisappear(perform: stopTimer)
+
+            RefreshButton(countdown: countdown, rotationAngle: $rotationAngle) {
+                refreshTrigger = UUID()
+                resetTimer()
+                withAnimation(.easeInOut(duration: 0.6)) {
+                    rotationAngle += .degrees(360)
+                }
+            }
         }
-        .onAppear {
-            locationProvider.requestLocationPermission()
+    }
+
+    private func startTimer() {
+        stopTimer()
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            if countdown > 0 {
+                countdown -= 1
+            } else {
+                refreshTrigger = UUID()
+                countdown = 10
+                withAnimation(.easeInOut(duration: 0.6)) {
+                    rotationAngle += .degrees(360)
+                }
+            }
         }
+    }
+
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
+
+    private func resetTimer() {
+        countdown = 10
+        startTimer()
     }
 }
 
@@ -130,9 +172,4 @@ extension HomeView {
         var nodeNo: String? { favorites.first?.nodeNo }
         var cityCode: String { favorites.first?.cityCode ?? "" }
     }
-}
-
-#Preview {
-    // 미리보기용 Mock Router
-    RouterView(router: Router<AppRoute>(root: .home))
 }

@@ -4,6 +4,9 @@ import SwiftUI
 struct BusStationView: View {
     @EnvironmentObject private var router: Router<AppRoute>
     @StateObject private var viewModel: BusStationViewModel
+    @State private var countdown: Int = 10
+    @State private var timer: Timer?
+    @State private var rotationAngle: Angle = .zero
 
     init(input: BusStationViewInput, busRepository: BusRepository = DefaultBusRepository()) {
         _viewModel = StateObject(wrappedValue: BusStationViewModel(input: input, busRepository: busRepository))
@@ -14,31 +17,43 @@ struct BusStationView: View {
     }
 
     var body: some View {
-        VStack(spacing: 16) {
-            header
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    // 안내 문구
-                    Text("자주 이용하는 버스를 등록해 주세요.")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 16)
-                        .foregroundStyle(.gray)
+        ZStack(alignment: .bottomTrailing) {
+            VStack(spacing: 16) {
+                header
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        // 안내 문구
+                        Text("자주 이용하는 버스를 등록해 주세요.")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 16)
+                            .foregroundStyle(.gray)
 
-                    // 버스 리스트
-                    content
+                        // 버스 리스트
+                        content
+                    }
+                }
+            }
+            .onAppear(perform: startTimer)
+            .onDisappear(perform: stopTimer)
+            .task { viewModel.load() }
+            // TODO: arrivalDescription에 대한 동적 새로고침 로직을 구현해야 합니다.
+            // 남은 시간이 길 때는 (예:25분 이상?) 5분마다 새로고침하고,
+            // 시간이 줄어들수록 더 자주 새로고침해야 합니다.
+            .navigationBarItems(
+                trailing:
+                Button(action: { router.popToRoot() }) {
+                    Image(systemName: "house")
+                }
+            )
+
+            RefreshButton(countdown: countdown, rotationAngle: $rotationAngle) {
+                viewModel.refresh()
+                resetTimer()
+                withAnimation(.easeInOut(duration: 0.6)) {
+                    rotationAngle += .degrees(360)
                 }
             }
         }
-        .task { viewModel.load() }
-        // TODO: arrivalDescription에 대한 동적 새로고침 로직을 구현해야 합니다.
-        // 남은 시간이 길 때는 (예:25분 이상?) 5분마다 새로고침하고,
-        // 시간이 줄어들수록 더 자주 새로고침해야 합니다.
-        .navigationBarItems(
-            trailing:
-            Button(action: { router.popToRoot() }) {
-                Image(systemName: "house")
-            }
-        )
     }
 
     private var header: some View {
@@ -97,5 +112,30 @@ struct BusStationView: View {
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.vertical, 32)
         }
+    }
+
+    private func startTimer() {
+        stopTimer() // Ensure no multiple timers are running
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            if countdown > 0 {
+                countdown -= 1
+            } else {
+                viewModel.refresh()
+                countdown = 10
+                withAnimation(.easeInOut(duration: 0.6)) {
+                    rotationAngle += .degrees(360)
+                }
+            }
+        }
+    }
+
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
+
+    private func resetTimer() {
+        countdown = 10
+        startTimer()
     }
 }
