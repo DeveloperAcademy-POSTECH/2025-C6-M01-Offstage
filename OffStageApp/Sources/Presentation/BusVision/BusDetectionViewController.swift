@@ -76,6 +76,26 @@ final class BusDetectionViewController: UIViewController {
 
         session.addInput(input)
 
+        do {
+            try device.lockForConfiguration()
+            // zoom
+            let zoomfactor = min(device.maxAvailableVideoZoomFactor, 3.0)
+            device.videoZoomFactor = zoomfactor
+            print("zoom setting: \(zoomfactor)")
+
+            // fps
+            for fps in device.activeFormat.videoSupportedFrameRateRanges {
+                print("fps min: \(fps.minFrameRate)")
+                print("fps max: \(fps.maxFrameRate)")
+            }
+            device.activeVideoMaxFrameDuration = CMTime(value: 1, timescale: 24)
+            device.activeVideoMinFrameDuration = CMTime(value: 1, timescale: 24)
+
+            device.unlockForConfiguration()
+        } catch {
+            print("Couldn't set camera configuration (zoom/fps): \(error)")
+        }
+
         let preview = AVCaptureVideoPreviewLayer(session: session)
         preview.frame = view.bounds
 
