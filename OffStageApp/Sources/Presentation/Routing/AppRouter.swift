@@ -10,6 +10,7 @@ enum AppRoute: Routable {
     case onboarding
     case test(busStopInfo: BusStopInfo)
     case sttstest
+    case quickCamera
 
     @MainActor
     @ViewBuilder
@@ -39,6 +40,9 @@ enum AppRoute: Routable {
 
         case .sttstest:
             STTandTTSTestView()
+
+        case .quickCamera:
+            QuickCameraView()
         }
     }
 }
