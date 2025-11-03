@@ -6,7 +6,6 @@ struct HomeView: View {
     @EnvironmentObject var router: Router<AppRoute>
     @Environment(\.modelContext) private var modelContext
     @State private var locationProvider: LocationProviding = LocationManager()
-    @State private var notificationOnStationId: String?
     @State private var refreshTrigger = UUID()
     @State private var countdown: Int = 10
     @State private var timer: Timer?
@@ -79,14 +78,6 @@ struct HomeView: View {
                                     nodeId: station.nodeId,
                                     cityCode: station.cityCode,
                                     favorites: station.favorites,
-                                    isNotificationOn: station.id == notificationOnStationId,
-                                    onNotificationTap: {
-                                        if notificationOnStationId == station.id {
-                                            notificationOnStationId = nil
-                                        } else {
-                                            notificationOnStationId = station.id
-                                        }
-                                    },
                                     refreshTrigger: refreshTrigger
                                 )
                                 .padding(.horizontal)
