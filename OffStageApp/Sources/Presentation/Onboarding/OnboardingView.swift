@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct OnboardingPage {
-    let title: String
+    let title: Text
     let imageName: String
     let ctaTitle: String // 페이지별 버튼 라벨을 명시
 }
@@ -12,31 +12,32 @@ struct OnboardingView: View {
 
     private let pages: [OnboardingPage] = [
         .init(
-            title: "당신의 하루를 더 편하게",
+            title: Text("버스온다").foregroundColor(.green) + Text("는 저시력자를 위한\n버스 안내 앱입니다."),
             imageName: "BusImage",
             ctaTitle: "시작하기"
         ), // 1페이지도 '시작하기'로 하고 싶다면 이렇게
         .init(
-            title: "한눈에 관리되는 스마트 시스템",
+            title: Text("탑승하려는 버스를 즐겨찾기하면\n버스 인식을 시작할 수 있습니다."),
             imageName: "BusCard1",
             ctaTitle: "다음"
         ),
         .init(
-            title: "데이터가 나를 이해할 때",
+            title: Text("버스 인식 카메라로\n정류장에 도착한 버스를 비춰\n번호를 확인할 수 있습니다."),
             imageName: "",
             ctaTitle: "다음"
         ),
         .init(
-            title: "지금 시작해보세요",
+            title: Text("즐겨찾기한 버스는 홈화면에서\n빠르게 버스인식을 시작할 수 있습니다."),
             imageName: "BusCard2",
             ctaTitle: "다음"
-        ), // 마지막도 '시작하기'
+        ),
     ]
 
     var body: some View {
         VStack(spacing: 0) {
             OnboardingPageView(
                 page: pages[currentPage],
+                pageIndex: currentPage,
                 nextButtonTapped: {
                     if currentPage == pages.count - 1 {
                         UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
