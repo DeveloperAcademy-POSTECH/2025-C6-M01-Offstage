@@ -2,26 +2,31 @@ import SwiftUI
 
 struct OnboardingView: View {
     @EnvironmentObject var router: Router<AppRoute>
+    @State private var tabSelection = 0
 
     var body: some View {
-        VStack(spacing: 16) {
-            Text("온보딩 권한요청 화면")
-                .font(.largeTitle)
+        VStack {
+            TabView(selection: $tabSelection) {
+                OnboardingWelcomeView {
+                    tabSelection = 1
+                }
+                .tag(0)
 
-            Button("이전 화면으로 돌아가기 (pop)") {
-                router.pop()
+                OnboardingPermissionsView {
+                    // '다음' 버튼을 누르면 온보딩 완료 플래그를 설정하고 홈 화면으로 이동합니다.
+                    UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+                    router.root = .home
+                }.tag(1)
             }
-
-            Button("홈으로 돌아가기 (popToRoot)") {
-                router.popToRoot()
-            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
         }
-        .padding()
         .navigationTitle("Onboarding")
+        .navigationBarHidden(true)
+        .background(Color.black.ignoresSafeArea())
+        .foregroundColor(.white)
     }
 }
 
 #Preview {
-    // 미리보기용 Mock Router
     RouterView(router: Router<AppRoute>(root: .onboarding))
 }

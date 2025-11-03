@@ -33,7 +33,16 @@ import SwiftUI
 
 @main
 struct OffStageApp: App {
-    @StateObject private var router = Router<AppRoute>(root: .home)
+    @StateObject private var router: Router<AppRoute>
+
+    init() {
+        #if DEBUG_MODE
+            _router = StateObject(wrappedValue: Router(root: .onboarding))
+        #else
+            let hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
+            _router = StateObject(wrappedValue: Router(root: hasLaunchedBefore ? .home : .onboarding))
+        #endif
+    }
 
     var body: some Scene {
         WindowGroup {

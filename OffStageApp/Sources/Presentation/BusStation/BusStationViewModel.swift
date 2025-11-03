@@ -147,7 +147,7 @@ extension BusStationViewModel.RouteDetail {
     )
 }
 
-#if DEBUG
+#if DEBUG_MODE
     extension BusStationViewModel {
         func applyPreviewState(_ state: ViewState) {
             viewState = state
