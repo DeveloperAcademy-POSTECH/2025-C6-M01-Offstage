@@ -8,7 +8,6 @@ enum AppRoute: Routable {
     case busstation(input: BusStationViewInput)
     case homeedit
     case onboarding
-    case test(busStopInfo: BusStopInfo)
     case sttstest
     case quickCamera
 
@@ -34,9 +33,6 @@ enum AppRoute: Routable {
 
         case .onboarding:
             OnboardingView()
-
-        case let .test(busStopInfo):
-            TestView(busStopInfo: busStopInfo)
 
         case .sttstest:
             STTandTTSTestView()
