@@ -11,18 +11,6 @@ struct HomeView: View {
     @State private var timer: Timer?
     @State private var rotationAngle: Angle = .zero
 
-    /// 숏컷 진입을 위한 더미 데이터. 추후 숏컷 삭제 시 함께 삭제
-    private let sampleBusStop = BusStopInfo(
-        cityCode: 31020,
-        nodeId: "GGB204000163",
-        routeId: "GGB204000163",
-        stopName: "판교",
-        routeNo: "102",
-        gpsLati: 37.394726159,
-        gpsLong: 127.1112090472
-    )
-
-    @State private var searchText = ""
     @Query(sort: [
         SortDescriptor<Favorite>(\Favorite.order),
         SortDescriptor<Favorite>(\Favorite.routeNo),
