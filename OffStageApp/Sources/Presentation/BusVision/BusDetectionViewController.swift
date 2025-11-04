@@ -11,10 +11,15 @@ final class BusDetectionViewController: UIViewController {
 
     private var captureSession: AVCaptureSession?
     private var request: VNCoreMLRequest?
+    var impactFeedbackGenerator: UIImpactFeedbackGenerator?
 
     private var drawingBoxesView: DrawingBoxesView?
-    private var tempStrokeBoxesView: TempStokeBoxesView?
+    #if DEBUG_MODE
+        private var tempStrokeBoxesView: TempStokeBoxesView?
+    #endif
     private var currentPixelBuffer: CVPixelBuffer?
+    private var frameCount: UInt = 0
+    private var isBusDetected: Bool = false
 
     // MARK: Life Cycle
 
@@ -47,7 +52,9 @@ final class BusDetectionViewController: UIViewController {
         view.layer.sublayers?.first(where: { $0 is AVCaptureVideoPreviewLayer }
         )?.frame = fullFrame
         drawingBoxesView?.frame = fullFrame
-        tempStrokeBoxesView?.frame = fullFrame
+        #if DEBUG_MODE
+            tempStrokeBoxesView?.frame = fullFrame
+        #endif
     }
 
     // MARK: Functions
@@ -71,6 +78,26 @@ final class BusDetectionViewController: UIViewController {
         }
 
         session.addInput(input)
+
+        do {
+            try device.lockForConfiguration()
+            // zoom
+            let zoomfactor = min(device.maxAvailableVideoZoomFactor, 3.0)
+            device.videoZoomFactor = zoomfactor
+            print("zoom setting: \(zoomfactor)")
+
+            // fps
+            for fps in device.activeFormat.videoSupportedFrameRateRanges {
+                print("fps min: \(fps.minFrameRate)")
+                print("fps max: \(fps.maxFrameRate)")
+            }
+            device.activeVideoMaxFrameDuration = CMTime(value: 1, timescale: 24)
+            device.activeVideoMinFrameDuration = CMTime(value: 1, timescale: 24)
+
+            device.unlockForConfiguration()
+        } catch {
+            print("Couldn't set camera configuration (zoom/fps): \(error)")
+        }
 
         let preview = AVCaptureVideoPreviewLayer(session: session)
         preview.frame = view.bounds
@@ -97,15 +124,16 @@ final class BusDetectionViewController: UIViewController {
     /// 바운딩박스 뷰 서브뷰 설정
     private func setupBoxesView() {
         let drawingBoxesView = DrawingBoxesView()
-        let strokeBoxesView = TempStokeBoxesView()
         drawingBoxesView.frame = view.frame
-        strokeBoxesView.frame = view.frame
-
-        view.addSubview(strokeBoxesView)
         view.addSubview(drawingBoxesView)
-
         self.drawingBoxesView = drawingBoxesView
-        tempStrokeBoxesView = strokeBoxesView
+
+        #if DEBUG_MODE
+            let strokeBoxesView = TempStokeBoxesView()
+            strokeBoxesView.frame = view.frame
+            view.addSubview(strokeBoxesView)
+            tempStrokeBoxesView = strokeBoxesView
+        #endif
     }
 }
 
@@ -118,6 +146,15 @@ extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelega
         didOutput sampleBuffer: CMSampleBuffer,
         from _: AVCaptureConnection
     ) {
+        if frameCount >= UInt.max {
+            frameCount = 0
+        }
+        frameCount += 1
+
+        // 1초에 3번만 처리 (24fps → 3fps 처리)
+        guard frameCount % 8 == 0 else { return }
+
+        // 여기서 실제 처리 (1초에 3번만 실행됨)
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer),
               let request
         else {
@@ -126,8 +163,34 @@ extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelega
 
         currentPixelBuffer = pixelBuffer
 
+        // 비전 노선탐지
         let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer)
         try? handler.perform([request])
+
+        // 전체 프레임 대상 노선번호 탐지
+        if let currentPixelBuffer {
+            let ciBuffer = CIImage(cvPixelBuffer: currentPixelBuffer)
+            if let imageToGiveOCR = CIContext().createCGImage(ciBuffer, from: ciBuffer.extent) {
+                OCRManager.recognizeText(from: imageToGiveOCR) { fullString in
+                    guard let imageFullOCRString = fullString else { return }
+
+                    if let fullFrameDetected = OCRManager.isTextContains(
+                        text: imageFullOCRString,
+                        routeNumbers: self.routeNumbersToDetect
+                    ), self.isBusDetected {
+                        DispatchQueue.main.async {
+                            self.onDetectedRouteNumbersChanged?(fullFrameDetected)
+                        }
+
+                        self.impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+                        self.impactFeedbackGenerator?.impactOccurred()
+
+                    } else {
+                        self.onDetectedRouteNumbersChanged?([])
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -189,13 +252,26 @@ extension BusDetectionViewController {
     private func visionRequestDidComplete(request: VNRequest, error _: Error?) {
         guard let predictions =
             (request.results as? [VNRecognizedObjectObservation])
-        else { return }
+        else {
+            isBusDetected = false
+            return
+        }
+
+        // 박스 초기화
+        DispatchQueue.main.async {
+            self.drawingBoxesView?.drawBox(with: [])
+            #if DEBUG_MODE
+                self.tempStrokeBoxesView?.drawBox(with: [])
+            #endif
+        }
 
         var tempDetected: [String] = []
         var finalPredictions: [VNRecognizedObjectObservation] = []
+        isBusDetected = false
 
         for prediction in predictions {
-            if prediction.confidence < 0.6 { continue }
+            if prediction.confidence < 0.8 { continue }
+            isBusDetected = true
 
             // 이미지 자르기
             guard let image = cropImage(
@@ -213,33 +289,39 @@ extension BusDetectionViewController {
             }
 
             // 자른 이미지 OCR 처리하기
-            OCRManager.recognizeText(from: resizedImage) { ocrText in
+            OCRManager.recognizeText(from: image) { ocrText in
                 guard let ocrText else {
                     print("OCR 처리 실패")
                     return
                 }
-                print(ocrText)
+                print("--BUS OCR--\n\(ocrText)\n------")
 
-                // OCR 텍스트에 찾던 버스번호 있는지 검사
-                for routeNo in self.routeNumbersToDetect {
-                    if ocrText.contains(routeNo) {
-                        // 검사 결과에 있다면 바운딩박스에 추가
-                        finalPredictions.append(prediction)
-                        if !tempDetected.contains(routeNo) {
-                            tempDetected.append(routeNo)
-                        }
+                guard let routeContained = OCRManager.isTextContains(
+                    text: ocrText,
+                    routeNumbers: self.routeNumbersToDetect
+                ) else { return }
+
+                self.impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
+                self.impactFeedbackGenerator?.impactOccurred()
+
+                finalPredictions.append(prediction)
+
+                for route in routeContained {
+                    if !tempDetected.contains(route) {
+                        tempDetected.append(route)
                     }
                 }
-            }
-        }
 
-        DispatchQueue.main.async {
-            self.onDetectedRouteNumbersChanged?(tempDetected)
-            self.drawingBoxesView?.drawBox(with: finalPredictions)
-            self.tempStrokeBoxesView?.drawBox(with: predictions.filter { prediction in
-                prediction.confidence >= 0.6 &&
-                    !finalPredictions.contains(where: { $0.uuid == prediction.uuid })
-            })
+                DispatchQueue.main.async {
+                    self.onDetectedRouteNumbersChanged?(tempDetected)
+                    self.drawingBoxesView?.drawBox(with: finalPredictions)
+                }
+            }
+            #if DEBUG_MODE
+                DispatchQueue.main.async {
+                    self.tempStrokeBoxesView?.drawBox(with: predictions.filter { $0.confidence > 0.8 })
+                }
+            #endif
         }
     }
 }

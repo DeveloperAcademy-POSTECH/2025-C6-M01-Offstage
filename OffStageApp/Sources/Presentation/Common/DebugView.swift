@@ -15,6 +15,7 @@
                             .font(.system(.caption, design: .monospaced))
                             .listRowInsets(EdgeInsets(top: 2, leading: 10, bottom: 2, trailing: 10))
                     }
+                    NavigationLink("207, 306", destination: BusVisionView(routeNumbers: ["207", "306"]))
                 }
                 .navigationTitle("Debug Logs")
                 .navigationBarTitleDisplayMode(.inline)

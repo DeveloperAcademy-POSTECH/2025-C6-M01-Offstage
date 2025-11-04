@@ -28,7 +28,7 @@ struct BusVisionView: View {
                     ProgressView()
                 } else {
                     Text(detectedRouteNumbers.joined(separator: "& "))
-                        .font(.system(size: 120, weight: .black))
+                        .font(.system(size: 120, weight: .black, design: .rounded))
                         .foregroundStyle(Color.white)
                         .frame(maxWidth: .infinity, alignment: .center)
                 }
