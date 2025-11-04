@@ -47,7 +47,7 @@
             Button {
                 dismiss() // 시트 닫기
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    router.push(.sttstest) // 시트 애니메이션 후 라우팅
+                    router.push(.sttTest) // 시트 애니메이션 후 라우팅
                 }
             } label: {
                 Text(L10n.Debug.Ui.buttonSttTtsTest)

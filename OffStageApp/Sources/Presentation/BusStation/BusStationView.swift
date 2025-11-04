@@ -43,7 +43,7 @@ struct BusStationView: View {
                     }
                 }
                 Button {
-                    let destination = AppRoute.busvision(routeToDetect: favoritedRoutesInThisStation.map(\.routeNo))
+                    let destination = AppRoute.busVision(routeToDetect: favoritedRoutesInThisStation.map(\.routeNo))
                     router.push(destination)
                 } label: {
                     HStack {

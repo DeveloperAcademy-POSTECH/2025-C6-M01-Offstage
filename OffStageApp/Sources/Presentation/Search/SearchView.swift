@@ -71,7 +71,7 @@ private extension SearchView {
             ForEach(stops) { busStop in
                 SearchResultsView(busStop: busStop) {
                     guard let input = viewModel.destinationInput(for: busStop) else { return }
-                    router.push(.busstation(input: input))
+                    router.push(.busStation(input: input))
                 }
             }
             Divider()

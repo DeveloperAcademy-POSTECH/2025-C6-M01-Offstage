@@ -132,7 +132,7 @@ extension HomeEditView {
 #Preview {
     do {
         let container = try ModelContainer(for: Favorite.self, configurations: .init(isStoredInMemoryOnly: true))
-        return RouterView(router: Router<AppRoute>(root: .homeedit))
+        return RouterView(router: Router<AppRoute>(root: .homeEdit))
             .modelContainer(container)
     } catch {
         return Text("Failed to create preview: \(error.localizedDescription)")

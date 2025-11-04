@@ -77,7 +77,7 @@ struct HomeView: View {
                         }
 
                         Button(L10n.Home.Ui.buttonEdit) {
-                            router.push(.homeedit)
+                            router.push(.homeEdit)
                         }
                         .padding(.bottom)
                     } else {
