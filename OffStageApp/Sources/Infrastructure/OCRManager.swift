@@ -26,7 +26,6 @@ class OCRManager {
             if finalRecognizedString.isEmpty {
                 completion(nil)
             } else {
-                print(finalRecognizedString)
                 completion(finalRecognizedString)
             }
         }
@@ -44,5 +43,17 @@ class OCRManager {
             print("OCR 수행 실패: \(error)")
             completion(nil)
         }
+    }
+
+    /// 텍스트에 어떤 노선번호가 있는지 확인하는 함수
+    static func isTextContains(text: String, routeNumbers: [String]) -> [String]? {
+        var numsContains: [String] = []
+
+        for routeNo in routeNumbers {
+            if text.contains(routeNo), !numsContains.contains(routeNo) {
+                numsContains.append(routeNo)
+            }
+        }
+        return numsContains.isEmpty ? nil : numsContains
     }
 }

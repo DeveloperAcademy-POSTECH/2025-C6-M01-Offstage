@@ -47,7 +47,7 @@ extension BusDetectionViewController {
     }
 
     /// 이미지 크기 표준화
-    func resizeImage(_ cgimage: CGImage, targetSize: CGSize = .init(width: 500, height: 500)) -> CGImage? {
+    func resizeImage(_ cgimage: CGImage, targetSize: CGSize = .init(width: 400, height: 400)) -> CGImage? {
         let image = UIImage(cgImage: cgimage)
         let size = image.size
 
@@ -87,7 +87,7 @@ extension BusDetectionViewController {
             x: boundingBox.origin.x,
             y: boundingBox.origin.y,
             width: boundingBox.width,
-            height: boundingBox.height * 0.8
+            height: boundingBox.height * 0.7
         )
     }
 
