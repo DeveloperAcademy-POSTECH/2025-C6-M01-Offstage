@@ -122,7 +122,11 @@ final class BusStationViewModel: ObservableObject {
                         results.append(result)
                     }
                 }
-                return results.sorted(by: { $0.routeNumber < $1.routeNumber })
+                return results.sorted { route1, route2 in
+                    guard let time1 = route1.arrivals.first?.secondsUntilArrival else { return false }
+                    guard let time2 = route2.arrivals.first?.secondsUntilArrival else { return true }
+                    return time1 < time2
+                }
             }
 
             print("DETAIL \n\n\n\n\n\(details)\n\n\n\n\n\n")

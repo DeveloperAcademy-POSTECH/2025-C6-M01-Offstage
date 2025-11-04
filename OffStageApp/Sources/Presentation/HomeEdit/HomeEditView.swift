@@ -29,7 +29,7 @@ struct HomeEditView: View {
                     HomeEditListRowView(
                         nodeName: station.nodeName,
                         nodeNo: station.nodeNo,
-                        routes: station.favorites.map(\.routeNo),
+                        routes: station.favorites.map(\.routeNo)
                     )
                 }
                 .onDelete(perform: deleteStations)
