@@ -36,7 +36,11 @@ final class BusStationCardViewModel: ObservableObject {
                 for try await arrivals in group {
                     result.append(contentsOf: arrivals)
                 }
-                return result.sorted(by: { $0.routeNumber < $1.routeNumber })
+                return result.sorted { bus1, bus2 in
+                    guard let time1 = bus1.estimatedArrivalTime else { return false }
+                    guard let time2 = bus2.estimatedArrivalTime else { return true }
+                    return time1 < time2
+                }
             }
         } catch {
             print("Error fetching arrivals: \(error)")
