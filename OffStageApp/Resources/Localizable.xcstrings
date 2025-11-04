@@ -17,11 +17,26 @@
     "%@ 버스 인식하기" : {
 
     },
+    "%@ 정류장" : {
+
+    },
     "%@번째전" : {
 
     },
     "%@분" : {
 
+    },
+    "arbitrary.sample" : {
+      "comment" : "임의의 테스트 값",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "임의의 값"
+          }
+        }
+      }
     },
     "busStation.ui.button.recognizeBus" : {
       "comment" : "버스 정류장 화면: 버스 인식 버튼",
@@ -79,6 +94,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "자주 이용하는 버스를 등록해 주세요."
+          }
+        }
+      }
+    },
+    "common.a11y.action.delete" : {
+      "comment" : "A11y: 공용: 삭제 액션 이름 (2단계에서 추가했다면 생략)",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "삭제"
           }
         }
       }
@@ -175,6 +202,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "저장"
+          }
+        }
+      }
+    },
+    "debug.ui.button.apiTest" : {
+      "comment" : "디버그: Api 테스트 뷰 이동 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Api Test View"
           }
         }
       }
@@ -310,6 +349,102 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "홈"
+          }
+        }
+      }
+    },
+    "homeEdit.a11y.action.moveDown" : {
+      "comment" : "A11y: 편집 목록 항목을 아래로 이동시키는 액션 이름",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아래로 이동"
+          }
+        }
+      }
+    },
+    "homeEdit.a11y.action.moveUp" : {
+      "comment" : "A11y: 편집 목록 항목을 위로 이동시키는 액션 이름",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위로 이동"
+          }
+        }
+      }
+    },
+    "homeEdit.a11y.announce.itemDeleted" : {
+      "comment" : "A11y: 즐겨찾기 항목 삭제 완료 시 음성 알림",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목이 삭제되었습니다."
+          }
+        }
+      }
+    },
+    "homeEdit.a11y.announce.itemMovedDown" : {
+      "comment" : "A11y: 항목 순서 아래로 이동 완료 시 음성 알림",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목이 아래로 이동했습니다."
+          }
+        }
+      }
+    },
+    "homeEdit.a11y.announce.itemMovedUp" : {
+      "comment" : "A11y: 항목 순서 위로 이동 완료 시 음성 알림",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목이 위로 이동했습니다."
+          }
+        }
+      }
+    },
+    "homeEdit.a11y.announce.saved" : {
+      "comment" : "A11y: 편집 완료(저장) 버튼 탭 시 음성 알림",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "변경 사항이 저장되었습니다."
+          }
+        }
+      }
+    },
+    "homeEdit.a11y.header" : {
+      "comment" : "A11y: HomeEditView의 목록 헤더 (TestView의 헤더와 구별)",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾기 목록"
+          }
+        }
+      }
+    },
+    "homeEdit.a11y.row.hint" : {
+      "comment" : "A11y: 편집 목록의 각 행에 대한 힌트",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "편집 가능한 항목입니다. 쓸어올리거나 내려서 삭제 또는 순서 변경 동작을 실행하십시오."
           }
         }
       }
@@ -721,6 +856,30 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "읽을 텍스트"
+          }
+        }
+      }
+    },
+    "test.a11y.header.busInfo" : {
+      "comment" : "A11y: TestView의 '버스 정보' 섹션 헤더",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버스 정보"
+          }
+        }
+      }
+    },
+    "test.a11y.header.deviceInfo" : {
+      "comment" : "A11y: TestView의 '기기 정보' 섹션 헤더",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기기 정보"
           }
         }
       }

@@ -1,3 +1,4 @@
+import Accessibility // Added for UIAccessibility
 import SwiftData
 import SwiftUI
 
@@ -25,15 +26,21 @@ struct HomeEditView: View {
     var body: some View {
         VStack(spacing: 0) {
             List {
-                ForEach(editableStops) { station in
-                    HomeEditListRowView(
-                        nodeName: station.nodeName,
-                        nodeNo: station.nodeNo,
-                        routes: station.favorites.map(\.routeNo)
-                    )
+                Section(
+                    header: Text(L10n.HomeEdit.Ui.title)
+                        .accessibilityLabel(Text(L10n.HomeEdit.A11y.header))
+                        .accessibilityAddTraits(.isHeader)
+                ) {
+                    ForEach(editableStops) { station in
+                        HomeEditListRowView(
+                            nodeName: station.nodeName,
+                            nodeNo: station.nodeNo,
+                            routes: station.favorites.map(\.routeNo)
+                        )
+                    }
+                    .onDelete(perform: deleteStations)
+                    .onMove(perform: moveStations)
                 }
-                .onDelete(perform: deleteStations)
-                .onMove(perform: moveStations)
             }
             .listStyle(.plain)
             .environment(\.editMode, .constant(.active))
@@ -96,6 +103,16 @@ struct HomeEditView: View {
         // 변경사항 저장 및 뷰 닫기
         try? modelContext.save()
         router.pop()
+
+        // --- ⬇️ A11y 4단계 전략 적용 ⬇️ ---
+        // 2. 실행 결과를 음성으로 알림
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            UIAccessibility.post(
+                notification: .announcement,
+                argument:
+                L10n.HomeEdit.A11y.announceSaved
+            )
+        }
     }
 }
 

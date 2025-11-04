@@ -12,9 +12,20 @@ struct TestView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 24) {
-                    actionSection
-                    responseSection
-                    locationSection
+                    Section(
+                        header: Text(L10n.Test.A11y.headerDeviceInfo)
+                            .accessibilityAddTraits(.isHeader)
+                    ) {
+                        actionSection
+                        responseSection
+                    }
+
+                    Section(
+                        header: Text(L10n.Test.A11y.headerBusInfo)
+                            .accessibilityAddTraits(.isHeader)
+                    ) {
+                        locationSection
+                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 24)
@@ -229,26 +240,28 @@ struct TestView: View {
 
     @ViewBuilder
     private func infoRow(title: LocalizedStringKey, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Text(value)
-                .font(.body.weight(.semibold))
-                .foregroundStyle(.primary)
+        HStack { // Changed from VStack to HStack for accessibility grouping
+            Text(title) // 시각적 UI
+            Spacer()
+            Text(value) // 시각적 UI
         }
+        // --- ⬇️ A11y 3단계 전략 적용 ⬇️ ---
+        .accessibilityElement(children: .ignore) // 1. [Element] 개별 Text 무시
+        .accessibilityLabel(title) // 2. [Label] "제목"
+        .accessibilityValue(Text(value)) // 3. [Value] "값"
     }
 
     @ViewBuilder
     private func infoRow(title: LocalizedStringKey, value: LocalizedStringKey) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
+        HStack { // Changed from VStack to HStack for accessibility grouping
             Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            Spacer()
             Text(value)
-                .font(.body.weight(.semibold))
-                .foregroundStyle(.primary)
         }
+        // --- ⬇️ A11y 3단계 전략 적용 ⬇️ ---
+        .accessibilityElement(children: .ignore) // 1. [Element]
+        .accessibilityLabel(title) // 2. [Label]
+        .accessibilityValue(Text(value)) // 3. [Value]
     }
 
     private func formattedCoordinate(_ value: Double) -> String {
