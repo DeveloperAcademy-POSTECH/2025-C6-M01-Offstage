@@ -11,7 +11,7 @@ struct HomeEditFooterButtomsView: View {
     var body: some View {
         HStack(spacing: 10) {
             Button(action: cancelChanges) {
-                Text("취소")
+                Text(L10n.Common.Ui.buttonCancel)
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundStyle(.white)
@@ -24,7 +24,7 @@ struct HomeEditFooterButtomsView: View {
             }
 
             Button(action: saveChanges) {
-                Text("저장")
+                Text(L10n.Common.Ui.buttonSave)
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundStyle(

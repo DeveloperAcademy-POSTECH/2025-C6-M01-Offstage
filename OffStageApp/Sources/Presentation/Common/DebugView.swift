@@ -15,13 +15,16 @@
                             .font(.system(.caption, design: .monospaced))
                             .listRowInsets(EdgeInsets(top: 2, leading: 10, bottom: 2, trailing: 10))
                     }
-                    NavigationLink("207, 306", destination: BusVisionView(routeNumbers: ["207", "306"]))
+                    NavigationLink(
+                        L10n.Debug.Ui.linkBusVision,
+                        destination: BusVisionView(routeNumbers: ["207", "306"])
+                    )
                 }
-                .navigationTitle("Debug Logs")
+                .navigationTitle(L10n.Debug.Ui.title)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Clear") {
+                        Button(L10n.Debug.Ui.buttonClear) {
                             logStore.clearLogs()
                         }
                     }
@@ -34,7 +37,7 @@
                     router.push(.sttstest) // 시트 애니메이션 후 라우팅
                 }
             } label: {
-                Text("STT & TTS Test View")
+                Text(L10n.Debug.Ui.buttonSttTtsTest)
             }
             Spacer()
         }

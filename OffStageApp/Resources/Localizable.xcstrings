@@ -1,0 +1,1105 @@
+{
+  "sourceLanguage" : "ko",
+  "strings" : {
+    "%@" : {
+
+    },
+    "%@ %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@"
+          }
+        }
+      }
+    },
+    "%@ 버스 인식하기" : {
+
+    },
+    "%@번째전" : {
+
+    },
+    "%@분" : {
+
+    },
+    "busStation.ui.button.recognizeBus" : {
+      "comment" : "버스 정류장 화면: 버스 인식 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버스 인식하기"
+          }
+        }
+      }
+    },
+    "busStation.ui.error.failedToLoad" : {
+      "comment" : "정류장 상세: 로드 실패 에러",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정류장 정보를 불러오지 못했습니다."
+          }
+        }
+      }
+    },
+    "busStation.ui.error.noArrivalInfo" : {
+      "comment" : "정류장 상세: 도착 정보 없음 에러",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "도착 예정 정보가 없습니다."
+          }
+        }
+      }
+    },
+    "busStation.ui.error.noRoutes" : {
+      "comment" : "정류장 상세: 경유 노선 없음 에러",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "경유 노선 정보를 찾을 수 없습니다."
+          }
+        }
+      }
+    },
+    "busStation.ui.guidance" : {
+      "comment" : "정류장 상세: 즐겨찾기 유도",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자주 이용하는 버스를 등록해 주세요."
+          }
+        }
+      }
+    },
+    "common.a11y.button.home" : {
+      "comment" : "A11y: 홈으로 이동 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "홈으로 이동"
+          }
+        }
+      }
+    },
+    "common.a11y.button.refresh" : {
+      "comment" : "A11y: 새로고침 버튼의 VoiceOver 레이블",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새로고침"
+          }
+        }
+      }
+    },
+    "common.a11y.button.toggleFavorite" : {
+      "comment" : "A11y: 즐겨찾기 상태를 토글하는 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾기 토글"
+          }
+        }
+      }
+    },
+    "common.ui.button.cancel" : {
+      "comment" : "공용: 취소 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "취소"
+          }
+        }
+      }
+    },
+    "common.ui.button.next" : {
+      "comment" : "공용: 다음 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다음"
+          }
+        }
+      }
+    },
+    "common.ui.button.previous" : {
+      "comment" : "공용: 이전 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이전"
+          }
+        }
+      }
+    },
+    "common.ui.button.retry" : {
+      "comment" : "공용: 재시도 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 시도"
+          }
+        }
+      }
+    },
+    "common.ui.button.save" : {
+      "comment" : "공용: 저장 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장"
+          }
+        }
+      }
+    },
+    "debug.ui.button.clear" : {
+      "comment" : "디버그: 로그 지우기 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear"
+          }
+        }
+      }
+    },
+    "debug.ui.button.sttTtsTest" : {
+      "comment" : "디버그: STT/TTS 테스트 뷰 이동 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STT & TTS Test View"
+          }
+        }
+      }
+    },
+    "debug.ui.link.busVision" : {
+      "comment" : "디버그: 버스 비전 테스트 링크",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "207, 306"
+          }
+        }
+      }
+    },
+    "debug.ui.title" : {
+      "comment" : "디버그: 화면 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debug Logs"
+          }
+        }
+      }
+    },
+    "Error: %@" : {
+
+    },
+    "home.a11y.button.quickCamera" : {
+      "comment" : "A11y: 빠른 카메라 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "빠른 카메라"
+          }
+        }
+      }
+    },
+    "home.ui.button.edit" : {
+      "comment" : "홈 화면: 편집 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "편집"
+          }
+        }
+      }
+    },
+    "home.ui.empty.button.add" : {
+      "comment" : "홈 화면: 즐겨찾기 비어있을 때 추가 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나의 버스 추가하기"
+          }
+        }
+      }
+    },
+    "home.ui.empty.subtitle" : {
+      "comment" : "홈 화면: 즐겨찾기 비어있을 때 부제목",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자주 이용하는 버스를 추가해 주세요."
+          }
+        }
+      }
+    },
+    "home.ui.empty.title" : {
+      "comment" : "홈 화면: 즐겨찾기 비어있을 때 제목",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장된 내역이 없습니다."
+          }
+        }
+      }
+    },
+    "home.ui.placeholder.search" : {
+      "comment" : "홈 화면: 검색창 플레이스홀더",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버스 노선, 정류장 검색"
+          }
+        }
+      }
+    },
+    "home.ui.title" : {
+      "comment" : "홈 화면: 내비게이션 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "홈"
+          }
+        }
+      }
+    },
+    "homeEdit.ui.title" : {
+      "comment" : "즐겨찾기 편집: 내비게이션 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾기 편집"
+          }
+        }
+      }
+    },
+    "ID: %@" : {
+
+    },
+    "k.appName" : {
+      "comment" : "앱의 공식 이름",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버스온다"
+          }
+        }
+      }
+    },
+    "onboarding.ui.button.startApp" : {
+      "comment" : "온보딩 권한: 앱 시작 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시작하기"
+          }
+        }
+      }
+    },
+    "onboarding.ui.button.startCTA" : {
+      "comment" : "온보딩 시작: 알아보기 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알아보기"
+          }
+        }
+      }
+    },
+    "onboarding.ui.description.camera" : {
+      "comment" : "온보딩 권한: 카메라 사용 이유",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버스 번호 인식을 위해 사용"
+          }
+        }
+      }
+    },
+    "onboarding.ui.description.location" : {
+      "comment" : "온보딩 권한: 위치 정보 사용 이유",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위치 기반 정류장 안내를 위해 사용"
+          }
+        }
+      }
+    },
+    "onboarding.ui.description.microphone" : {
+      "comment" : "온보딩 권한: 마이크 사용 이유",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음성 검색 기능을 위해 사용"
+          }
+        }
+      }
+    },
+    "onboarding.ui.header.permissions" : {
+      "comment" : "온보딩 권한: 상단 헤더",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시작하기 전에"
+          }
+        }
+      }
+    },
+    "onboarding.ui.label.camera" : {
+      "comment" : "온보딩 권한: 카메라 레이블",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "카메라"
+          }
+        }
+      }
+    },
+    "onboarding.ui.label.disclaimer" : {
+      "comment" : "온보딩 권한: 미동의 시 안내",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위 권한 사용에 동의하지 않는 경우\n앱 사용이 제한됩니다."
+          }
+        }
+      }
+    },
+    "onboarding.ui.label.location" : {
+      "comment" : "온보딩 권한: 위치 정보 레이블",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위치 정보"
+          }
+        }
+      }
+    },
+    "onboarding.ui.label.microphone" : {
+      "comment" : "온보딩 권한: 마이크 레이블",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마이크"
+          }
+        }
+      }
+    },
+    "onboarding.ui.subtitle.permissions" : {
+      "comment" : "온보딩 권한: 부제목",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "더 나은 앱 사용을 위해\n동의가 필요한 권한을 확인해주세요."
+          }
+        }
+      }
+    },
+    "onboarding.ui.title.page1" : {
+      "comment" : "온보딩 1페이지 문구",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탑승하려는 버스를 즐겨찾기\n하면 버스 인식을 시작할 수 있\n습니다."
+          }
+        }
+      }
+    },
+    "onboarding.ui.title.page2" : {
+      "comment" : "온보딩 2페이지 문구",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버스 인식 카메라로 버스 번호\n를 확인할 수 있습니다.\n"
+          }
+        }
+      }
+    },
+    "onboarding.ui.title.page3" : {
+      "comment" : "온보딩 3페이지 문구",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾기한 버스는 홈화면에\n서 빠르게 버스인식을 할 수 있\n습니다."
+          }
+        }
+      }
+    },
+    "onboarding.ui.title.permissions" : {
+      "comment" : "온보딩 권한: 내비게이션 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "권한 요청"
+          }
+        }
+      }
+    },
+    "onboarding.ui.title.requiredAccess" : {
+      "comment" : "온보딩 권한: 필수 권한 섹션 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "필수 접근 권한"
+          }
+        }
+      }
+    },
+    "onboarding.ui.title.start" : {
+      "comment" : "온보딩 시작: 앱 설명 (앱 이름 뒤에 붙음)",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "는 저시력자를 위한\n버스 안내 앱입니다."
+          }
+        }
+      }
+    },
+    "quickCamera.ui.title" : {
+      "comment" : "빠른 카메라 화면: 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "빠른 카메라"
+          }
+        }
+      }
+    },
+    "search.ui.empty.noStops" : {
+      "comment" : "검색 화면: 주변 정류장 없을 때",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "표시할 정류장이 없습니다."
+          }
+        }
+      }
+    },
+    "search.ui.placeholder" : {
+      "comment" : "검색 화면: 검색창 플레이스홀더",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검색..."
+          }
+        }
+      }
+    },
+    "search.ui.prefix.stopID" : {
+      "comment" : "검색 결과: 정류장 ID 접두사",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID:"
+          }
+        }
+      }
+    },
+    "search.ui.title.nearbyStops" : {
+      "comment" : "검색 화면: 주변 정류장 섹션 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주변 정류장"
+          }
+        }
+      }
+    },
+    "sttTtsTest.ui.button.dismissKeyboard" : {
+      "comment" : "STT/TTS 테스트: 키보드 내리기 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "키보드 내리기"
+          }
+        }
+      }
+    },
+    "sttTtsTest.ui.button.read" : {
+      "comment" : "STT/TTS 테스트: TTS 읽기 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "읽기"
+          }
+        }
+      }
+    },
+    "sttTtsTest.ui.button.startListening" : {
+      "comment" : "STT/TTS 테스트: STT 인식 시작 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🎙️ 인식 시작"
+          }
+        }
+      }
+    },
+    "sttTtsTest.ui.button.stop" : {
+      "comment" : "STT/TTS 테스트: TTS 정지 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정지"
+          }
+        }
+      }
+    },
+    "sttTtsTest.ui.button.stopListening" : {
+      "comment" : "STT/TTS 테스트: STT 인식 중지 버튼",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🛑 인식 중지"
+          }
+        }
+      }
+    },
+    "sttTtsTest.ui.placeholder.stt" : {
+      "comment" : "STT/TTS 테스트: STT 결과 플레이스홀더",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "여기에 인식된 텍스트가 표시됩니다."
+          }
+        }
+      }
+    },
+    "sttTtsTest.ui.placeholder.tts" : {
+      "comment" : "STT/TTS 테스트: TTS 입력 플레이스홀더",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "텍스트를 입력하세요"
+          }
+        }
+      }
+    },
+    "sttTtsTest.ui.title.navigation" : {
+      "comment" : "STT/TTS 테스트: 내비게이션 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STT&TTS 테스트 페이지"
+          }
+        }
+      }
+    },
+    "sttTtsTest.ui.title.stt" : {
+      "comment" : "STT/TTS 테스트: STT 섹션 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음성 받아적기 테스트"
+          }
+        }
+      }
+    },
+    "sttTtsTest.ui.title.tts" : {
+      "comment" : "STT/TTS 테스트: TTS 섹션 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "읽을 텍스트"
+          }
+        }
+      }
+    },
+    "test.ui.button.arrivals.subtitle" : {
+      "comment" : "테스트: 정류장 도착 정보 버튼 서브타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정류장 기준 전체 도착 예정 정보"
+          }
+        }
+      }
+    },
+    "test.ui.button.arrivals.title" : {
+      "comment" : "테스트: 정류장 도착 정보 버튼 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정류장 도착 정보"
+          }
+        }
+      }
+    },
+    "test.ui.button.arrivalsForRoute.subtitle" : {
+      "comment" : "테스트: 특정 노선 도착 정보 버튼 서브타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정류장 + 노선 조합으로 도착 조회"
+          }
+        }
+      }
+    },
+    "test.ui.button.arrivalsForRoute.title" : {
+      "comment" : "테스트: 특정 노선 도착 정보 버튼 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "특정 노선 도착 정보"
+          }
+        }
+      }
+    },
+    "test.ui.button.routeBusLocations.subtitle" : {
+      "comment" : "테스트: 차량 실시간 위치 버튼 서브타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택한 노선의 차량 위치 추적"
+          }
+        }
+      }
+    },
+    "test.ui.button.routeBusLocations.title" : {
+      "comment" : "테스트: 차량 실시간 위치 버튼 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "차량 실시간 위치"
+          }
+        }
+      }
+    },
+    "test.ui.button.routeInfo.subtitle" : {
+      "comment" : "테스트: 노선 기본 정보 버튼 서브타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "첫/막차 시간 등 노선 상세 확인"
+          }
+        }
+      }
+    },
+    "test.ui.button.routeInfo.title" : {
+      "comment" : "테스트: 노선 기본 정보 버튼 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노선 기본 정보"
+          }
+        }
+      }
+    },
+    "test.ui.button.routeStops.subtitle" : {
+      "comment" : "테스트: 노선 경유 정류장 버튼 서브타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노선이 지나가는 정류장 순서 확인"
+          }
+        }
+      }
+    },
+    "test.ui.button.routeStops.title" : {
+      "comment" : "테스트: 노선 경유 정류장 버튼 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노선 경유 정류장"
+          }
+        }
+      }
+    },
+    "test.ui.button.searchRoute.subtitle" : {
+      "comment" : "테스트: 노선 번호 검색 버튼 서브타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노선 번호 키워드로 노선 찾기"
+          }
+        }
+      }
+    },
+    "test.ui.button.searchRoute.title" : {
+      "comment" : "테스트: 노선 번호 검색 버튼 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노선 번호 검색"
+          }
+        }
+      }
+    },
+    "test.ui.button.searchStop.subtitle" : {
+      "comment" : "테스트: 정류장 키워드 검색 버튼 서브타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "도시 코드와 정류장 이름으로 조회"
+          }
+        }
+      }
+    },
+    "test.ui.button.searchStop.title" : {
+      "comment" : "테스트: 정류장 키워드 검색 버튼 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정류장 키워드 검색"
+          }
+        }
+      }
+    },
+    "test.ui.button.stopRoutes.subtitle" : {
+      "comment" : "테스트: 정류장을 지나는 노선 버튼 서브타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택한 정류장을 통과하는 노선 목록"
+          }
+        }
+      }
+    },
+    "test.ui.button.stopRoutes.title" : {
+      "comment" : "테스트: 정류장을 지나는 노선 버튼 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정류장을 지나는 노선"
+          }
+        }
+      }
+    },
+    "test.ui.button.stopsByGps.subtitle" : {
+      "comment" : "테스트: 현위치 주변 정류장 버튼 서브타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 좌표 기준으로 반경 검색"
+          }
+        }
+      }
+    },
+    "test.ui.button.stopsByGps.title" : {
+      "comment" : "테스트: 현위치 주변 정류장 버튼 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현위치 주변 정류장"
+          }
+        }
+      }
+    },
+    "test.ui.label.apiCall" : {
+      "comment" : "테스트: API 호출 섹션 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "테스트 API 호출"
+          }
+        }
+      }
+    },
+    "test.ui.label.cityCode" : {
+      "comment" : "테스트: cityCode 레이블",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cityCode"
+          }
+        }
+      }
+    },
+    "test.ui.label.coordinates" : {
+      "comment" : "테스트: 위도/경도 레이블",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위도/경도"
+          }
+        }
+      }
+    },
+    "test.ui.label.nodeId" : {
+      "comment" : "테스트: nodeId 레이블",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nodeId"
+          }
+        }
+      }
+    },
+    "test.ui.label.rawResponse" : {
+      "comment" : "테스트: 원본 응답 레이블",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "원본 응답(JSON)"
+          }
+        }
+      }
+    },
+    "test.ui.label.responsePreview" : {
+      "comment" : "테스트: 응답 미리보기 레이블",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "응답 미리보기"
+          }
+        }
+      }
+    },
+    "test.ui.label.route" : {
+      "comment" : "테스트: 노선 레이블",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노선 ID/노선 번호"
+          }
+        }
+      }
+    },
+    "test.ui.label.searchTerm" : {
+      "comment" : "테스트: 검색어 레이블",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검색어"
+          }
+        }
+      }
+    },
+    "test.ui.placeholder.noSearchTerm" : {
+      "comment" : "테스트: 검색어 없음 플레이스홀더",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검색어 없음"
+          }
+        }
+      }
+    },
+    "test.ui.title.arrivalSection" : {
+      "comment" : "테스트: 도착 정보 섹션 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "도착 정보"
+          }
+        }
+      }
+    },
+    "test.ui.title.navigation" : {
+      "comment" : "테스트: 내비게이션 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버스 API 테스트"
+          }
+        }
+      }
+    },
+    "test.ui.title.routeSection" : {
+      "comment" : "테스트: 노선 정보 섹션 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노선 정보"
+          }
+        }
+      }
+    },
+    "test.ui.title.stopSection" : {
+      "comment" : "테스트: 정류장 조회 섹션 타이틀",
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정류장 조회"
+          }
+        }
+      }
+    },
+    "노선 정보를 불러올 수 없습니다." : {
+
+    }
+  },
+  "version" : "1.0"
+}

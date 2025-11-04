@@ -38,7 +38,7 @@ struct BusStationRowSubView: View {
                 }
 
                 if route.arrivals.isEmpty {
-                    Text("도착 예정 정보가 없습니다.")
+                    Text(L10n.BusStation.Ui.errorNoArrivalInfo)
                         .foregroundColor(.secondary)
                 } else {
                     HStack(spacing: 8) {

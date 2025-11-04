@@ -46,8 +46,9 @@ struct HomeView: View {
                         HStack {
                             Image(systemName: "magnifyingglass")
                                 .foregroundColor(.gray)
+                                .accessibilityHidden(true)
 
-                            Text("버스 노선, 정류장 검색")
+                            Text(L10n.Home.Ui.placeholderSearch)
                                 .foregroundColor(.gray)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -65,10 +66,11 @@ struct HomeView: View {
                             .foregroundColor(.gray)
                             .padding(.trailing)
                     }
+                    .accessibilityLabel(Text(L10n.Home.A11y.buttonQuickCamera))
                 }
 
                 ScrollView {
-                    Text("홈")
+                    Text(L10n.Home.Ui.title)
                         .font(.largeTitle)
                         .frame(maxWidth: .infinity, alignment: .init(horizontal: .leading, vertical: .center))
                         .padding(.horizontal)
@@ -86,23 +88,23 @@ struct HomeView: View {
                             .padding(.horizontal)
                         }
 
-                        Button("편집") {
+                        Button(L10n.Home.Ui.buttonEdit) {
                             router.push(.homeedit)
                         }
                         .padding(.bottom)
                     } else {
-                        Text("저장된 내역이 없습니다.")
+                        Text(L10n.Home.Ui.emptyTitle)
                             .foregroundColor(.gray)
                             .padding(.top, 50)
                             .padding(.bottom)
-                        Text("자주 이용하는 버스를 추가해 주세요.")
+                        Text(L10n.Home.Ui.emptySubtitle)
                             .foregroundColor(.gray)
                             .padding(.bottom, 30)
 
                         Button {
                             router.push(.search)
                         } label: {
-                            Text("나의 버스 추가하기")
+                            Text(L10n.Home.Ui.emptyButtonAdd)
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 20)
                                 .padding(.vertical, 10)

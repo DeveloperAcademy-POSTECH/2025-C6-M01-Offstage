@@ -48,7 +48,7 @@ struct HomeEditView: View {
         }
         .onAppear(perform: setupInitialState)
         .navigationBarTitleDisplayMode(.inline)
-        .navigationTitle("즐겨찾기 편집")
+        .navigationTitle(L10n.HomeEdit.Ui.title)
     }
 
     private func setupInitialState() {

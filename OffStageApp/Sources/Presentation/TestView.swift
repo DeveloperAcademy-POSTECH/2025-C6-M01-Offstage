@@ -20,7 +20,7 @@ struct TestView: View {
                 .padding(.vertical, 24)
             }
             .background(Color(.systemGroupedBackground).ignoresSafeArea())
-            .navigationTitle("버스 API 테스트")
+            .navigationTitle(L10n.Test.Ui.titleNavigation)
             .navigationBarTitleDisplayMode(.inline)
             .overlay(
                 ActivityIndicator(isAnimating: loadingBinding, style: .large)
@@ -38,24 +38,31 @@ struct TestView: View {
             let info = viewModel.busStopInfo
 
             VStack(alignment: .leading, spacing: 12) {
+                if info.stopName.isEmpty {
+                    infoRow(
+                        title: L10n.Test.Ui.labelSearchTerm,
+                        value: L10n.Test.Ui.placeholderNoSearchTerm
+                    )
+                } else {
+                    infoRow(
+                        title: L10n.Test.Ui.labelSearchTerm,
+                        value: info.stopName
+                    )
+                }
                 infoRow(
-                    title: "검색어",
-                    value: info.stopName.isEmpty ? "검색어 없음" : info.stopName
-                )
-                infoRow(
-                    title: "위도/경도",
+                    title: L10n.Test.Ui.labelCoordinates,
                     value: "\(formattedCoordinate(info.gpsLati))/\(formattedCoordinate(info.gpsLong))"
                 )
                 infoRow(
-                    title: "cityCode",
+                    title: L10n.Test.Ui.labelCityCode,
                     value: "\(info.cityCode)"
                 )
                 infoRow(
-                    title: "노선 ID/노선 번호",
+                    title: L10n.Test.Ui.labelRoute,
                     value: "\(info.routeId.isEmpty ? "-" : info.routeId)/\(info.routeNo.isEmpty ? "-" : info.routeNo)"
                 )
                 infoRow(
-                    title: "nodeId",
+                    title: L10n.Test.Ui.labelNodeId,
                     value: info.nodeId.isEmpty ? "-" : info.nodeId
                 )
             }
@@ -67,7 +74,7 @@ struct TestView: View {
 
     private var responseSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Label("응답 미리보기", systemImage: "doc.richtext")
+            Label(L10n.Test.Ui.labelResponsePreview, systemImage: "doc.richtext")
                 .font(.headline)
 
             if let sections = viewModel.displaySections, !sections.isEmpty {
@@ -94,18 +101,18 @@ struct TestView: View {
 
     private var actionSection: some View {
         VStack(alignment: .leading, spacing: 24) {
-            Label("테스트 API 호출", systemImage: "play.circle.fill")
+            Label(L10n.Test.Ui.labelApiCall, systemImage: "play.circle.fill")
                 .font(.headline)
 
-            actionGroup(title: "정류장 조회", actions: stopActions)
-            actionGroup(title: "도착 정보", actions: arrivalActions)
-            actionGroup(title: "노선 정보", actions: routeActions)
+            actionGroup(title: L10n.Test.Ui.titleStopSection, actions: stopActions)
+            actionGroup(title: L10n.Test.Ui.titleArrivalSection, actions: arrivalActions)
+            actionGroup(title: L10n.Test.Ui.titleRouteSection, actions: routeActions)
         }
         .cardStyle()
     }
 
     @ViewBuilder
-    private func actionGroup(title: String, actions: [APIAction]) -> some View {
+    private func actionGroup(title: LocalizedStringKey, actions: [APIAction]) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
                 .font(.subheadline)
@@ -157,16 +164,16 @@ struct TestView: View {
     private var stopActions: [APIAction] {
         [
             APIAction(
-                title: "정류장 키워드 검색",
-                subtitle: "도시 코드와 정류장 이름으로 조회"
+                title: L10n.Test.Ui.buttonSearchStopTitle,
+                subtitle: L10n.Test.Ui.buttonSearchStopSubtitle
             ) { await viewModel.searchStop() },
             APIAction(
-                title: "현위치 주변 정류장",
-                subtitle: "현재 좌표 기준으로 반경 검색"
+                title: L10n.Test.Ui.buttonStopsByGpsTitle,
+                subtitle: L10n.Test.Ui.buttonStopsByGpsSubtitle
             ) { await viewModel.getStopsByGPS() },
             APIAction(
-                title: "정류장을 지나는 노선",
-                subtitle: "선택한 정류장을 통과하는 노선 목록"
+                title: L10n.Test.Ui.buttonStopRoutesTitle,
+                subtitle: L10n.Test.Ui.buttonStopRoutesSubtitle
             ) { await viewModel.getStopRoutes() },
         ]
     }
@@ -174,12 +181,12 @@ struct TestView: View {
     private var arrivalActions: [APIAction] {
         [
             APIAction(
-                title: "정류장 도착 정보",
-                subtitle: "정류장 기준 전체 도착 예정 정보"
+                title: L10n.Test.Ui.buttonArrivalsTitle,
+                subtitle: L10n.Test.Ui.buttonArrivalsSubtitle
             ) { await viewModel.getArrivals() },
             APIAction(
-                title: "특정 노선 도착 정보",
-                subtitle: "정류장 + 노선 조합으로 도착 조회"
+                title: L10n.Test.Ui.buttonArrivalsForRouteTitle,
+                subtitle: L10n.Test.Ui.buttonArrivalsForRouteSubtitle
             ) { await viewModel.getArrivalsForRoute() },
         ]
     }
@@ -187,20 +194,20 @@ struct TestView: View {
     private var routeActions: [APIAction] {
         [
             APIAction(
-                title: "차량 실시간 위치",
-                subtitle: "선택한 노선의 차량 위치 추적"
+                title: L10n.Test.Ui.buttonRouteBusLocationsTitle,
+                subtitle: L10n.Test.Ui.buttonRouteBusLocationsSubtitle
             ) { await viewModel.getRouteBusLocations() },
             APIAction(
-                title: "노선 기본 정보",
-                subtitle: "첫/막차 시간 등 노선 상세 확인"
+                title: L10n.Test.Ui.buttonRouteInfoTitle,
+                subtitle: L10n.Test.Ui.buttonRouteInfoSubtitle
             ) { await viewModel.getRouteInfo() },
             APIAction(
-                title: "노선 번호 검색",
-                subtitle: "노선 번호 키워드로 노선 찾기"
+                title: L10n.Test.Ui.buttonSearchRouteTitle,
+                subtitle: L10n.Test.Ui.buttonSearchRouteSubtitle
             ) { await viewModel.searchRoute() },
             APIAction(
-                title: "노선 경유 정류장",
-                subtitle: "노선이 지나가는 정류장 순서 확인"
+                title: L10n.Test.Ui.buttonRouteStopsTitle,
+                subtitle: L10n.Test.Ui.buttonRouteStopsSubtitle
             ) { await viewModel.getRouteStops() },
         ]
     }
@@ -221,7 +228,19 @@ struct TestView: View {
     }
 
     @ViewBuilder
-    private func infoRow(title: String, value: String) -> some View {
+    private func infoRow(title: LocalizedStringKey, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.body.weight(.semibold))
+                .foregroundStyle(.primary)
+        }
+    }
+
+    @ViewBuilder
+    private func infoRow(title: LocalizedStringKey, value: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
                 .font(.caption)
@@ -281,7 +300,7 @@ struct RawResponseView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("원본 응답(JSON)")
+            Text(L10n.Test.Ui.labelRawResponse)
                 .font(.subheadline)
                 .fontWeight(.semibold)
 
@@ -302,8 +321,8 @@ struct RawResponseView: View {
 
 private struct APIAction: Identifiable {
     let id = UUID()
-    let title: String
-    let subtitle: String
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
     let task: () async -> Void
 }
 
