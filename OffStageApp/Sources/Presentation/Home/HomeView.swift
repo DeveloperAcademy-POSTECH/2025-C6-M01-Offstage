@@ -6,6 +6,7 @@ struct HomeView: View {
     @EnvironmentObject var router: Router<AppRoute>
     @Environment(\.modelContext) private var modelContext
     @State private var locationProvider: LocationProviding = LocationManager()
+    @State private var permissionManager = PermissionManager()
     @State private var refreshTrigger = UUID()
     @State private var countdown: Int = 10
     @State private var timer: Timer?
@@ -21,6 +22,10 @@ struct HomeView: View {
         return grouped.map { _, favorites in
             FavoritedStop(favorites: favorites)
         }.sorted { $0.order < $1.order }
+    }
+
+    private var hasRequestedPermissions: Bool {
+        UserDefaults.standard.bool(forKey: "hasRequestedPermissions")
     }
 
     var body: some View {
@@ -105,7 +110,12 @@ struct HomeView: View {
                 }
             }
             .onAppear {
-                locationProvider.requestLocationPermission()
+                if !hasRequestedPermissions {
+                    Task {
+                        await permissionManager.requestAll()
+                        UserDefaults.standard.set(true, forKey: "hasRequestedPermissions")
+                    }
+                }
                 startTimer()
             }
             .onDisappear(perform: stopTimer)

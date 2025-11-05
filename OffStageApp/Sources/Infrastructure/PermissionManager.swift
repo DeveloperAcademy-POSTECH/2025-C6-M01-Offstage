@@ -1,11 +1,12 @@
-import UIKit
-import Combine
-import UserNotifications
-import CoreLocation
 import AVFoundation
+import Combine
+import CoreLocation
 import Speech
+import UIKit
+import UserNotifications
 
 // MARK: - Permission Manager
+
 // 각종 시스템 권한(알림, 위치, 카메라, 마이크, 음성인식)을 한 번에 요청하는 클래스
 final class PermissionManager: NSObject, ObservableObject {
     // CLLocationManager 인스턴스 (위치 권한 요청용)
@@ -14,20 +15,18 @@ final class PermissionManager: NSObject, ObservableObject {
     private var locationContinuation: CheckedContinuation<CLAuthorizationStatus, Never>?
 
     // MARK: - 모든 권한 한꺼번에 요청
+
     @MainActor
     func requestAll() async {
         // 각각의 권한 요청을 동시에 비동기로 수행
-        async let notif = requestNotifications()   // 알림
-        async let loc   = requestLocation()        // 위치
-        async let cam   = requestCamera()          // 카메라
-        async let mic   = requestMicrophone()      // 마이크
-        async let stt   = requestSpeech()          // 음성인식
-
-        // 결과를 기다리되, 반환값은 사용하지 않음
-        _ = await (notif, loc, cam, mic, stt)
+        _ = await requestLocation() // 1. 위치
+        _ = await requestCamera() // 2. 카메라
+        _ = await requestMicrophone() // 3. 마이크
+        _ = await requestSpeech() // 4. 음성 인식
     }
 
     // MARK: - 알림 권한 요청
+
     private func requestNotifications() async -> Bool {
         let center = UNUserNotificationCenter.current()
         // 비동기적으로 사용자에게 알림 권한 요청
@@ -46,6 +45,7 @@ final class PermissionManager: NSObject, ObservableObject {
     }
 
     // MARK: - 위치 권한 요청 (WhenInUse)
+
     private func requestLocation() async -> CLAuthorizationStatus {
         // CLLocationManager 생성 및 delegate 지정
         await MainActor.run {
@@ -61,6 +61,7 @@ final class PermissionManager: NSObject, ObservableObject {
     }
 
     // MARK: - 카메라 권한 요청
+
     private func requestCamera() async -> Bool {
         await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
             AVCaptureDevice.requestAccess(for: .video) { granted in
@@ -70,6 +71,7 @@ final class PermissionManager: NSObject, ObservableObject {
     }
 
     // MARK: - 마이크 권한 요청
+
     private func requestMicrophone() async -> Bool {
         await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
             AVAudioSession.sharedInstance().requestRecordPermission { granted in
@@ -79,6 +81,7 @@ final class PermissionManager: NSObject, ObservableObject {
     }
 
     // MARK: - 음성 인식 권한 요청
+
     private func requestSpeech() async -> SFSpeechRecognizerAuthorizationStatus {
         await withCheckedContinuation { (cont: CheckedContinuation<SFSpeechRecognizerAuthorizationStatus, Never>) in
             SFSpeechRecognizer.requestAuthorization { status in
@@ -89,6 +92,7 @@ final class PermissionManager: NSObject, ObservableObject {
 }
 
 // MARK: - CLLocationManagerDelegate
+
 extension PermissionManager: CLLocationManagerDelegate {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         guard let cont = locationContinuation else { return }
