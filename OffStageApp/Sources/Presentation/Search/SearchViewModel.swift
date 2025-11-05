@@ -142,8 +142,7 @@ final class SearchViewModel: ObservableObject {
                 let searchCityCode = currentCityCode // GPS로 감지된 cityCode 사용
                 let stops = try await busRepository.searchStops(
                     cityCode: searchCityCode,
-                    nodeName: keyword,
-                    nodeNumber: nil
+                    keyword: keyword
                 )
                 let presentations = processStops(stops, with: nil) // 이름 검색에는 위치 정보 없음
                 let (displayStops, inputs) = await makeDisplayStops(from: presentations)

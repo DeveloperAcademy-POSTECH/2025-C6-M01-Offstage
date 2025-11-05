@@ -39,3 +39,17 @@ struct SeoulArrivalDTO: Decodable {
     let arrmsg1: String // 첫번째 도착 메시지 (e.g., "3분후[2번째 전]")
     let arrmsg2: String // 두번째 도착 메시지
 }
+
+// MARK: - 노선 정보 DTO (getRouteInfo)
+
+//
+struct SeoulRouteInfoResponse: Decodable { let msgBody: SeoulRouteInfoMsgBody }
+struct SeoulRouteInfoMsgBody: Decodable { let itemList: [SeoulRouteInfoDTO] }
+
+struct SeoulRouteInfoDTO: Decodable {
+    let busRouteId: String
+    let busRouteNm: String // (-> routeName)
+    let routeType: String // (-> routeType)
+    let stStationNm: String // (-> startStopName)
+    let edStationNm: String // (-> endStopName)
+}

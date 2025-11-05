@@ -117,6 +117,7 @@ struct TestView: View {
 
             actionGroup(title: L10n.Test.Ui.titleStopSection, actions: stopActions)
             actionGroup(title: L10n.Test.Ui.titleArrivalSection, actions: arrivalActions)
+            actionGroup(title: L10n.Test.Ui.titleRouteSection, actions: routeActions)
 
             // MARK: - Seoul API Tests
 
@@ -202,6 +203,27 @@ struct TestView: View {
                 title: L10n.Test.Ui.buttonArrivalsForRouteTitle,
                 subtitle: L10n.Test.Ui.buttonArrivalsForRouteSubtitle
             ) { await viewModel.getArrivalsForRoute() },
+        ]
+    }
+
+    private var routeActions: [APIAction] {
+        [
+            APIAction(
+                title: L10n.Test.Ui.buttonRouteBusLocationsTitle,
+                subtitle: L10n.Test.Ui.buttonRouteBusLocationsSubtitle
+            ) { await viewModel.getRouteBusLocations() },
+            APIAction(
+                title: L10n.Test.Ui.buttonRouteInfoTitle,
+                subtitle: L10n.Test.Ui.buttonRouteInfoSubtitle
+            ) { await viewModel.getRouteInfo() },
+            APIAction(
+                title: L10n.Test.Ui.buttonSearchRouteTitle,
+                subtitle: L10n.Test.Ui.buttonSearchRouteSubtitle
+            ) { await viewModel.searchRoute() },
+            APIAction(
+                title: L10n.Test.Ui.buttonRouteStopsTitle,
+                subtitle: L10n.Test.Ui.buttonRouteStopsSubtitle
+            ) { await viewModel.getRouteStops() },
         ]
     }
 

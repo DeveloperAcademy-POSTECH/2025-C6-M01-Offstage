@@ -63,8 +63,7 @@ final class TestViewModel: ObservableObject {
         ) {
             try await busRepository.searchStops(
                 cityCode: String(busStopInfo.cityCode),
-                nodeName: busStopInfo.stopName,
-                nodeNumber: nil
+                keyword: busStopInfo.stopName
             )
         } onSuccess: { [weak self] stops in
             guard let self else { return }
@@ -103,6 +102,27 @@ final class TestViewModel: ObservableObject {
         }
     }
 
+    func getRouteBusLocations() async {
+        logger.info("getRouteBusLocations() called")
+        await performRequest(
+            name: "Route vehicle locations"
+        ) {
+            try await busRepository.fetchRouteLocations(
+                cityCode: String(busStopInfo.cityCode),
+                routeId: busStopInfo.routeId,
+                page: nil
+            )
+        } onSuccess: { [weak self] locations in
+            guard let self else { return }
+            updateDisplay(
+                with: locations,
+                title: "차량 위치",
+                describe: describeLocations,
+                emptyMessage: "차량 위치 정보를 찾을 수 없습니다."
+            )
+        }
+    }
+
     func getStopsByGPS() async {
         logger.info("getStopsByGPS() called")
         await performRequest(
@@ -127,6 +147,42 @@ final class TestViewModel: ObservableObject {
             try await busRepository.fetchRoutesPassingThroughStop(
                 cityCode: String(busStopInfo.cityCode),
                 nodeId: busStopInfo.nodeId
+            )
+        } onSuccess: { [weak self] routes in
+            guard let self else { return }
+            updateDisplay(with: routes, title: "노선", describe: describeRoutes, emptyMessage: "노선 정보를 찾을 수 없습니다.")
+        }
+    }
+
+    func getRouteInfo() async {
+        logger.info("getRouteInfo() called")
+        await performRequest(
+            name: "Route info"
+        ) {
+            try await busRepository.fetchRouteInfo(
+                cityCode: String(busStopInfo.cityCode),
+                routeId: busStopInfo.routeId
+            )
+        } onSuccess: { [weak self] route in
+            guard let self else { return }
+            let routes = route.map { [$0] } ?? []
+            updateDisplay(
+                with: routes,
+                title: "노선",
+                describe: { describeRoute($0.first) },
+                emptyMessage: "노선 정보를 찾을 수 없습니다."
+            )
+        }
+    }
+
+    func searchRoute() async {
+        logger.info("searchRoute() called")
+        await performRequest(
+            name: "Route number search"
+        ) {
+            try await busRepository.searchRoutes(
+                cityCode: String(busStopInfo.cityCode),
+                routeNumber: busStopInfo.routeNo
             )
         } onSuccess: { [weak self] routes in
             guard let self else { return }
@@ -240,6 +296,26 @@ final class TestViewModel: ObservableObject {
         }
     }
 
+    func getRouteStops() async {
+        logger.info("getRouteStops() called")
+        await performRequest(
+            name: "Route stations"
+        ) {
+            try await busRepository.fetchRouteStations(
+                cityCode: String(busStopInfo.cityCode),
+                routeId: busStopInfo.routeId
+            )
+        } onSuccess: { [weak self] stations in
+            guard let self else { return }
+            updateDisplay(
+                with: stations,
+                title: "경유 정류장",
+                describe: describeStations,
+                emptyMessage: "경유 정류장 정보를 찾을 수 없습니다."
+            )
+        }
+    }
+
     private func subscribeLocation() {
         guard cancellables.isEmpty else { return }
         locationProvider.requestLocationPermission()
@@ -315,6 +391,13 @@ final class TestViewModel: ObservableObject {
         return "\(route.routeNumber) (\(route.startStopName) → \(route.endStopName))"
     }
 
+    private func describeStations(_ stations: [BusRouteStation]) -> String {
+        guard let first = stations.first else {
+            return "경유 정류장 정보를 찾을 수 없습니다."
+        }
+        return "총 \(stations.count)개의 경유 정류장을 받았습니다. 첫 번째: #\(first.stationOrder) \(first.stationName)"
+    }
+
     private func describeArrivals(_ arrivals: [BusArrival]) -> String {
         guard let first = arrivals.first else {
             return "도착 예정 정보가 없습니다."
@@ -322,6 +405,20 @@ final class TestViewModel: ObservableObject {
         let remaining = first.remainingStopCount.map { "남은 정류장 \($0)개" } ?? "남은 정류장 정보 없음"
         let eta = first.estimatedArrivalTime.map { "예상 도착 \($0)초" } ?? "예상 도착 정보 없음"
         return "총 \(arrivals.count)개의 도착 정보를 받았습니다. 첫 번째: \(first.routeNumber) - \(remaining), \(eta)"
+    }
+
+    private func describeLocations(_ locations: [BusLocation]) -> String {
+        guard let first = locations.first else {
+            return "차량 위치 정보를 찾을 수 없습니다."
+        }
+        return "총 \(locations.count)대 차량 위치를 받았습니다. 첫 번째 차량: \(first.nodeName) 인근 (\(first.latitude), \(first.longitude))"
+    }
+
+    private func describeCities(_ cities: [BusCity]) -> String {
+        guard let first = cities.first else {
+            return "도시 코드 정보를 찾을 수 없습니다."
+        }
+        return "총 \(cities.count)개의 도시 코드를 받았습니다. 첫 번째: \(first.name) (\(first.code))"
     }
 
     private func makeSections(from items: [some Any], title: String) -> [DTOSection] {
