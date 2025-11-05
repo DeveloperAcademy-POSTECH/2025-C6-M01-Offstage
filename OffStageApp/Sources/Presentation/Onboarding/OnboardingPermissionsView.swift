@@ -46,7 +46,7 @@ struct OnboardingPermissionsView: View {
             VStack(alignment: .leading, spacing: 30) {
                 Text(L10n.Onboarding.Ui.titleRequiredAccess)
                     .font(Font.custom("SF Pro", size: 20).weight(.semibold))
-                    .foregroundColor(Color(red: 229 / 255, green: 255 / 255, blue: 0 / 255))
+                    .foregroundColor(Color(.primarynormal))
 
                 HStack {
                     ZStack {
@@ -134,7 +134,7 @@ struct OnboardingPermissionsView: View {
                     .font(Font.custom("SF Pro", size: 20).weight(.semibold))
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color(red: 229 / 255, green: 255 / 255, blue: 0 / 255))
+                    .background(Color(.primarynormal))
                     .foregroundColor(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             }

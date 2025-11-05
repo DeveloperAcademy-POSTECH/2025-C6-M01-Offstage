@@ -25,12 +25,12 @@ struct SearchResultsView: View {
                     }
                     if let distance = busStop.distance {
                         Text(distance)
+                            .foregroundStyle(Color(.primarynormal))
                             .fontWeight(.bold)
-                            .foregroundStyle(.green)
                     }
                     HStack(alignment: .top, spacing: 8) {
                         Image(systemName: "bus.fill")
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(.primary)
                         if busStop.routes.isEmpty {
                             Text("노선 정보를 불러올 수 없습니다.")
                                 .foregroundColor(.secondary)

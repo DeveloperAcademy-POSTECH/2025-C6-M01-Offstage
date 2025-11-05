@@ -105,12 +105,12 @@ struct HomeView: View {
                                 Text("추가하기")
                                     .font(.system(size: 20, weight: .semibold))
                             }
-                            .foregroundColor(Color(red: 0.9, green: 1, blue: 0))
+                            .foregroundColor(Color(.primarynormal))
                             .padding(.horizontal, 24)
                             .padding(.vertical, 10)
                             .background(
                                 Capsule()
-                                    .stroke(Color(red: 0.9, green: 1, blue: 0), lineWidth: 2)
+                                    .stroke(Color(.primarynormal), lineWidth: 2)
                             )
                         }
                         Spacer()

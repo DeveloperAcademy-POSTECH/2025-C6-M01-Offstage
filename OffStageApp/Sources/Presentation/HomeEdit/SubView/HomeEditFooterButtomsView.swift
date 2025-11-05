@@ -6,7 +6,7 @@ struct HomeEditFooterButtomsView: View {
     let saveChanges: () -> Void
 
     // todo - 아래 색상 primary 등록하면 바꾸기
-    let sematicPrimaryNormal = Color(red: 0.9, green: 1, blue: 0)
+    let sematicPrimaryNormal = Color(Color(.primarynormal))
 
     var body: some View {
         HStack(spacing: 10) {
