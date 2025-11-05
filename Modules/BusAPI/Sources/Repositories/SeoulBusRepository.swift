@@ -11,7 +11,8 @@ public final class SeoulBusRepository: BusRepository {
         if let provider {
             self.provider = provider
         } else {
-            self.provider = MoyaProvider<SeoulBusAPITarget>()
+            // NetworkLoggerPlugin을 추가하여 API 요청 및 응답을 로깅합니다.
+            self.provider = MoyaProvider<SeoulBusAPITarget>(plugins: [NetworkLoggerPlugin()])
         }
         self.decoder = decoder
     }
@@ -27,27 +28,31 @@ public final class SeoulBusRepository: BusRepository {
     }
 
     public func searchStops(cityCode _: String?, nodeName: String?, nodeNumber: String?) async throws -> [BusStop] {
-        // Prefer name search when available
+        // [수정] 서울 키워드 검색 DTO를 사용
         if let name = nodeName, !name.isEmpty {
             let response = try await provider.request(.getStationByName(name: name))
-            let body = try decoder.decode(SeoulStopResponse.self, from: response.data)
+            // [수정] SeoulStopResponse -> SeoulKeywordStopResponse
+            let body = try decoder.decode(SeoulKeywordStopResponse.self, from: response.data)
+            // [수정] adaptToBusStop(from: SeoulKeywordStopDTO) 헬퍼 사용
             return body.msgBody.itemList.compactMap { adaptToBusStop(from: $0) }
         }
 
-        // If only number provided, fallback to name-based search using number as query
         if let number = nodeNumber, !number.isEmpty {
             let response = try await provider.request(.getStationByName(name: number))
-            let body = try decoder.decode(SeoulStopResponse.self, from: response.data)
+            // [수정] SeoulStopResponse -> SeoulKeywordStopResponse
+            let body = try decoder.decode(SeoulKeywordStopResponse.self, from: response.data)
+            // [수정] adaptToBusStop(from: SeoulKeywordStopDTO) 헬퍼 사용
             return body.msgBody.itemList.compactMap { adaptToBusStop(from: $0) }
         }
-
         return []
     }
 
     public func fetchStopsNearby(latitude: Double, longitude: Double, cityCode _: String?) async throws -> [BusStop] {
         // 서울 API는 WGS84 좌표를 그대로 사용 (tmX = longitude, tmY = latitude)
         let response = try await provider.request(.getStationByPos(tmX: longitude, tmY: latitude))
-        let body = try decoder.decode(SeoulStopResponse.self, from: response.data)
+        // [수정] SeoulStopResponse -> SeoulGpsStopResponse
+        let body = try decoder.decode(SeoulGpsStopResponse.self, from: response.data)
+        // [수정] adaptToBusStop(from: SeoulGpsStopDTO) 헬퍼 사용
         return body.msgBody.itemList.compactMap { adaptToBusStop(from: $0) }
     }
 
@@ -94,13 +99,28 @@ public final class SeoulBusRepository: BusRepository {
 
     // MARK: - Adapter helpers
 
-    private func adaptToBusStop(from dto: SeoulStopDTO) -> BusStop? {
+    // [수정] GPS 검색용 헬퍼
+    private func adaptToBusStop(from dto: SeoulGpsStopDTO) -> BusStop? {
         guard let lat = Double(dto.gpsY), let lon = Double(dto.gpsX) else { return nil }
         return BusStop(
-            nodeId: dto.stId,
-            name: dto.stNm,
+            nodeId: dto.stationId, // 'stationId' 사용
+            name: dto.stationNm, // 'stationNm' 사용
             number: dto.arsId,
-            cityCode: Int(1000), // 서울시는 1000으로 고정
+            cityCode: Int(1000),
+            direction: nil,
+            latitude: lat,
+            longitude: lon
+        )
+    }
+
+    // [추가] 키워드 검색용 헬퍼
+    private func adaptToBusStop(from dto: SeoulKeywordStopDTO) -> BusStop? {
+        guard let lat = Double(dto.tmY), let lon = Double(dto.tmX) else { return nil }
+        return BusStop(
+            nodeId: dto.stId, // 'stId' 사용
+            name: dto.stNm, // 'stNm' 사용
+            number: dto.arsId,
+            cityCode: Int(1000),
             direction: nil,
             latitude: lat,
             longitude: lon

@@ -1,18 +1,30 @@
 // Modules/BusAPI/Sources/Network/SeoulBusDTO.swift
 import Foundation
 
-// MARK: - 정류소 검색 DTO (getStationByName, getStationByPos)
+// MARK: - 정류소 GPS 검색 DTO (getStationByPos)
 
-//
-struct SeoulStopResponse: Decodable { let msgBody: SeoulStopMsgBody }
-struct SeoulStopMsgBody: Decodable { let itemList: [SeoulStopDTO] }
+struct SeoulGpsStopResponse: Decodable { let msgBody: SeoulGpsStopMsgBody }
+struct SeoulGpsStopMsgBody: Decodable { let itemList: [SeoulGpsStopDTO] }
 
-struct SeoulStopDTO: Decodable {
-    let stId: String // 정류소ID (-> nodeId)
-    let stNm: String // 정류소명 (-> nodeName)
+struct SeoulGpsStopDTO: Decodable {
+    let stationId: String // 정류소ID (-> nodeId)
+    let stationNm: String // 정류소명 (-> nodeName)
     let arsId: String // 정류소번호 (-> nodeNo)
     let gpsX: String // WGS84 경도 (-> gpsLong)
     let gpsY: String // WGS84 위도 (-> gpsLati)
+}
+
+// MARK: - 정류소 키워드 검색 DTO (getStationByName)
+
+struct SeoulKeywordStopResponse: Decodable { let msgBody: SeoulKeywordStopMsgBody }
+struct SeoulKeywordStopMsgBody: Decodable { let itemList: [SeoulKeywordStopDTO] }
+
+struct SeoulKeywordStopDTO: Decodable {
+    let stId: String // 정류소ID (-> nodeId)
+    let stNm: String // 정류소명 (-> nodeName)
+    let arsId: String // 정류소번호 (-> nodeNo)
+    let tmX: String // WGS84 경도 (-> gpsLong)
+    let tmY: String // WGS84 위도 (-> gpsLati)
 }
 
 // MARK: - 정류소 상세 (도착) DTO (getStationArrivals)

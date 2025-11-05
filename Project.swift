@@ -19,6 +19,15 @@ let baseInfoPlist: [String: Plist.Value] = [
     "NSCameraUsageDescription": "버스 인식을 위해 카메라 접근이 필요합니다.",
     "NSMicrophoneUsageDescription": "음성 검색 기능을 위해 마이크 접근 권한이 필요합니다.",
     "NSSpeechRecognitionUsageDescription": "음성으로 버스 번호나 정류장을 검색하기 위해 음성 인식 권한이 필요합니다.",
+    // [수정] 서울 API의 'http' 호출을 허용하기 위한 ATS 설정
+    "NSAppTransportSecurity": .dictionary([
+        "NSExceptionDomains": .dictionary([
+            "ws.bus.go.kr": .dictionary([
+                "NSIncludesSubdomains": .boolean(true),
+                "NSExceptionAllowsInsecureHTTPLoads": .boolean(true),
+            ]),
+        ]),
+    ]),
     "ITSAppUsesNonExemptEncryption": .boolean(false),
     "UIDesignRequiresCompatibility": .boolean(true),
     "UIUserInterfaceStyle": "Dark",
