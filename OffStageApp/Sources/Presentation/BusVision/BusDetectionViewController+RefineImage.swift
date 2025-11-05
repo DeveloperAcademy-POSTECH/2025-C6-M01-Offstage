@@ -71,4 +71,28 @@ extension BusDetectionViewController {
 
         return CGRect(x: newX, y: newY, width: newWidth, height: newHeight)
     }
+
+    /// 디버깅용) 버퍼의 이미지를 잘라서 UI에 보여주기용
+    func cropPixelBufferToImage(_ pixelBuffer: CVPixelBuffer, in normalizedRect: CGRect) -> UIImage? {
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let context = CIContext()
+
+        let width = CVPixelBufferGetWidth(pixelBuffer)
+        let height = CVPixelBufferGetHeight(pixelBuffer)
+
+        let cropRect = CGRect(
+            x: normalizedRect.origin.x * CGFloat(width),
+            y: normalizedRect.origin.y * CGFloat(height),
+            width: normalizedRect.width * CGFloat(width),
+            height: normalizedRect.height * CGFloat(height)
+        )
+
+        let croppedCIImage = ciImage.cropped(to: cropRect)
+
+        guard let cgImage = context.createCGImage(croppedCIImage, from: croppedCIImage.extent) else {
+            return nil
+        }
+
+        return UIImage(cgImage: cgImage)
+    }
 }

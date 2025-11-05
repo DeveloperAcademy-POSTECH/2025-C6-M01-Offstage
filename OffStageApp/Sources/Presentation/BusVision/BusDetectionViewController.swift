@@ -16,6 +16,7 @@ final class BusDetectionViewController: UIViewController {
     private var drawingBoxesView: DrawingBoxesView?
     #if DEBUG_MODE
         private var tempStrokeBoxesView: TempStokeBoxesView?
+        private var croppedImageView: UIImageView?
     #endif
     private var currentPixelBuffer: CVPixelBuffer?
     private var frameCount: UInt = 0
@@ -32,6 +33,11 @@ final class BusDetectionViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupBoxesView()
+
+        #if DEBUG_MODE
+            setupDebugModeBoxesView()
+            setupDebugCroppedImageView()
+        #endif
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             self?.captureSession?.startRunning()
@@ -52,8 +58,19 @@ final class BusDetectionViewController: UIViewController {
         view.layer.sublayers?.first(where: { $0 is AVCaptureVideoPreviewLayer }
         )?.frame = fullFrame
         drawingBoxesView?.frame = fullFrame
+
         #if DEBUG_MODE
             tempStrokeBoxesView?.frame = fullFrame
+
+            // 크롭된 이미지 뷰 위치 설정 (우상단)
+            let imageSize: CGFloat = 150
+            let padding: CGFloat = 16
+            croppedImageView?.frame = CGRect(
+                x: view.bounds.width - imageSize - padding,
+                y: view.safeAreaInsets.top + padding,
+                width: imageSize,
+                height: imageSize
+            )
         #endif
     }
 
@@ -127,14 +144,30 @@ final class BusDetectionViewController: UIViewController {
         drawingBoxesView.frame = view.frame
         view.addSubview(drawingBoxesView)
         self.drawingBoxesView = drawingBoxesView
-
-        #if DEBUG_MODE
-            let strokeBoxesView = TempStokeBoxesView()
-            strokeBoxesView.frame = view.frame
-            view.addSubview(strokeBoxesView)
-            tempStrokeBoxesView = strokeBoxesView
-        #endif
     }
+
+    #if DEBUG_MODE
+    /// 디버깅모드용 바운딩박스 서브뷰 설정
+    private func setupDebugModeBoxesView() {
+        let strokeBoxesView = TempStokeBoxesView()
+        strokeBoxesView.frame = view.frame
+        view.addSubview(strokeBoxesView)
+        tempStrokeBoxesView = strokeBoxesView
+    }
+
+    /// 디버깅모드용 버스 이미지 크롭 확인용 서브뷰 설정
+    private func setupDebugCroppedImageView() {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.backgroundColor = .black.withAlphaComponent(0.7)
+        imageView.layer.borderColor = UIColor.green.cgColor
+        imageView.layer.borderWidth = 2
+        imageView.layer.cornerRadius = 8
+        imageView.clipsToBounds = true
+        view.addSubview(imageView)
+        croppedImageView = imageView
+    }
+    #endif
 }
 
 // MARK: - Video Delegate
@@ -307,12 +340,22 @@ extension BusDetectionViewController {
                     self.onDetectedRouteNumbersChanged?(tempDetected)
                     self.drawingBoxesView?.drawBox(with: finalPredictions)
                 }
+
+                #if DEBUG_MODE
+                    DispatchQueue.main.async {
+                        if let pixelBuffer = self.currentPixelBuffer,
+                           let croppedImage = self.cropPixelBufferToImage(pixelBuffer, in: areaOfInterest)
+                        {
+                            self.croppedImageView?.image = croppedImage
+                        }
+                    }
+                #endif
             }
-            #if DEBUG_MODE
-                DispatchQueue.main.async {
-                    self.tempStrokeBoxesView?.drawBox(with: predictions.filter { $0.confidence > 0.8 })
-                }
-            #endif
         }
+        #if DEBUG_MODE
+            DispatchQueue.main.async {
+                self.tempStrokeBoxesView?.drawBox(with: predictions.filter { $0.confidence > 0.8 })
+            }
+        #endif
     }
 }
