@@ -1,4 +1,4 @@
 #include "Secrets.xcconfig"
 
-APP_DISPLAY_NAME = OffStage
+APP_DISPLAY_NAME = 버스온다
 PRODUCT_BUNDLE_IDENTIFIER = 2025C6.OffStage.App
