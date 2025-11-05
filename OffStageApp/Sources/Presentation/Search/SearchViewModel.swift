@@ -6,8 +6,6 @@ import SwiftUI
 
 @MainActor
 final class SearchViewModel: ObservableObject {
-    @AppStorage("isSeoulSearchEnabled") private var isSeoulSearchEnabled: Bool = false
-
     // MARK: - State
 
     enum ViewState {
@@ -19,6 +17,7 @@ final class SearchViewModel: ObservableObject {
 
     @Published var viewState: ViewState = .idle
     @Published var searchTerm: String = ""
+    @Published private(set) var currentCityCode: String?
 
     // MARK: - Properties
 
@@ -99,11 +98,26 @@ final class SearchViewModel: ObservableObject {
 
     private func fetchStops(around location: LocationCoordinate) async {
         do {
-            let searchCityCode = isSeoulSearchEnabled ? "1000" : nil
+            // [추가] Step 1: Reverse Geocoding으로 Placemark(주소) 가져오기
+            guard let placemark = try await locationManager.fetchPlacemark(from: location) else {
+                throw BusAPIError.unknown // 또는 적절한 에러
+            }
+
+            // [추가] Step 2: Placemark로 CityCode 찾기
+            let detectedCityCode = CityCodeConverter
+                .findCode(from: placemark) ?? "31020" // 서울이 아니면 성남시(31020)를 기본값으로 사용
+
+            // [추가] Step 3: CityCode 저장 (Priming)
+            currentCityCode = detectedCityCode
+            print(
+                "GPS Priming: CityCode \(detectedCityCode) 감지됨. Placemark: \(placemark.administrativeArea ?? ""), \(placemark.locality ?? ""), \(placemark.thoroughfare ?? "")"
+            )
+
+            // [수정] Step 4: 감지된 cityCode로 API 호출
             let stops = try await busRepository.fetchStopsNearby(
                 latitude: location.latitude,
                 longitude: location.longitude,
-                cityCode: searchCityCode
+                cityCode: detectedCityCode // nil 대신 감지된 cityCode 전달
             )
 
             let presentations = processStops(stops, with: location.asCLLocation)
@@ -125,7 +139,7 @@ final class SearchViewModel: ObservableObject {
 
         searchTask = Task {
             do {
-                let searchCityCode = isSeoulSearchEnabled ? "1000" : nil // 서울 모드일 경우 "1000" 전달
+                let searchCityCode = currentCityCode // GPS로 감지된 cityCode 사용
                 let stops = try await busRepository.searchStops(
                     cityCode: searchCityCode,
                     nodeName: keyword,

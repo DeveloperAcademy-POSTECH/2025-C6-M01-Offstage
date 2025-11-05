@@ -1,4 +1,5 @@
 import Combine
+import CoreLocation
 import Foundation
 
 /// An interface for a service that provides the user's current location.
@@ -11,4 +12,7 @@ public protocol LocationProviding {
 
     /// Requests permission from the user to access their location.
     func requestLocationPermission()
+
+    /// GPS 좌표를 주소(CLPlacemark)로 변환합니다.
+    func fetchPlacemark(from location: LocationCoordinate) async throws -> CLPlacemark?
 }

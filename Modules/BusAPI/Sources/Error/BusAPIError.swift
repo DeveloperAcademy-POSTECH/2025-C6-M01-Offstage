@@ -15,6 +15,8 @@ public enum BusAPIError: Error {
     case decodingFailed(Error)
     /// Thrown when the underlying Moya request fails.
     case network(MoyaError)
+    /// Thrown for unknown or unhandled errors.
+    case unknown
 }
 
 extension BusAPIError: LocalizedError {
@@ -32,6 +34,8 @@ extension BusAPIError: LocalizedError {
             "Failed to decode Bus API response: \(error.localizedDescription)"
         case let .network(error):
             "Bus API network request failed: \(error.localizedDescription)"
+        case .unknown:
+            "An unknown Bus API error occurred."
         }
     }
 }

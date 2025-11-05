@@ -3,16 +3,12 @@
     import SwiftUI
 
     struct DebugView: View {
-        @AppStorage("isSeoulSearchEnabled") private var isSeoulSearchEnabled: Bool = false
         @EnvironmentObject var router: Router<AppRoute>
         @Environment(\.dismiss) private var dismiss
 
         var body: some View {
             NavigationView {
                 List {
-                    Section("API (Debug)") {
-                        Toggle("서울 API 검색 활성화", isOn: $isSeoulSearchEnabled)
-                    }
                     NavigationLink(
                         L10n.Debug.Ui.linkBusVision,
                         destination: BusVisionView(routeNumbers: ["207", "306"])
