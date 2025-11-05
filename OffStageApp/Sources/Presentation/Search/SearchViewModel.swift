@@ -26,7 +26,6 @@ final class SearchViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let busRepository: BusRepository // 실시간 데이터용
-    private let localBusStopRepository: LocalBusStopRepository // 로컬 검색용
     private let locationManager: LocationProviding
     private var cancellables = Set<AnyCancellable>()
 
@@ -35,11 +34,6 @@ final class SearchViewModel: ObservableObject {
     init(busRepository: BusRepository, locationManager: LocationProviding) {
         self.busRepository = busRepository
         self.locationManager = locationManager
-        do {
-            localBusStopRepository = try LocalBusStopRepository()
-        } catch {
-            fatalError("Could not initialize LocalBusStopRepository: \(error)")
-        }
 
         // 검색어 변경 구독
         $searchTerm
@@ -102,12 +96,9 @@ final class SearchViewModel: ObservableObject {
 
     private func fetchStops(around location: LocationCoordinate) async {
         do {
-            let stops = try await localBusStopRepository.findNearbyStops(
+            let stops = try await busRepository.fetchStopsNearby(
                 latitude: location.latitude,
-                longitude: location.longitude,
-                radiusInMeters: 500,
-                page: 1, // 첫 페이지만 가져오기
-                pageSize: 20 // 최대 20개 정류장 가져오기
+                longitude: location.longitude
             )
 
             let presentations = processStops(stops, with: location.asCLLocation)
@@ -129,10 +120,11 @@ final class SearchViewModel: ObservableObject {
 
         searchTask = Task {
             do {
-                let stops = try await localBusStopRepository.searchStops(
-                    byName: keyword,
-                    page: 1, // 첫 페이지만 가져오기
-                    pageSize: 50 // 최대 50개 결과 가져오기
+                // TODO: cityCode를 어떻게 가져올지 결정해야 합니다.
+                // 현재는 임시로 "25" (대전)을 사용합니다.
+                let stops = try await busRepository.searchStops(
+                    cityCode: "25", // 임시 cityCode
+                    keyword: keyword
                 )
                 let presentations = processStops(stops, with: nil) // 이름 검색에는 위치 정보 없음
                 let (displayStops, inputs) = await makeDisplayStops(from: presentations)

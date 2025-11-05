@@ -25,7 +25,6 @@ final class TestViewModel: ObservableObject {
 
     private let locationProvider: LocationProviding
     private let busRepository: BusRepository
-    private let localBusStopRepository: LocalBusStopRepository
     private var cancellables = Set<AnyCancellable>()
     private let logger = Logger(label: "TestViewModel")
 
@@ -45,11 +44,6 @@ final class TestViewModel: ObservableObject {
         )
         self.locationProvider = locationProvider
         self.busRepository = busRepository
-        do {
-            localBusStopRepository = try LocalBusStopRepository()
-        } catch {
-            fatalError("Could not initialize LocalBusStopRepository: \(error)")
-        }
     }
 
     func onAppear() {
@@ -67,7 +61,10 @@ final class TestViewModel: ObservableObject {
         await performRequest(
             name: "Stop search"
         ) {
-            try await localBusStopRepository.searchStops(byName: busStopInfo.stopName, page: 1)
+            try await busRepository.searchStops(
+                cityCode: String(busStopInfo.cityCode),
+                keyword: busStopInfo.stopName
+            )
         } onSuccess: { [weak self] stops in
             guard let self else { return }
             updateDisplay(with: stops, title: "정류장", describe: describeStops, emptyMessage: "정류장 정보를 찾을 수 없습니다.")
@@ -131,11 +128,9 @@ final class TestViewModel: ObservableObject {
         await performRequest(
             name: "Nearby stops"
         ) {
-            try await localBusStopRepository.findNearbyStops(
+            try await busRepository.fetchStopsNearby(
                 latitude: busStopInfo.gpsLati,
-                longitude: busStopInfo.gpsLong,
-                radiusInMeters: 1000,
-                page: 1
+                longitude: busStopInfo.gpsLong
             )
         } onSuccess: { [weak self] stops in
             guard let self else { return }
