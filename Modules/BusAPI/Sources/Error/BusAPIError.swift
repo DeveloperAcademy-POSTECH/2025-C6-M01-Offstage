@@ -5,6 +5,8 @@ import Moya
 public enum BusAPIError: Error {
     /// Thrown when the required service key for a target has not been configured.
     case missingServiceKey(BusAPIService)
+    /// Thrown when a required parameter is missing.
+    case missingParameter(name: String)
     /// Thrown when the API responds with a non-success status header.
     case invalidStatus(header: BusAPIHeader)
     /// Thrown when the API responds without a body or items payload.
@@ -20,6 +22,8 @@ extension BusAPIError: LocalizedError {
         switch self {
         case let .missingServiceKey(service):
             "Missing service key for \(service.infoPlistKey)."
+        case let .missingParameter(name):
+            "Missing required parameter: \(name)"
         case let .invalidStatus(header):
             "Bus API returned error code \(header.resultCode): \(header.resultMessage)"
         case .emptyBody:

@@ -45,9 +45,8 @@ public final class SeoulBusRepository: BusRepository {
     }
 
     public func fetchStopsNearby(latitude: Double, longitude: Double, cityCode _: String?) async throws -> [BusStop] {
-        // Convert WGS84 -> TM coordinates required by Seoul API
-        let (tmX, tmY) = SeoulCoordinateConverter.wgs84ToTM(latitude: latitude, longitude: longitude)
-        let response = try await provider.request(.getStationByPos(tmX: tmX, tmY: tmY))
+        // 서울 API는 WGS84 좌표를 그대로 사용 (tmX = longitude, tmY = latitude)
+        let response = try await provider.request(.getStationByPos(tmX: longitude, tmY: latitude))
         let body = try decoder.decode(SeoulStopResponse.self, from: response.data)
         return body.msgBody.itemList.compactMap { adaptToBusStop(from: $0) }
     }

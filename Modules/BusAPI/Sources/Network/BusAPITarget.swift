@@ -47,7 +47,7 @@ public extension BusAPITarget {
     enum Endpoint {
         case cityCodes(service: BusAPIService)
         case routeLocations(cityCode: String, routeId: String, page: Int? = nil, rows: Int? = nil)
-        case stopSearch(cityCode: String?, nodeName: String?, nodeNumber: String?)
+        case stopSearch(cityCode: String, nodeName: String?, nodeNumber: String?)
         case stopsNearby(latitude: Double, longitude: Double)
         case stopRoutes(cityCode: String, nodeId: String)
         case routeInfo(cityCode: String, routeId: String)
