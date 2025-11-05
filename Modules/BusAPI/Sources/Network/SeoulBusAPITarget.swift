@@ -15,7 +15,7 @@ public enum SeoulBusAPITarget {
 }
 
 extension SeoulBusAPITarget: TargetType {
-    public var baseURL: URL { URL(string: "http://ws.bus.go.kr/api/rest")! }
+    public var baseURL: URL { URL(string: "https://ws.bus.go.kr/api/rest")! }
 
     public var path: String {
         switch self {

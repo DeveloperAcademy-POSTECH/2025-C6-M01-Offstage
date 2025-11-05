@@ -19,7 +19,7 @@ enum AppRoute: Routable {
             HomeView()
 
         case .search:
-            let viewModel = SearchViewModel(busRepository: TagoBusRepository(), locationManager: LocationManager())
+            let viewModel = SearchViewModel(busRepository: MainBusRepository(), locationManager: LocationManager())
             SearchView(viewModel: viewModel)
 
         case let .busStation(input):

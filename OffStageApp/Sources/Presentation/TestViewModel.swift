@@ -31,7 +31,7 @@ final class TestViewModel: ObservableObject {
     init(
         busStopInfo: BusStopInfo? = nil,
         locationProvider: LocationProviding = LocationManager(),
-        busRepository: BusRepository = TagoBusRepository()
+        busRepository: BusRepository = MainBusRepository()
     ) {
         self.busStopInfo = busStopInfo ?? BusStopInfo(
             cityCode: 25,
@@ -130,7 +130,8 @@ final class TestViewModel: ObservableObject {
         ) {
             try await busRepository.fetchStopsNearby(
                 latitude: busStopInfo.gpsLati,
-                longitude: busStopInfo.gpsLong
+                longitude: busStopInfo.gpsLong,
+                cityCode: String(busStopInfo.cityCode)
             )
         } onSuccess: { [weak self] stops in
             guard let self else { return }

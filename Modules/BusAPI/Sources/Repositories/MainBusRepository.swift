@@ -22,17 +22,22 @@ public final class MainBusRepository: BusRepository {
         try await tagoRepository.fetchRouteLocations(cityCode: cityCode, routeId: routeId, page: page)
     }
 
-    public func searchStops(cityCode: String, nodeName: String?, nodeNumber: String?) async throws -> [BusStop] {
+    public func searchStops(cityCode: String?, nodeName: String?, nodeNumber: String?) async throws -> [BusStop] {
         if cityCode == "1000" {
             return try await seoulRepository.searchStops(cityCode: cityCode, nodeName: nodeName, nodeNumber: nodeNumber)
         }
         return try await tagoRepository.searchStops(cityCode: cityCode, nodeName: nodeName, nodeNumber: nodeNumber)
     }
 
-    public func fetchStopsNearby(latitude: Double, longitude: Double) async throws -> [BusStop] {
-        // This method does not include cityCode; callers should choose an appropriate repository.
-        // Default to Tago for general nearby searches.
-        try await tagoRepository.fetchStopsNearby(latitude: latitude, longitude: longitude)
+    public func fetchStopsNearby(latitude: Double, longitude: Double, cityCode: String?) async throws -> [BusStop] {
+        if cityCode == "1000" {
+            return try await seoulRepository.fetchStopsNearby(
+                latitude: latitude,
+                longitude: longitude,
+                cityCode: cityCode
+            )
+        }
+        return try await tagoRepository.fetchStopsNearby(latitude: latitude, longitude: longitude, cityCode: cityCode)
     }
 
     public func fetchRoutesPassingThroughStop(cityCode: String, nodeId: String) async throws -> [BusRoute] {

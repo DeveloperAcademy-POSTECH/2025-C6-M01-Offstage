@@ -18,7 +18,7 @@ struct BusStationView: View {
         favoritedRoutesInThisStation.isEmpty
     }
 
-    init(input: BusStationViewInput, busRepository: BusRepository = TagoBusRepository()) {
+    init(input: BusStationViewInput, busRepository: BusRepository = MainBusRepository()) {
         _viewModel = StateObject(wrappedValue: BusStationViewModel(input: input, busRepository: busRepository))
     }
 

@@ -26,7 +26,7 @@ public final class SeoulBusRepository: BusRepository {
         []
     }
 
-    public func searchStops(cityCode _: String, nodeName: String?, nodeNumber: String?) async throws -> [BusStop] {
+    public func searchStops(cityCode _: String?, nodeName: String?, nodeNumber: String?) async throws -> [BusStop] {
         // Prefer name search when available
         if let name = nodeName, !name.isEmpty {
             let response = try await provider.request(.getStationByName(name: name))
@@ -44,7 +44,7 @@ public final class SeoulBusRepository: BusRepository {
         return []
     }
 
-    public func fetchStopsNearby(latitude: Double, longitude: Double) async throws -> [BusStop] {
+    public func fetchStopsNearby(latitude: Double, longitude: Double, cityCode _: String?) async throws -> [BusStop] {
         // Convert WGS84 -> TM coordinates required by Seoul API
         let (tmX, tmY) = SeoulCoordinateConverter.wgs84ToTM(latitude: latitude, longitude: longitude)
         let response = try await provider.request(.getStationByPos(tmX: tmX, tmY: tmY))

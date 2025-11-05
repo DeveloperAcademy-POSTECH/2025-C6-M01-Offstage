@@ -99,9 +99,11 @@ final class SearchViewModel: ObservableObject {
 
     private func fetchStops(around location: LocationCoordinate) async {
         do {
+            let searchCityCode = isSeoulSearchEnabled ? "1000" : nil
             let stops = try await busRepository.fetchStopsNearby(
                 latitude: location.latitude,
-                longitude: location.longitude
+                longitude: location.longitude,
+                cityCode: searchCityCode
             )
 
             let presentations = processStops(stops, with: location.asCLLocation)
@@ -123,10 +125,9 @@ final class SearchViewModel: ObservableObject {
 
         searchTask = Task {
             do {
-                // TODO: cityCode를 어떻게 가져올지 결정해야 합니다.
-                // 현재는 임시로 "25" (대전)을 사용합니다.
+                let searchCityCode = isSeoulSearchEnabled ? "1000" : nil // 서울 모드일 경우 "1000" 전달
                 let stops = try await busRepository.searchStops(
-                    cityCode: "25", // 임시 cityCode
+                    cityCode: searchCityCode,
                     keyword: keyword
                 )
                 let presentations = processStops(stops, with: nil) // 이름 검색에는 위치 정보 없음

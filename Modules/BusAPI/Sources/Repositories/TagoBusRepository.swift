@@ -36,14 +36,15 @@ public final class TagoBusRepository: BusRepository {
         )
     }
 
-    public func searchStops(cityCode: String, nodeName: String?, nodeNumber: String?) async throws -> [BusStop] {
+    public func searchStops(cityCode: String?, nodeName: String?, nodeNumber: String?) async throws -> [BusStop] {
         try await items(
             for: .stopSearch(cityCode: cityCode, nodeName: nodeName, nodeNumber: nodeNumber),
             type: BusStop.self
         )
     }
 
-    public func fetchStopsNearby(latitude: Double, longitude: Double) async throws -> [BusStop] {
+    public func fetchStopsNearby(latitude: Double, longitude: Double, cityCode _: String?) async throws -> [BusStop] {
+        // cityCode is unused for Tago provider; kept for API compatibility
         try await items(for: .stopsNearby(latitude: latitude, longitude: longitude), type: BusStop.self)
     }
 
