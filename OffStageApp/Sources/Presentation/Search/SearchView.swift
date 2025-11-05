@@ -14,7 +14,7 @@ struct SearchView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     if viewModel.searchTerm.isEmpty {
-                        Text("주변 정류장")
+                        Text(L10n.Search.Ui.titleNearbyStops)
                             .foregroundColor(.gray)
                             .padding(.horizontal, 16)
                     }
@@ -23,31 +23,39 @@ struct SearchView: View {
                     case .idle, .loading:
                         if viewModel.searchTerm.isEmpty, !viewModel.nearbyStopsCache.isEmpty {
                             stopList(viewModel.nearbyStopsCache)
+
                         } else {
                             ActivityIndicator(isAnimating: .constant(true), style: .large)
                         }
+
                     case let .success(busStops):
                         let dataSource = viewModel.searchTerm.isEmpty ? viewModel.nearbyStopsCache : busStops
+
                         if dataSource.isEmpty {
-                            Text("표시할 정류장이 없습니다.")
+                            Text(L10n.Search.Ui.emptyNoStops)
                                 .foregroundColor(.secondary)
                                 .padding(.horizontal, 16)
+
                         } else {
                             stopList(dataSource)
                         }
+
                     case let .error(error):
                         Text("Error: \(error.localizedDescription)")
                     }
                 }
+
                 .padding(.horizontal, 16)
                 .toolbar {
                     ToolbarItem(placement: .principal) { // 툴바 항목 배치
-                        TextField("검색...", text: $viewModel.searchTerm)
+
+                        TextField(L10n.Search.Ui.placeholder, text: $viewModel.searchTerm)
                             .textFieldStyle(RoundedBorderTextFieldStyle()) // 텍스트 필드 스타일
                             .submitLabel(.search)
                             .onSubmit {
                                 viewModel.submitSearch()
                             }
+
                             .padding(.vertical, 4) // 좌우 여백 추가
                     }
                 }
@@ -63,7 +71,7 @@ private extension SearchView {
             ForEach(stops) { busStop in
                 SearchResultsView(busStop: busStop) {
                     guard let input = viewModel.destinationInput(for: busStop) else { return }
-                    router.push(.busstation(input: input))
+                    router.push(.busStation(input: input))
                 }
             }
             Divider()

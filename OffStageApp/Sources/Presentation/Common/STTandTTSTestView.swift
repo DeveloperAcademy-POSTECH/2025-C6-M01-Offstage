@@ -10,14 +10,17 @@ struct STTandTTSTestView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("음성 받아적기 테스트")
+            Text(L10n.SttTtsTest.Ui.titleStt)
 
             // 인식된 텍스트 출력 영역
             // - 실시간으로 transcript가 바뀌면 화면도 즉시 갱신됨(@Published → @StateObject 바인딩)
-            Text(speechRecognizer.transcript.isEmpty
-                ? "여기에 인식된 텍스트가 표시됩니다."
-                : speechRecognizer.transcript
-            )
+            Group {
+                if speechRecognizer.transcript.isEmpty {
+                    Text(L10n.SttTtsTest.Ui.placeholderStt)
+                } else {
+                    Text(speechRecognizer.transcript)
+                }
+            }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
             .overlay( // 테두리
@@ -36,7 +39,8 @@ struct STTandTTSTestView: View {
                 }
             }) {
                 // 상태에 따라 라벨 토글
-                Text(speechRecognizer.isListening ? "🛑 인식 중지" : "🎙️ 인식 시작")
+                Text(speechRecognizer.isListening ? L10n.SttTtsTest.Ui.buttonStopListening : L10n.SttTtsTest.Ui
+                    .buttonStartListening)
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent) // 눈에 띄는 기본 버튼 스타일
@@ -46,28 +50,28 @@ struct STTandTTSTestView: View {
         VStack {
             // 텍스트 입력
             VStack(alignment: .leading, spacing: 20) {
-                Text("읽을 텍스트")
+                Text(L10n.SttTtsTest.Ui.titleTts)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                TextField("텍스트를 입력하세요", text: $vm.inputText)
+                TextField(L10n.SttTtsTest.Ui.placeholderTts, text: $vm.inputText)
                     .frame(maxWidth: .infinity)
                     .padding(8)
                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(.gray.opacity(0.3)))
                     .focused($isTextEditorFocused) // 키보드를 내리기 위한 포커스 모디파이어
                 // 키보드를 내리기 위한 버튼
-                Button("키보드 내리기") {
+                Button(L10n.SttTtsTest.Ui.buttonDismissKeyboard) {
                     isTextEditorFocused = false
                 }
                 .buttonStyle(.bordered)
             }
 
             HStack {
-                Button("읽기") {
+                Button(L10n.SttTtsTest.Ui.buttonRead) {
                     vm.speakNow()
                 }
                 .buttonStyle(.borderedProminent)
 
-                Button("정지") {
+                Button(L10n.SttTtsTest.Ui.buttonStop) {
                     vm.stop()
                 }
                 .buttonStyle(.bordered)
@@ -75,7 +79,7 @@ struct STTandTTSTestView: View {
             // 컨트롤 버튼
         }
         .padding()
-        .navigationTitle(Text("STT&TTS 테스트 페이지"))
+        .navigationTitle(Text(L10n.SttTtsTest.Ui.titleNavigation))
 
         Spacer()
     }

@@ -33,7 +33,7 @@ struct BusStationView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
                         // 안내 문구
-                        Text("자주 이용하는 버스를 등록해 주세요.")
+                        Text(L10n.BusStation.Ui.guidance)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 16)
                             .foregroundStyle(.gray)
@@ -43,15 +43,19 @@ struct BusStationView: View {
                     }
                 }
                 Button {
-                    let destination = AppRoute.busvision(routeToDetect: favoritedRoutesInThisStation.map(\.routeNo))
+                    let destination = AppRoute.busVision(routeToDetect: favoritedRoutesInThisStation.map(\.routeNo))
                     router.push(destination)
                 } label: {
-                    Text("\(Image(systemName: "camera")) 버스 인식하기")
-                        .foregroundColor(isBusRecognitionDisabled ? .gray : .white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(isBusRecognitionDisabled ? Color(.systemGray5) : Color.blue)
-                        .cornerRadius(10)
+                    HStack {
+                        Image(systemName: "camera")
+                            .accessibilityHidden(true)
+                        Text(L10n.BusStation.Ui.buttonRecognizeBus)
+                    }
+                    .foregroundColor(isBusRecognitionDisabled ? .gray : .white)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(isBusRecognitionDisabled ? Color(.systemGray5) : Color.blue)
+                    .cornerRadius(10)
                 }
                 .disabled(isBusRecognitionDisabled)
                 .frame(maxWidth: .infinity)
@@ -67,6 +71,7 @@ struct BusStationView: View {
                 Button(action: { router.popToRoot() }) {
                     Image(systemName: "house")
                 }
+                .accessibilityLabel(Text(L10n.Common.A11y.buttonHome))
             )
 
             RefreshButton(countdown: countdown, rotationAngle: $rotationAngle) {
@@ -107,9 +112,9 @@ struct BusStationView: View {
             if routes.isEmpty {
                 Group {
                     if viewModel.input.routes.isEmpty {
-                        Text("경유 노선 정보를 찾을 수 없습니다.")
+                        Text(L10n.BusStation.Ui.errorNoRoutes)
                     } else {
-                        Text("도착 예정 정보가 없습니다.")
+                        Text(L10n.BusStation.Ui.errorNoArrivalInfo)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -122,12 +127,12 @@ struct BusStationView: View {
 
         case let .error(error):
             VStack(spacing: 12) {
-                Text("정류장 정보를 불러오지 못했습니다.")
+                Text(L10n.BusStation.Ui.errorFailedToLoad)
                     .foregroundColor(.secondary)
                 Text(error.localizedDescription)
                     .font(.footnote)
                     .foregroundColor(.secondary)
-                Button("다시 시도") {
+                Button(L10n.Common.Ui.buttonRetry) {
                     viewModel.refresh()
                 }
                 .buttonStyle(.borderedProminent)

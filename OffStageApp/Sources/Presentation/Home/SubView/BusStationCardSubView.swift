@@ -53,7 +53,7 @@ struct BusStationCardSubView: View {
             BusRouteListSubView(busArrivals: viewModel.busArrivals)
 
             Button {
-                let destination = AppRoute.busvision(routeToDetect: favorites.map(\.routeNo))
+                let destination = AppRoute.busVision(routeToDetect: favorites.map(\.routeNo))
                 router.push(destination)
             } label: {
                 Text("\(Image(systemName: "camera")) 버스 인식하기")

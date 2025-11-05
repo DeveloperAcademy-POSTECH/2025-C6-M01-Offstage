@@ -3,7 +3,7 @@ import SwiftUI
 struct OnboardingPage {
     let title: Text
     let imageName: String
-    let ctaTitle: String // 페이지별 버튼 라벨을 명시
+    let ctaTitle: LocalizedStringKey // 페이지별 버튼 라벨을 명시
 }
 
 struct OnboardingView: View {
@@ -11,27 +11,28 @@ struct OnboardingView: View {
     @State private var currentPage = 0
     @State private var didFinishOnboarding = false
     private let startPage = OnboardingPage(
-        title: Text("버스온다")
-            .foregroundColor(Color(red: 229 / 255, green: 255 / 255, blue: 0 / 255)) + Text("는 저시력자를 위한\n버스 안내 앱입니다."),
+        title: Text(L10n.K.appName)
+            .foregroundColor(Color(red: 229 / 255, green: 255 / 255, blue: 0 / 255)) +
+            Text(L10n.Onboarding.Ui.titleStart),
         imageName: "BusImage",
-        ctaTitle: "알아보기"
+        ctaTitle: L10n.Onboarding.Ui.buttonStartCTA
     )
 
     private let pages: [OnboardingPage] = [
         .init(
-            title: Text("탑승하려는 버스를 즐겨찾기\n하면 버스 인식을 시작할 수 있\n습니다."),
+            title: Text(L10n.Onboarding.Ui.titlePage1),
             imageName: "BusStation",
-            ctaTitle: "다음"
+            ctaTitle: L10n.Common.Ui.buttonNext
         ),
         .init(
-            title: Text("버스 인식 카메라로 버스 번호\n를 확인할 수 있습니다.\n "),
+            title: Text(L10n.Onboarding.Ui.titlePage2),
             imageName: "BusVision",
-            ctaTitle: "다음"
+            ctaTitle: L10n.Common.Ui.buttonNext
         ),
         .init(
-            title: Text("즐겨찾기한 버스는 홈화면에\n서 빠르게 버스인식을 할 수 있\n습니다."),
+            title: Text(L10n.Onboarding.Ui.titlePage3),
             imageName: "BusHome",
-            ctaTitle: "다음"
+            ctaTitle: L10n.Common.Ui.buttonNext
         ),
     ]
 

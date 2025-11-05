@@ -4,12 +4,11 @@ import SwiftUI
 enum AppRoute: Routable {
     case home
     case search
-    case busvision(routeToDetect: [String])
-    case busstation(input: BusStationViewInput)
-    case homeedit
+    case busVision(routeToDetect: [String])
+    case busStation(input: BusStationViewInput)
+    case homeEdit
     case onboarding
-    case test(busStopInfo: BusStopInfo)
-    case sttstest
+    case sttTest
     case quickCamera
 
     @MainActor
@@ -23,22 +22,19 @@ enum AppRoute: Routable {
             let viewModel = SearchViewModel(busRepository: DefaultBusRepository(), locationManager: LocationManager())
             SearchView(viewModel: viewModel)
 
-        case let .busstation(input):
+        case let .busStation(input):
             BusStationView(input: input)
 
-        case let .busvision(routeToDetect):
+        case let .busVision(routeToDetect):
             BusVisionView(routeNumbers: routeToDetect)
 
-        case .homeedit:
+        case .homeEdit:
             HomeEditView()
 
         case .onboarding:
             OnboardingView()
 
-        case let .test(busStopInfo):
-            TestView(busStopInfo: busStopInfo)
-
-        case .sttstest:
+        case .sttTest:
             STTandTTSTestView()
 
         case .quickCamera:

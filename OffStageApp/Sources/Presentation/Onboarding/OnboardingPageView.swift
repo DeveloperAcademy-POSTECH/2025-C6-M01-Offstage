@@ -12,12 +12,16 @@ struct OnboardingPageView: View {
                 Button {
                     previousButtonTapped()
                 } label: {
-                    Text("\(Image(systemName: "chevron.left")) 이전")
-                        .font(Font.custom("SF Pro", size: 17)
-                            .weight(.semibold)
-                        )
-                        .padding(.horizontal)
-                        .foregroundColor(.white)
+                    HStack {
+                        Image(systemName: "chevron.left")
+                            .accessibilityHidden(true)
+                        Text(L10n.Common.Ui.buttonPrevious)
+                    }
+                    .font(Font.custom("SF Pro", size: 17)
+                        .weight(.semibold)
+                    )
+                    .padding(.horizontal)
+                    .foregroundColor(.white)
                 }
 
                 Spacer()
@@ -25,12 +29,16 @@ struct OnboardingPageView: View {
                 Button {
                     nextButtonTapped()
                 } label: {
-                    Text("다음 \(Image(systemName: "chevron.right"))")
-                        .font(Font.custom("SF Pro", size: 17)
-                            .weight(.semibold)
-                        )
-                        .padding(.horizontal)
-                        .foregroundColor(.white)
+                    HStack {
+                        Text(L10n.Common.Ui.buttonNext)
+                        Image(systemName: "chevron.right")
+                            .accessibilityHidden(true)
+                    }
+                    .font(Font.custom("SF Pro", size: 17)
+                        .weight(.semibold)
+                    )
+                    .padding(.horizontal)
+                    .foregroundColor(.white)
                 }
             }
 
