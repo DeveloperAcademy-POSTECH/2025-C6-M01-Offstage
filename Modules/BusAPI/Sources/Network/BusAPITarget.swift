@@ -83,6 +83,8 @@ public extension BusAPITarget {
                     "/BusRouteInfoInqireService/getCtyCodeList"
                 case .arrival:
                     "/ArvlInfoInqireService/getCtyCodeList"
+                case .seoul:
+                    fatalError("Seoul API does not have a cityCodes endpoint within BusAPITarget")
                 }
             case .routeLocations:
                 "/BusLcInfoInqireService/getRouteAcctoBusLcList"

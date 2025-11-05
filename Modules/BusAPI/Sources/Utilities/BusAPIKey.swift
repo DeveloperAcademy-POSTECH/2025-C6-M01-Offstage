@@ -6,6 +6,7 @@ public enum BusAPIService: CaseIterable {
     case stop
     case route
     case arrival
+    case seoul
 
     /// Info.plist key used to look up the configured service key.
     public var infoPlistKey: String {
@@ -18,6 +19,8 @@ public enum BusAPIService: CaseIterable {
             "ROUTE_SERVICE_KEY"
         case .arrival:
             "ARRIVAL_SERVICE_KEY"
+        case .seoul:
+            "SEOUL_API_KEY"
         }
     }
 }
