@@ -167,30 +167,30 @@ extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelega
         let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer)
         try? handler.perform([request])
 
-        // 전체 프레임 대상 노선번호 탐지
-        if let currentPixelBuffer {
-            let ciBuffer = CIImage(cvPixelBuffer: currentPixelBuffer)
-            if let imageToGiveOCR = CIContext().createCGImage(ciBuffer, from: ciBuffer.extent) {
-                OCRManager.recognizeText(from: imageToGiveOCR) { fullString in
-                    guard let imageFullOCRString = fullString else { return }
-
-                    if let fullFrameDetected = OCRManager.isTextContains(
-                        text: imageFullOCRString,
-                        routeNumbers: self.routeNumbersToDetect
-                    ), self.isBusDetected {
-                        DispatchQueue.main.async {
-                            self.onDetectedRouteNumbersChanged?(fullFrameDetected)
-                        }
-
-                        self.impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
-                        self.impactFeedbackGenerator?.impactOccurred()
-
-                    } else {
-                        self.onDetectedRouteNumbersChanged?([])
-                    }
-                }
-            }
-        }
+//        // 전체 프레임 대상 노선번호 탐지
+//        if let currentPixelBuffer {
+//            let ciBuffer = CIImage(cvPixelBuffer: currentPixelBuffer)
+//            if let imageToGiveOCR = CIContext().createCGImage(ciBuffer, from: ciBuffer.extent) {
+//                OCRManager.recognizeText(from: imageToGiveOCR) { fullString in
+//                    guard let imageFullOCRString = fullString else { return }
+//
+//                    if let fullFrameDetected = OCRManager.isTextContains(
+//                        text: imageFullOCRString,
+//                        routeNumbers: self.routeNumbersToDetect
+//                    ), self.isBusDetected {
+//                        DispatchQueue.main.async {
+//                            self.onDetectedRouteNumbersChanged?(fullFrameDetected)
+//                        }
+//
+//                        self.impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+//                        self.impactFeedbackGenerator?.impactOccurred()
+//
+//                    } else {
+//                        self.onDetectedRouteNumbersChanged?([])
+//                    }
+//                }
+//            }
+//        }
     }
 }
 
@@ -273,23 +273,14 @@ extension BusDetectionViewController {
             if prediction.confidence < 0.8 { continue }
             isBusDetected = true
 
-            // 이미지 자르기
-            guard let image = cropImage(
-                pixelBuffer: currentPixelBuffer,
-                prediction: prediction
-            ) else {
+            // 이미지 영역 정하기
+            guard let areaOfInterest = cropBusArea(prediction: prediction) else {
                 print("이미지 자르기 실패")
                 continue
             }
 
-            // 이미지 크기 조정
-            guard let resizedImage = resizeImage(image) else {
-                print("이미지 크기 조정 실패")
-                continue
-            }
-
             // 자른 이미지 OCR 처리하기
-            OCRManager.recognizeText(from: currentPixelBuffer, in: prediction.boundingBox) { ocrText in
+            OCRManager.recognizeText(from: currentPixelBuffer, in: areaOfInterest) { ocrText in
                 guard let ocrText else {
                     print("OCR 처리 실패")
                     return
