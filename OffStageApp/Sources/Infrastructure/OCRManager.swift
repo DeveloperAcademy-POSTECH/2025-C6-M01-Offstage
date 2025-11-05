@@ -3,8 +3,17 @@ import SwiftUI
 import Vision
 
 class OCRManager {
-    /// CGImage입력받아서 completion handler로 결과 텍스트 String 옵셔널 반환
-    static func recognizeText(from image: CGImage, completion: @escaping (String?) -> Void) {
+    /// CVPixelBuffer와 OCR 범위 입력받아서 completion handler로 결과 텍스트 String 옵셔널 반환
+    static func recognizeText(
+        from pixelBuffer: CVPixelBuffer?,
+        in areaOfInterest: CGRect,
+        completion: @escaping (String?) -> Void
+    ) {
+        guard let pixelBuffer else {
+            completion(nil)
+            return
+        }
+
         let request = VNRecognizeTextRequest { request, error in
             if let error {
                 print("OCR 에러: \(error)")
@@ -32,10 +41,11 @@ class OCRManager {
 
         // 숫자 인식 최적화 설정
         request.recognitionLevel = .accurate
-        request.usesLanguageCorrection = false // 언어 자동 교정 끄기
+        request.usesLanguageCorrection = false
         request.automaticallyDetectsLanguage = true
+        request.regionOfInterest = areaOfInterest // 인식 영역 설정
 
-        let handler = VNImageRequestHandler(cgImage: image)
+        let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .up, options: [:])
 
         do {
             try handler.perform([request])

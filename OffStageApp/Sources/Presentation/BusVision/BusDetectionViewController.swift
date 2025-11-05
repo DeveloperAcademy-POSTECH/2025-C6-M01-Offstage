@@ -289,7 +289,7 @@ extension BusDetectionViewController {
             }
 
             // 자른 이미지 OCR 처리하기
-            OCRManager.recognizeText(from: image) { ocrText in
+            OCRManager.recognizeText(from: currentPixelBuffer, in: prediction.boundingBox) { ocrText in
                 guard let ocrText else {
                     print("OCR 처리 실패")
                     return
