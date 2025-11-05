@@ -3,7 +3,7 @@ import Foundation
 import Moya
 
 //
-enum SeoulBusAPITarget {
+public enum SeoulBusAPITarget {
     /// 1. 정류소 이름 검색 (getStationByName)
     case getStationByName(name: String)
     /// 2. 정류소 좌표 검색 (getStationByPos) - TM 좌표
@@ -15,9 +15,9 @@ enum SeoulBusAPITarget {
 }
 
 extension SeoulBusAPITarget: TargetType {
-    var baseURL: URL { URL(string: "http://ws.bus.go.kr/api/rest")! }
+    public var baseURL: URL { URL(string: "http://ws.bus.go.kr/api/rest")! }
 
-    var path: String {
+    public var path: String {
         switch self {
         case .getStationByName: "/stationinfo/getStationByName"
         case .getStationByPos: "/stationinfo/getStationByPos"
@@ -26,9 +26,9 @@ extension SeoulBusAPITarget: TargetType {
         }
     }
 
-    var method: Moya.Method { .get }
+    public var method: Moya.Method { .get }
 
-    var task: Task {
+    public var task: Task {
         // 1. serviceKey와 resultType=json은 공통 파라미터입니다.
         var params: [String: Any] = [
             "serviceKey": BusAPIKey.seoul, // Phase 1에서 추가한 키 로더 사용
@@ -53,6 +53,6 @@ extension SeoulBusAPITarget: TargetType {
         return .requestParameters(parameters: params, encoding: URLEncoding.queryString)
     }
 
-    var headers: [String: String]? { nil }
-    var sampleData: Data { Data() }
+    public var headers: [String: String]? { nil }
+    public var sampleData: Data { Data() }
 }
