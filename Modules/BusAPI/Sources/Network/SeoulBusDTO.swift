@@ -7,9 +7,8 @@ struct SeoulGpsStopResponse: Decodable { let msgBody: SeoulGpsStopMsgBody }
 struct SeoulGpsStopMsgBody: Decodable { let itemList: [SeoulGpsStopDTO] }
 
 struct SeoulGpsStopDTO: Decodable {
-    let stationId: String // 정류소ID (-> nodeId)
+    let arsId: String // 정류소ID (-> nodeId & nodeNo)
     let stationNm: String // 정류소명 (-> nodeName)
-    let arsId: String // 정류소번호 (-> nodeNo)
     let gpsX: String // WGS84 경도 (-> gpsLong)
     let gpsY: String // WGS84 위도 (-> gpsLati)
 }
@@ -20,9 +19,8 @@ struct SeoulKeywordStopResponse: Decodable { let msgBody: SeoulKeywordStopMsgBod
 struct SeoulKeywordStopMsgBody: Decodable { let itemList: [SeoulKeywordStopDTO] }
 
 struct SeoulKeywordStopDTO: Decodable {
-    let stId: String // 정류소ID (-> nodeId)
+    let arsId: String // 정류소ID (-> nodeId & nodeNo)
     let stNm: String // 정류소명 (-> nodeName)
-    let arsId: String // 정류소번호 (-> nodeNo)
     let tmX: String // WGS84 경도 (-> gpsLong)
     let tmY: String // WGS84 위도 (-> gpsLati)
 }
@@ -52,4 +50,14 @@ struct SeoulRouteInfoDTO: Decodable {
     let routeType: String // (-> routeType)
     let stStationNm: String // (-> startStopName)
     let edStationNm: String // (-> endStopName)
+}
+
+// MARK: - 정류소 경유 노선 목록 DTO (getRouteByStation)
+
+struct SeoulStationRouteResponse: Decodable { let msgBody: SeoulStationRouteMsgBody }
+struct SeoulStationRouteMsgBody: Decodable { let itemList: [SeoulStationRouteDTO] }
+
+struct SeoulStationRouteDTO: Decodable {
+    let busRouteId: String
+    let busRouteNm: String
 }

@@ -56,9 +56,21 @@ public final class SeoulBusRepository: BusRepository {
         return body.msgBody.itemList.compactMap { adaptToBusStop(from: $0) }
     }
 
-    public func fetchRoutesPassingThroughStop(cityCode _: String, nodeId _: String) async throws -> [BusRoute] {
-        // Not directly supported by Seoul endpoints implemented here
-        []
+    public func fetchRoutesPassingThroughStop(cityCode _: String, nodeId: String) async throws -> [BusRoute] {
+        let response = try await provider.request(.getRouteByStation(arsId: nodeId))
+        let body = try decoder.decode(SeoulStationRouteResponse.self, from: response.data)
+
+        return body.msgBody.itemList.map { dto in
+            BusRoute(
+                routeId: dto.busRouteId,
+                routeNumber: dto.busRouteNm,
+                routeType: "", // Not provided by this API
+                startStopName: "",
+                endStopName: "",
+                startTime: "",
+                endTime: ""
+            )
+        }
     }
 
     public func fetchRouteInfo(cityCode _: String, routeId: String) async throws -> BusRoute? {
@@ -103,7 +115,7 @@ public final class SeoulBusRepository: BusRepository {
     private func adaptToBusStop(from dto: SeoulGpsStopDTO) -> BusStop? {
         guard let lat = Double(dto.gpsY), let lon = Double(dto.gpsX) else { return nil }
         return BusStop(
-            nodeId: dto.stationId, // 'stationId' 사용
+            nodeId: dto.arsId, // 'arsId' 사용
             name: dto.stationNm, // 'stationNm' 사용
             number: dto.arsId,
             cityCode: Int(1000),
@@ -117,7 +129,7 @@ public final class SeoulBusRepository: BusRepository {
     private func adaptToBusStop(from dto: SeoulKeywordStopDTO) -> BusStop? {
         guard let lat = Double(dto.tmY), let lon = Double(dto.tmX) else { return nil }
         return BusStop(
-            nodeId: dto.stId, // 'stId' 사용
+            nodeId: dto.arsId, // 'arsId' 사용
             name: dto.stNm, // 'stNm' 사용
             number: dto.arsId,
             cityCode: Int(1000),
