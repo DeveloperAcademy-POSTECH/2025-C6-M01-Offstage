@@ -1,11 +1,13 @@
 import BusAPI
 import SwiftData
 import SwiftUI
+import UIKit
 
 struct HomeView: View {
     @EnvironmentObject var router: Router<AppRoute>
     @Environment(\.modelContext) private var modelContext
     @State private var locationProvider: LocationProviding = LocationManager()
+    @StateObject private var permissionManager = PermissionManager()
     @State private var refreshTrigger = UUID()
     @State private var countdown: Int = 10
     @State private var timer: Timer?
@@ -21,6 +23,10 @@ struct HomeView: View {
         return grouped.map { _, favorites in
             FavoritedStop(favorites: favorites)
         }.sorted { $0.order < $1.order }
+    }
+
+    private var hasRequestedPermissions: Bool {
+        UserDefaults.standard.bool(forKey: "hasRequestedPermissions")
     }
 
     var body: some View {
@@ -105,10 +111,28 @@ struct HomeView: View {
                 }
             }
             .onAppear {
-                locationProvider.requestLocationPermission()
+                if !hasRequestedPermissions {
+                    Task {
+                        await permissionManager.requestAll()
+                        UserDefaults.standard.set(true, forKey: "hasRequestedPermissions")
+                    }
+                }
                 startTimer()
             }
             .onDisappear(perform: stopTimer)
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+                // 앱이 foreground로 돌아올 때 권한 재확인
+                Task {
+                    await permissionManager.checkAllPermissionsGranted()
+                }
+            }
+            .sheet(isPresented: $permissionManager.showPermissionDeniedSheet) {
+                PermissionSubView(
+                    deniedPermissions: permissionManager.deniedPermissions,
+                    grantedPermissions: permissionManager.grantedPermissions()
+                )
+                .interactiveDismissDisabled(true)
+            }
 
             RefreshButton(countdown: countdown, rotationAngle: $rotationAngle) {
                 refreshTrigger = UUID()
