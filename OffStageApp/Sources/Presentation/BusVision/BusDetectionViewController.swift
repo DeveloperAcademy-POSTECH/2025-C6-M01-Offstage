@@ -336,7 +336,10 @@ extension BusDetectionViewController {
         }
         #if DEBUG_MODE
             DispatchQueue.main.async {
-                self.tempStrokeBoxesView?.drawBox(with: predictions.filter { $0.confidence > 0.8 })
+                self.tempStrokeBoxesView?.drawBox(with: predictions.filter { prediction in
+                    prediction.confidence >= 0.8 &&
+                        !finalPredictions.contains(where: { $0.uuid == prediction.uuid })
+                })
             }
         #endif
     }
