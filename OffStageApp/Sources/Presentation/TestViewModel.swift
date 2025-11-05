@@ -31,7 +31,7 @@ final class TestViewModel: ObservableObject {
     init(
         busStopInfo: BusStopInfo? = nil,
         locationProvider: LocationProviding = LocationManager(),
-        busRepository: BusRepository = DefaultBusRepository()
+        busRepository: BusRepository = TagoBusRepository()
     ) {
         self.busStopInfo = busStopInfo ?? BusStopInfo(
             cityCode: 25,

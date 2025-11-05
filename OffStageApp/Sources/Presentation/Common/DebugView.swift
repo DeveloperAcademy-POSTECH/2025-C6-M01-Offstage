@@ -3,17 +3,15 @@
     import SwiftUI
 
     struct DebugView: View {
+        @AppStorage("isSeoulSearchEnabled") private var isSeoulSearchEnabled: Bool = false
         @EnvironmentObject var router: Router<AppRoute>
         @Environment(\.dismiss) private var dismiss
-        @StateObject private var logStore = LogStore.shared
 
         var body: some View {
             NavigationView {
                 List {
-                    ForEach(logStore.logs, id: \.self) { log in
-                        Text(log)
-                            .font(.system(.caption, design: .monospaced))
-                            .listRowInsets(EdgeInsets(top: 2, leading: 10, bottom: 2, trailing: 10))
+                    Section("API (Debug)") {
+                        Toggle("서울 API 검색 활성화", isOn: $isSeoulSearchEnabled)
                     }
                     NavigationLink(
                         L10n.Debug.Ui.linkBusVision,
@@ -23,7 +21,7 @@
                         L10n.Debug.Ui.buttonApiTest,
                         // TODO: 새로운 L10n 키가 필요하면 추가해야 합니다.
                         destination: TestView(busStopInfo: .init(
-                            cityCode: 25,
+                            cityCode: 31020,
                             nodeId: "GGB204000163",
                             routeId: "GGB204000013",
                             stopName: "판교",
@@ -35,13 +33,6 @@
                 }
                 .navigationTitle(L10n.Debug.Ui.title)
                 .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(L10n.Debug.Ui.buttonClear) {
-                            logStore.clearLogs()
-                        }
-                    }
-                }
             }
 
             Button {

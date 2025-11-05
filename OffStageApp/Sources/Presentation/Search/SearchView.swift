@@ -81,7 +81,7 @@ private extension SearchView {
 }
 
 #Preview {
-    let viewModel = SearchViewModel(busRepository: DefaultBusRepository(), locationManager: LocationManager())
+    let viewModel = SearchViewModel(busRepository: TagoBusRepository(), locationManager: LocationManager())
     viewModel.viewState = .success(BusStopForSearch.sampleBusStop)
     return SearchView(viewModel: viewModel)
         .environmentObject(Router<AppRoute>(root: .search))

@@ -19,7 +19,7 @@ struct BusStationCardSubView: View {
         cityCode: String,
         favorites: [Favorite],
         refreshTrigger: UUID,
-        busRepository: BusRepository = DefaultBusRepository()
+        busRepository: BusRepository = TagoBusRepository()
     ) {
         self.stationName = stationName
         self.stationNumber = stationNumber

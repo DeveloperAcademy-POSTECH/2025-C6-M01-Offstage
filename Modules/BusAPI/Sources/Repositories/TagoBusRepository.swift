@@ -2,11 +2,11 @@ import Foundation
 import Logging
 import Moya
 
-public final class DefaultBusRepository: BusRepository {
+public final class TagoBusRepository: BusRepository {
     private let provider: MoyaProvider<BusAPITarget>
     private let decoder: JSONDecoder
     private let keyProvider: (BusAPIService) throws -> String
-    private let logger = Logger(label: "BusAPI.DefaultBusRepository")
+    private let logger = Logger(label: "BusAPI.TagoBusRepository")
 
     public init(
         provider: MoyaProvider<BusAPITarget>? = nil,

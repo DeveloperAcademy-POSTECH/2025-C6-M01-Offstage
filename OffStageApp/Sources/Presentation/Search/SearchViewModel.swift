@@ -2,9 +2,12 @@ import BusAPI
 import Combine
 import CoreLocation
 import Foundation
+import SwiftUI
 
 @MainActor
 final class SearchViewModel: ObservableObject {
+    @AppStorage("isSeoulSearchEnabled") private var isSeoulSearchEnabled: Bool = false
+
     // MARK: - State
 
     enum ViewState {
