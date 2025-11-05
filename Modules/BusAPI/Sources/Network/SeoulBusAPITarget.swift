@@ -10,8 +10,6 @@ public enum SeoulBusAPITarget {
     case getStationByPos(tmX: Double, tmY: Double)
     /// 3. 정류소 상세 (도착 정보) (getStationByUid)
     case getStationArrivals(arsId: String) // arsId = 정류소 번호 (nodeNo)
-    /// 4. 노선 정보 (방향) (getBusRouteList)
-    case getRouteInfo(routeId: String)
 }
 
 extension SeoulBusAPITarget: TargetType {
@@ -22,7 +20,6 @@ extension SeoulBusAPITarget: TargetType {
         case .getStationByName: "/stationinfo/getStationByName"
         case .getStationByPos: "/stationinfo/getStationByPos"
         case .getStationArrivals: "/stationinfo/getStationByUid"
-        case .getRouteInfo: "/busRouteInfo/getBusRouteList"
         }
     }
 
@@ -46,8 +43,6 @@ extension SeoulBusAPITarget: TargetType {
             params["radius"] = 500 // 500m 반경
         case let .getStationArrivals(arsId):
             params["arsId"] = arsId //
-        case let .getRouteInfo(routeId):
-            params["busRouteId"] = routeId //
         }
 
         return .requestParameters(parameters: params, encoding: URLEncoding.queryString)

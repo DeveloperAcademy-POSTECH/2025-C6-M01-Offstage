@@ -97,11 +97,6 @@ final class BusStationViewModel: ObservableObject {
                     group.addTask {
                         guard let firstArrival = arrivalsForRoute.first else { return nil }
 
-                        let routeInfo = try? await self.busRepository.fetchRouteInfo(
-                            cityCode: self.input.cityCode,
-                            routeId: routeId
-                        )
-
                         let mappedArrivals = arrivalsForRoute
                             .sorted {
                                 ($0.estimatedArrivalTime ?? Int.max) < ($1.estimatedArrivalTime ?? Int.max)
@@ -118,7 +113,7 @@ final class BusStationViewModel: ObservableObject {
                             routeId: routeId,
                             routeNumber: firstArrival.routeNumber,
                             routeType: firstArrival.routeType,
-                            direction: routeInfo?.endStopName ?? "",
+                            direction: "",
                             arrivals: mappedArrivals
                         )
                     }

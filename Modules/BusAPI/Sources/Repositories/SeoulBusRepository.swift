@@ -17,16 +17,6 @@ public final class SeoulBusRepository: BusRepository {
         self.decoder = decoder
     }
 
-    public func fetchCities(for _: BusAPIService) async throws -> [BusCity] {
-        // 서울시는 별도의 도시 목록 API를 사용하지 않음. 빈 배열 반환.
-        []
-    }
-
-    public func fetchRouteLocations(cityCode _: String, routeId _: String, page _: Int?) async throws -> [BusLocation] {
-        // 서울 API의 경우 별도 구현이 필요. 일단 미지원으로 빈 배열 반환.
-        []
-    }
-
     public func searchStops(cityCode _: String?, nodeName: String?, nodeNumber: String?) async throws -> [BusStop] {
         // [수정] 서울 키워드 검색 DTO를 사용
         if let name = nodeName, !name.isEmpty {
@@ -58,24 +48,6 @@ public final class SeoulBusRepository: BusRepository {
 
     public func fetchRoutesPassingThroughStop(cityCode _: String, nodeId _: String) async throws -> [BusRoute] {
         // Not directly supported by Seoul endpoints implemented here
-        []
-    }
-
-    public func fetchRouteInfo(cityCode _: String, routeId: String) async throws -> BusRoute? {
-        let response = try await provider.request(.getRouteInfo(routeId: routeId))
-        let body = try decoder.decode(SeoulRouteInfoResponse.self, from: response.data)
-        return body.msgBody.itemList.first.map { adaptToBusRoute(from: $0) }
-    }
-
-    public func searchRoutes(cityCode _: String, routeNumber: String) async throws -> [BusRoute] {
-        // Seoul API's getBusRouteList supports searching by routeId/name; here we pass routeNumber
-        let response = try await provider.request(.getRouteInfo(routeId: routeNumber))
-        let body = try decoder.decode(SeoulRouteInfoResponse.self, from: response.data)
-        return body.msgBody.itemList.map { adaptToBusRoute(from: $0) }
-    }
-
-    public func fetchRouteStations(cityCode _: String, routeId _: String) async throws -> [BusRouteStation] {
-        // Not implemented: would require a different Seoul API endpoint and DTOs
         []
     }
 
@@ -148,17 +120,5 @@ public final class SeoulBusRepository: BusRepository {
         }
 
         return results
-    }
-
-    private func adaptToBusRoute(from dto: SeoulRouteInfoDTO) -> BusRoute {
-        BusRoute(
-            routeId: dto.busRouteId,
-            routeNumber: dto.busRouteNm,
-            routeType: dto.routeType,
-            startStopName: dto.stStationNm,
-            endStopName: dto.edStationNm,
-            startTime: nil,
-            endTime: nil
-        )
     }
 }

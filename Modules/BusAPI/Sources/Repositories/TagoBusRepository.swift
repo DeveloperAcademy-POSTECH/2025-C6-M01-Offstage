@@ -25,17 +25,6 @@ public final class TagoBusRepository: BusRepository {
         self.keyProvider = keyProvider
     }
 
-    public func fetchCities(for service: BusAPIService) async throws -> [BusCity] {
-        try await items(for: .cityCodes(service: service), type: BusCity.self)
-    }
-
-    public func fetchRouteLocations(cityCode: String, routeId: String, page: Int?) async throws -> [BusLocation] {
-        try await items(
-            for: .routeLocations(cityCode: cityCode, routeId: routeId, page: page, rows: nil),
-            type: BusLocation.self
-        )
-    }
-
     // 현재 선택된 도시 코드를 저장하는 프로퍼티
     private var currentCityCode: Int?
 
@@ -77,18 +66,6 @@ public final class TagoBusRepository: BusRepository {
 
     public func fetchRoutesPassingThroughStop(cityCode: String, nodeId: String) async throws -> [BusRoute] {
         try await items(for: .stopRoutes(cityCode: cityCode, nodeId: nodeId), type: BusRoute.self)
-    }
-
-    public func fetchRouteInfo(cityCode: String, routeId: String) async throws -> BusRoute? {
-        try await items(for: .routeInfo(cityCode: cityCode, routeId: routeId), type: BusRoute.self).first
-    }
-
-    public func searchRoutes(cityCode: String, routeNumber: String) async throws -> [BusRoute] {
-        try await items(for: .routeSearch(cityCode: cityCode, routeNumber: routeNumber), type: BusRoute.self)
-    }
-
-    public func fetchRouteStations(cityCode: String, routeId: String) async throws -> [BusRouteStation] {
-        try await items(for: .routeStations(cityCode: cityCode, routeId: routeId), type: BusRouteStation.self)
     }
 
     public func fetchStopArrivals(cityCode: String, nodeId: String) async throws -> [BusArrival] {

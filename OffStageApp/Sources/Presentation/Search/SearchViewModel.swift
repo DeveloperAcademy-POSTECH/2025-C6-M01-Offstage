@@ -128,7 +128,8 @@ final class SearchViewModel: ObservableObject {
                 let searchCityCode = isSeoulSearchEnabled ? "1000" : nil // 서울 모드일 경우 "1000" 전달
                 let stops = try await busRepository.searchStops(
                     cityCode: searchCityCode,
-                    keyword: keyword
+                    nodeName: keyword,
+                    nodeNumber: nil
                 )
                 let presentations = processStops(stops, with: nil) // 이름 검색에는 위치 정보 없음
                 let (displayStops, inputs) = await makeDisplayStops(from: presentations)
