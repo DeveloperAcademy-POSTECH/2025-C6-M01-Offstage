@@ -4,20 +4,27 @@ import UIKit
 import Vision
 
 final class BusDetectionViewController: UIViewController {
+    // MARK: Properties
+
+    // input properties
     /// 인식할 노선번호
     var routeNumbersToDetect: [String] = []
     /// 감지된 노선번호 배열이 변경될 때 SwiftUI에서 처리하기 위한 클로저
     var onDetectedRouteNumbersChanged: (([String]) -> Void)?
 
+    // APIs
     private var captureSession: AVCaptureSession?
     private var request: VNCoreMLRequest?
-    var impactFeedbackGenerator: UIImpactFeedbackGenerator?
+    var impactFeedbackGenerator: UIImpactFeedbackGenerator? // TODO: Haptic Manager로 교체
 
+    // subviews
     private var drawingBoxesView: DrawingBoxesView?
     #if DEBUG_MODE
         private var tempStrokeBoxesView: TempStokeBoxesView?
         private var croppedImageView: UIImageView?
     #endif
+
+    // for view logic
     private var currentPixelBuffer: CVPixelBuffer?
     private var frameCount: UInt = 0
     private var isBusDetected: Bool = false
@@ -147,26 +154,26 @@ final class BusDetectionViewController: UIViewController {
     }
 
     #if DEBUG_MODE
-    /// 디버깅모드용 바운딩박스 서브뷰 설정
-    private func setupDebugModeBoxesView() {
-        let strokeBoxesView = TempStokeBoxesView()
-        strokeBoxesView.frame = view.frame
-        view.addSubview(strokeBoxesView)
-        tempStrokeBoxesView = strokeBoxesView
-    }
+        /// 디버깅모드용 바운딩박스 서브뷰 설정
+        private func setupDebugModeBoxesView() {
+            let strokeBoxesView = TempStokeBoxesView()
+            strokeBoxesView.frame = view.frame
+            view.addSubview(strokeBoxesView)
+            tempStrokeBoxesView = strokeBoxesView
+        }
 
-    /// 디버깅모드용 버스 이미지 크롭 확인용 서브뷰 설정
-    private func setupDebugCroppedImageView() {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
-        imageView.backgroundColor = .black.withAlphaComponent(0.7)
-        imageView.layer.borderColor = UIColor.green.cgColor
-        imageView.layer.borderWidth = 2
-        imageView.layer.cornerRadius = 8
-        imageView.clipsToBounds = true
-        view.addSubview(imageView)
-        croppedImageView = imageView
-    }
+        /// 디버깅모드용 버스 이미지 크롭 확인용 서브뷰 설정
+        private func setupDebugCroppedImageView() {
+            let imageView = UIImageView()
+            imageView.contentMode = .scaleAspectFit
+            imageView.backgroundColor = .black.withAlphaComponent(0.7)
+            imageView.layer.borderColor = UIColor.green.cgColor
+            imageView.layer.borderWidth = 2
+            imageView.layer.cornerRadius = 8
+            imageView.clipsToBounds = true
+            view.addSubview(imageView)
+            croppedImageView = imageView
+        }
     #endif
 }
 
@@ -199,31 +206,6 @@ extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelega
         // 비전 노선탐지
         let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer)
         try? handler.perform([request])
-
-//        // 전체 프레임 대상 노선번호 탐지
-//        if let currentPixelBuffer {
-//            let ciBuffer = CIImage(cvPixelBuffer: currentPixelBuffer)
-//            if let imageToGiveOCR = CIContext().createCGImage(ciBuffer, from: ciBuffer.extent) {
-//                OCRManager.recognizeText(from: imageToGiveOCR) { fullString in
-//                    guard let imageFullOCRString = fullString else { return }
-//
-//                    if let fullFrameDetected = OCRManager.isTextContains(
-//                        text: imageFullOCRString,
-//                        routeNumbers: self.routeNumbersToDetect
-//                    ), self.isBusDetected {
-//                        DispatchQueue.main.async {
-//                            self.onDetectedRouteNumbersChanged?(fullFrameDetected)
-//                        }
-//
-//                        self.impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
-//                        self.impactFeedbackGenerator?.impactOccurred()
-//
-//                    } else {
-//                        self.onDetectedRouteNumbersChanged?([])
-//                    }
-//                }
-//            }
-//        }
     }
 }
 
