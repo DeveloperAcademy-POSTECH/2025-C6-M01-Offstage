@@ -36,6 +36,19 @@ public enum BusAPIKey {
         throw BusAPIError.missingServiceKey(service)
     }
 
+    /// 서울시 API 키를 반환합니다.
+    /// 이 키는 `Project.swift`에 의해 Info.plist로 주입됩니다.
+    public static var seoul: String {
+        guard let key = Bundle.main.object(forInfoDictionaryKey: "SEOUL_API_KEY") as? String,
+              !key.isEmpty
+        else {
+            // 서울 API 키는 필수적이므로, 찾지 못하면 fatalError를 발생시켜
+            // 개발자가 즉시 설정을 누락했음을 알 수 있도록 합니다.
+            fatalError("SEOUL_API_KEY가 Info.plist에 설정되지 않았거나 비어있습니다.")
+        }
+        return key
+    }
+
     /// Indicates whether the provided service has a configured key.
     /// - Parameter service: Service scope to validate.
     /// - Returns: `true` if a non-empty key exists in either the framework or main bundle.
