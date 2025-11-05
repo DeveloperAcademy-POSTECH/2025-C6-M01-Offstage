@@ -174,21 +174,26 @@ final class SearchViewModel: ObservableObject {
         -> ([BusStopForSearch], [UUID: BusStationViewInput])
     {
         guard !stops.isEmpty else { return ([], [:]) }
-
+        let contextCityCode = currentCityCode
         return await withTaskGroup(
             of: (BusStopForSearch, BusStationViewInput?).self,
             returning: ([BusStopForSearch], [UUID: BusStationViewInput]).self
         ) { group in
             for entry in stops {
                 group.addTask {
+                    let cityCodeForAPI: String = if let entryCityCode = entry.stop.cityCode, entryCityCode != 0 {
+                        String(entryCityCode)
+                    } else {
+                        contextCityCode ?? "0"
+                    }
+
                     let routes = try? await self.busRepository
                         .fetchRoutesPassingThroughStop(
-                            cityCode: String(entry.stop.cityCode ?? 0),
+                            cityCode: cityCodeForAPI,
                             nodeId: entry.stop.nodeId
                         )
                         .map(\.routeNumber)
                         .sorted()
-
                     let identifier = UUID()
                     let result = BusStopForSearch(
                         id: identifier,
@@ -199,7 +204,7 @@ final class SearchViewModel: ObservableObject {
                     )
 
                     let input = BusStationViewInput(
-                        cityCode: String(entry.stop.cityCode ?? 0),
+                        cityCode: cityCodeForAPI,
                         nodeId: entry.stop.nodeId,
                         nodeName: entry.stop.name,
                         nodeNumber: entry.stop.number,
