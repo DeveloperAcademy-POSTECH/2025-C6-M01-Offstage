@@ -12,6 +12,7 @@ final class BusDetectionViewController: UIViewController {
     private var captureSession: AVCaptureSession?
     private var request: VNCoreMLRequest?
     var impactFeedbackGenerator: UIImpactFeedbackGenerator?
+    private var ttsManager: TTSManager = .init()
 
     private var drawingBoxesView: DrawingBoxesView?
     #if DEBUG_MODE
@@ -181,7 +182,13 @@ extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelega
                         DispatchQueue.main.async {
                             self.onDetectedRouteNumbersChanged?(fullFrameDetected)
                         }
+                        // tts
+                        guard let firstBusDetected = fullFrameDetected.first else {
+                            return
+                        }
+                        self.ttsManager.speakNow(of: firstBusDetected)
 
+                        // 햅틱
                         self.impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
                         self.impactFeedbackGenerator?.impactOccurred()
 
