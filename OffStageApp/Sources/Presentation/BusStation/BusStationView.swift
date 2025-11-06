@@ -51,14 +51,17 @@ struct BusStationView: View {
                             .accessibilityHidden(true)
                         Text(L10n.BusStation.Ui.buttonRecognizeBus)
                     }
-                    .foregroundColor(isBusRecognitionDisabled ? .gray : .white)
-                    .padding()
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundColor(isBusRecognitionDisabled ? .gray : .black)
+                    .padding(.vertical, 13)
                     .frame(maxWidth: .infinity)
-                    .background(isBusRecognitionDisabled ? Color(.systemGray5) : Color.blue)
+                    .background(isBusRecognitionDisabled ? Color(.systemGray5) : Color(.primarynormal))
                     .cornerRadius(10)
                 }
                 .disabled(isBusRecognitionDisabled)
                 .frame(maxWidth: .infinity)
+                .padding(.horizontal, 20)
             }
             .onAppear(perform: startTimer)
             .onDisappear(perform: stopTimer)
