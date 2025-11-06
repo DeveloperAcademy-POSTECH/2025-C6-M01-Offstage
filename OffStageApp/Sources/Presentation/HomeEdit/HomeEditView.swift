@@ -25,12 +25,8 @@ struct HomeEditView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            List {
-                Section(
-                    header: Text(L10n.HomeEdit.Ui.title)
-                        .accessibilityLabel(Text(L10n.HomeEdit.A11y.header))
-                        .accessibilityAddTraits(.isHeader)
-                ) {
+            if !editableStops.isEmpty {
+                List {
                     ForEach(editableStops) { station in
                         HomeEditListRowView(
                             nodeName: station.nodeName,
@@ -41,9 +37,18 @@ struct HomeEditView: View {
                     .onDelete(perform: deleteStations)
                     .onMove(perform: moveStations)
                 }
+                .listStyle(.plain)
+                .environment(\.editMode, .constant(.active))
+            } else {
+                VStack {
+                    Text("즐겨찾기된 항목이 없습니다.")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.gray)
+                        .padding(.top, 40)
+                    Spacer()
+                }
             }
-            .listStyle(.plain)
-            .environment(\.editMode, .constant(.active))
 
             HomeEditFooterButtomsView(
                 isSaveBtnDisabled: !hasChanges,

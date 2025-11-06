@@ -57,10 +57,12 @@ struct BusStationCardSubView: View {
                 router.push(destination)
             } label: {
                 Text("\(Image(systemName: "camera")) 버스 인식하기")
-                    .foregroundColor(.white)
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.black)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.blue)
+                    .background(Color(.primarynormal))
                     .cornerRadius(10)
             }
             .padding()

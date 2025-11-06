@@ -16,28 +16,26 @@ struct OnboardingPermissionsView: View {
                                 .accessibilityHidden(true)
                             Text(L10n.Common.Ui.buttonPrevious)
                         }
-                        .font(Font.custom("SF Pro", size: 17)
-                            .weight(.semibold)
-                        )
+                        .font(.system(size: 17, weight: .semibold))
                         .padding(.leading)
                         .foregroundColor(Color(red: 0.77, green: 0.78, blue: 0.83))
                     }
                     Spacer()
                 }
                 Text(L10n.Onboarding.Ui.titlePermissions)
-                    .font(Font.custom("SF Pro", size: 17))
+                    .font(.system(size: 17, weight: .semibold))
                     .multilineTextAlignment(.center)
                     .foregroundColor(Color(red: 0.77, green: 0.78, blue: 0.83))
             }
 
             VStack(spacing: 10) {
                 Text(L10n.Onboarding.Ui.headerPermissions)
-                    .font(Font.custom("SF Pro", size: 23).weight(.bold))
+                    .font(.system(size: 23, weight: .bold))
                     .multilineTextAlignment(.center)
                     .foregroundColor(Color(red: 0.89, green: 0.91, blue: 0.94))
 
                 Text(L10n.Onboarding.Ui.subtitlePermissions)
-                    .font(Font.custom("SF Pro", size: 20))
+                    .font(.system(size: 20, weight: .semibold))
                     .multilineTextAlignment(.center)
                     .foregroundColor(.secondary)
             }
@@ -45,7 +43,7 @@ struct OnboardingPermissionsView: View {
 
             VStack(alignment: .leading, spacing: 30) {
                 Text(L10n.Onboarding.Ui.titleRequiredAccess)
-                    .font(Font.custom("SF Pro", size: 20).weight(.semibold))
+                    .font(.system(size: 20, weight: .semibold))
                     .foregroundColor(Color(.primarynormal))
 
                 HStack {
@@ -60,11 +58,11 @@ struct OnboardingPermissionsView: View {
 
                     VStack(alignment: .leading, spacing: 10) {
                         Text(L10n.Onboarding.Ui.labelLocation)
-                            .font(Font.custom("SF Pro", size: 17).weight(.semibold))
+                            .font(.system(size: 17, weight: .semibold))
                             .multilineTextAlignment(.center)
 
                         Text(L10n.Onboarding.Ui.descriptionLocation)
-                            .font(Font.custom("SF Pro", size: 16).weight(.semibold))
+                            .font(.system(size: 16))
                             .multilineTextAlignment(.center)
                             .foregroundColor(Color(red: 0.72, green: 0.72, blue: 0.72))
                     }
@@ -124,6 +122,7 @@ struct OnboardingPermissionsView: View {
             Text(L10n.Onboarding.Ui.labelDisclaimer)
                 .font(Font.custom("SF Pro", size: 17))
                 .foregroundColor(Color(red: 0.7, green: 0.71, blue: 0.73))
+                .multilineTextAlignment(.center)
                 .padding(.vertical, 25)
 
             Button {
