@@ -8,20 +8,33 @@ struct OnboardingPageView: View {
 
     var body: some View {
         VStack {
+            page.title
+                .font(.system(size: 28, weight: .bold))
+                .multilineTextAlignment(.center)
+                .padding(.top, 35)
+                .padding(.bottom, 25)
+            Spacer()
+            Image(page.imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            Spacer()
+
             HStack {
                 Button {
                     previousButtonTapped()
                 } label: {
-                    HStack {
+                    ZStack {
+                        Circle()
+                            .fill(Color(red: 0.32, green: 0.32, blue: 0.32)) // 배경색
+                            .frame(width: 48, height: 48)
                         Image(systemName: "chevron.left")
                             .accessibilityHidden(true)
-                        Text(L10n.Common.Ui.buttonPrevious)
+                            .font(.system(size: 26, weight: .semibold))
+                            .foregroundColor(.white)
                     }
-                    .font(Font.custom("SF Pro", size: 17)
-                        .weight(.semibold)
-                    )
                     .padding(.horizontal)
-                    .foregroundColor(.white)
                 }
 
                 Spacer()
@@ -29,32 +42,19 @@ struct OnboardingPageView: View {
                 Button {
                     nextButtonTapped()
                 } label: {
-                    HStack {
-                        Text(L10n.Common.Ui.buttonNext)
+                    ZStack {
+                        Circle()
+                            .fill(Color(.primarynormal)) // 배경색
+                            .frame(width: 48, height: 48)
                         Image(systemName: "chevron.right")
                             .accessibilityHidden(true)
+                            .font(.system(size: 26, weight: .semibold))
+                            .foregroundColor(.black)
                     }
-                    .font(Font.custom("SF Pro", size: 17)
-                        .weight(.semibold)
-                    )
                     .padding(.horizontal)
-                    .foregroundColor(.white)
                 }
             }
-
-            page.title
-                .font(Font.custom("SF Pro", size: 28)
-                    .weight(.bold)
-                )
-                .multilineTextAlignment(.center)
-                .padding(.vertical, 40)
-
-            Image(page.imageName)
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            Spacer()
+            .padding(.top, 15)
         }
     }
 }

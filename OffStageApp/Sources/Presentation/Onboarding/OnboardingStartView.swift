@@ -14,9 +14,7 @@ struct OnboardingStartView: View {
 
             VStack {
                 page.title
-                    .font(Font.custom("SF Pro", size: 28)
-                        .weight(.bold)
-                    )
+                    .font(.system(size: 28, weight: .bold))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 5)
                     .padding(.top, 60)
@@ -28,7 +26,7 @@ struct OnboardingStartView: View {
                 } label: {
                     Text(page.ctaTitle)
                         .foregroundColor(.black)
-                        .font(Font.custom("SF Pro", size: 20).weight(.semibold))
+                        .font(.system(size: 20, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color(.primarynormal))
