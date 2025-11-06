@@ -106,6 +106,7 @@ final class BusStationViewModel: ObservableObject {
                             .sorted {
                                 ($0.estimatedArrivalTime ?? Int.max) < ($1.estimatedArrivalTime ?? Int.max)
                             }
+                            .prefix(2)
                             .map { arrival in
                                 RouteDetail.Arrival(
                                     secondsUntilArrival: arrival.estimatedArrivalTime,

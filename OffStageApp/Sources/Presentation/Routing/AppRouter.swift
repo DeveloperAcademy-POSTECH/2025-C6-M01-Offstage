@@ -19,7 +19,9 @@ enum AppRoute: Routable {
             HomeView()
 
         case .search:
-            let viewModel = SearchViewModel(busRepository: MainBusRepository(), locationManager: LocationManager())
+            // Use shared LocationManager so DebugView can toggle mock mode on the same instance
+            let locationProvider: LocationProviding = LocationManager.shared
+            let viewModel = SearchViewModel(busRepository: MainBusRepository(), locationManager: locationProvider)
             SearchView(viewModel: viewModel)
 
         case let .busStation(input):

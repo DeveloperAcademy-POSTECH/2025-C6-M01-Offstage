@@ -207,7 +207,6 @@ extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelega
         // 비전 노선탐지
         let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer)
         try? handler.perform([request])
-
     }
 }
 
