@@ -5,8 +5,12 @@ import Foundation
 final class TTSManager: NSObject, ObservableObject {
     // MARK: - 공개 상태 (View에서 바인딩)
 
-    @Published var inputText: String = "" // 사용자가 입력한 텍스트
     @Published var selectedLanguage: String = "ko-KR" // 언어 고정: 한국어
+
+    /// 재생 예정인 텍스트 큐
+    private var speechQueue: [String] = []
+    /// 최대 큐 크기 설정
+    private let maxQueueSize: Int = 5
 
     // MARK: - 내부 오디오/합성기
 
@@ -43,29 +47,45 @@ final class TTSManager: NSObject, ObservableObject {
     private func makeUtterance(from text: String) -> AVSpeechUtterance {
         let u = AVSpeechUtterance(string: text)
         u.voice = AVSpeechSynthesisVoice(language: selectedLanguage)
-        // 필요 시 전/후반 딜레이 등:
-        // u.preUtteranceDelay = 0.0
-        // u.postUtteranceDelay = 0.0
+        u.rate = 0.6
+
         return u
     }
 
     // MARK: - 공개 동작 API (View에서 호출)
 
-    /// 입력 텍스트를 즉시 읽기 시작 (기존 재생 중이던 음성 중단 후 재생)
-    func speakNow() {
-        guard !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+    /// 입력 텍스트 읽기 (기존 재생 중이던 음성에 이어서 재생)
+    func speakNow(of text: String) {
+        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !trimmedText.isEmpty else {
             print("읽을 텍스트가 없습니다.")
             return
         }
-        stop() // 기존 재생 상태 초기화
-        let utterance = makeUtterance(from: inputText)
+
+        // 이미 큐에 있는지 확인
+        if speechQueue.contains(trimmedText) {
+            print("이미 재생 예정인 텍스트입니다: \(trimmedText)")
+            return
+        }
+
+        // 큐가 가득 찼는지 확인
+        guard speechQueue.count < maxQueueSize else {
+            print("TTS 큐가 가득 참 (현재: \(speechQueue.count)/\(maxQueueSize))")
+            return
+        }
+
+        speechQueue.append(trimmedText)
+        let utterance = makeUtterance(from: trimmedText)
         synthesizer.speak(utterance)
+        print("TTS 큐에 추가됨 (큐 크기: \(speechQueue.count)): \(trimmedText)")
     }
 
     /// 완전 정지(현재 발화를 즉시 멈춘다)
     func stop() {
         if synthesizer.isSpeaking || synthesizer.isPaused {
             synthesizer.stopSpeaking(at: .immediate)
+            speechQueue.removeAll()
         }
     }
 }
@@ -81,6 +101,10 @@ extension TTSManager: AVSpeechSynthesizerDelegate {
     /// 한 문장의 합성이 완료되면 콘솔로 알린다.
     func speechSynthesizer(_: AVSpeechSynthesizer, didFinish _: AVSpeechUtterance) {
         print("TTS 재생 완료.")
+
+        if !speechQueue.isEmpty {
+            speechQueue.removeFirst()
+        }
     }
 
     /// 합성 과정에서 오류가 발생하면 콘솔에 메시지를 출력한다.

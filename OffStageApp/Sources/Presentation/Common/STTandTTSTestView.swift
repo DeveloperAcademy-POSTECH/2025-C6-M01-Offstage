@@ -7,6 +7,7 @@ struct STTandTTSTestView: View {
     @StateObject private var speechRecognizer = STTManager()
     @StateObject private var vm = TTSManager()
     @FocusState private var isTextEditorFocused: Bool // 키보드 내리기위한 값.
+    @State private var ttsText: String = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -40,8 +41,9 @@ struct STTandTTSTestView: View {
             }) {
                 // 상태에 따라 라벨 토글
                 Text(speechRecognizer.isListening ? L10n.SttTtsTest.Ui.buttonStopListening : L10n.SttTtsTest.Ui
-                    .buttonStartListening)
-                    .frame(maxWidth: .infinity)
+                    .buttonStartListening
+                )
+                .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent) // 눈에 띄는 기본 버튼 스타일
         }
@@ -53,7 +55,7 @@ struct STTandTTSTestView: View {
                 Text(L10n.SttTtsTest.Ui.titleTts)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                TextField(L10n.SttTtsTest.Ui.placeholderTts, text: $vm.inputText)
+                TextField(L10n.SttTtsTest.Ui.placeholderTts, text: $ttsText)
                     .frame(maxWidth: .infinity)
                     .padding(8)
                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(.gray.opacity(0.3)))
@@ -67,7 +69,7 @@ struct STTandTTSTestView: View {
 
             HStack {
                 Button(L10n.SttTtsTest.Ui.buttonRead) {
-                    vm.speakNow()
+                    vm.speakNow(of: ttsText)
                 }
                 .buttonStyle(.borderedProminent)
 
