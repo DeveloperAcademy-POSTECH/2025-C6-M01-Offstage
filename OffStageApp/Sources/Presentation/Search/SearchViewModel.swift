@@ -42,7 +42,9 @@ final class SearchViewModel: ObservableObject {
             .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
             .removeDuplicates()
             .sink { [weak self] term in
-                self?.performSearch(keyword: term)
+                if term.isEmpty {
+                    self?.performSearch(keyword: term)
+                }
             }
             .store(in: &cancellables)
 
