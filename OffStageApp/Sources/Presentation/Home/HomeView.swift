@@ -50,17 +50,18 @@ struct HomeView: View {
                         .cornerRadius(10)
                     }
                     .padding()
-                    .background(.gray.opacity(0.1))
+
                     Button {
                         router.push(.quickCamera)
                     } label: {
-                        Image(systemName: "camera")
+                        Image("quickFindBus")
                             .font(.title2)
                             .foregroundColor(.gray)
                             .padding(.trailing)
                     }
                     .accessibilityLabel(Text(L10n.Home.A11y.buttonQuickCamera))
                 }
+                .background(.gray.opacity(0.1))
 
                 ScrollView {
                     Text(L10n.Home.Ui.title)
@@ -97,14 +98,20 @@ struct HomeView: View {
                         Button {
                             router.push(.search)
                         } label: {
-                            Text(L10n.Home.Ui.emptyButtonAdd)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 10)
-                                .background(Color.blue)
-                                .cornerRadius(20)
+                            HStack(spacing: 8) {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 20, weight: .semibold))
+                                Text("추가하기")
+                                    .font(.system(size: 20, weight: .semibold))
+                            }
+                            .foregroundColor(Color(.primarynormal))
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 10)
+                            .background(
+                                Capsule()
+                                    .stroke(Color(.primarynormal), lineWidth: 2)
+                            )
                         }
-
                         Spacer()
                     }
                 }

@@ -99,7 +99,7 @@ struct PermissionSubView: View {
                             .font(Font.custom("SF Pro", size: 20).weight(.semibold))
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color(red: 229 / 255, green: 255 / 255, blue: 0 / 255))
+                            .background(Color(.primarynormal))
                             .foregroundColor(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
@@ -107,15 +107,6 @@ struct PermissionSubView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-
-    private func iconName(for permission: PermissionType) -> String {
-        switch permission {
-        case .location: "location.fill"
-        case .camera: "camera.fill"
-        case .microphone: "mic.fill"
-        case .speech: "waveform"
         }
     }
 }
