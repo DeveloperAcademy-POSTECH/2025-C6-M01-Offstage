@@ -16,6 +16,7 @@ final class BusDetectionViewController: UIViewController {
     private var captureSession: AVCaptureSession?
     private var request: VNCoreMLRequest?
     var impactFeedbackGenerator: UIImpactFeedbackGenerator? // TODO: Haptic Manager로 교체
+    private var ttsManager: TTSManager = .init()
 
     // subviews
     private var drawingBoxesView: DrawingBoxesView?
@@ -206,6 +207,7 @@ extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelega
         // 비전 노선탐지
         let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer)
         try? handler.perform([request])
+
     }
 }
 
