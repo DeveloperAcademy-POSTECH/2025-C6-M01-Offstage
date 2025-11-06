@@ -15,16 +15,21 @@ struct BusRouteRowSubView: View {
             }
             HStack {
                 // Display up to two arrivals
-                ForEach(arrivals.prefix(2).indices, id: \.self) {
-                    index in
+                ForEach(arrivals.prefix(2).indices, id: \.self) { index in
                     let arrival = arrivals[index]
-                    if let estimatedArrivalTime = arrival.estimatedArrivalTime {
-                        Text("\(estimatedArrivalTime / 60)분")
-                            .foregroundColor(.green)
-                    }
-                    if let remainingStopCount = arrival.remainingStopCount {
-                        Text("\(remainingStopCount)번째전")
-                            .foregroundColor(.gray)
+                    VStack(alignment: .leading) {
+                        if let estimatedArrivalTime = arrival.estimatedArrivalTime {
+                            let description = estimatedArrivalTime < 60 ? "곧 도착" : "\(estimatedArrivalTime / 60)분"
+                            Text(description)
+                                .foregroundColor(.green)
+                        } else {
+                            Text("정보 없음")
+                                .foregroundColor(.secondary)
+                        }
+                        if let remainingStopCount = arrival.remainingStopCount {
+                            Text("\(remainingStopCount)번째전")
+                                .foregroundColor(.gray)
+                        }
                     }
                 }
                 Spacer()
