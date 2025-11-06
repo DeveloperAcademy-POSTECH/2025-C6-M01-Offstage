@@ -4,20 +4,28 @@ import UIKit
 import Vision
 
 final class BusDetectionViewController: UIViewController {
+    // MARK: Properties
+
+    // input properties
     /// 인식할 노선번호
     var routeNumbersToDetect: [String] = []
     /// 감지된 노선번호 배열이 변경될 때 SwiftUI에서 처리하기 위한 클로저
     var onDetectedRouteNumbersChanged: (([String]) -> Void)?
 
+    // APIs
     private var captureSession: AVCaptureSession?
     private var request: VNCoreMLRequest?
-    var impactFeedbackGenerator: UIImpactFeedbackGenerator?
+    var impactFeedbackGenerator: UIImpactFeedbackGenerator? // TODO: Haptic Manager로 교체
     private var ttsManager: TTSManager = .init()
 
+    // subviews
     private var drawingBoxesView: DrawingBoxesView?
     #if DEBUG_MODE
         private var tempStrokeBoxesView: TempStokeBoxesView?
+        private var croppedImageView: UIImageView?
     #endif
+
+    // for view logic
     private var currentPixelBuffer: CVPixelBuffer?
     private var frameCount: UInt = 0
     private var isBusDetected: Bool = false
@@ -33,6 +41,11 @@ final class BusDetectionViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupBoxesView()
+
+        #if DEBUG_MODE
+            setupDebugModeBoxesView()
+            setupDebugCroppedImageView()
+        #endif
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             self?.captureSession?.startRunning()
@@ -53,8 +66,19 @@ final class BusDetectionViewController: UIViewController {
         view.layer.sublayers?.first(where: { $0 is AVCaptureVideoPreviewLayer }
         )?.frame = fullFrame
         drawingBoxesView?.frame = fullFrame
+
         #if DEBUG_MODE
             tempStrokeBoxesView?.frame = fullFrame
+
+            // 크롭된 이미지 뷰 위치 설정 (우상단)
+            let imageSize: CGFloat = 150
+            let padding: CGFloat = 16
+            croppedImageView?.frame = CGRect(
+                x: view.bounds.width - imageSize - padding,
+                y: view.safeAreaInsets.top + padding,
+                width: imageSize,
+                height: imageSize
+            )
         #endif
     }
 
@@ -128,14 +152,30 @@ final class BusDetectionViewController: UIViewController {
         drawingBoxesView.frame = view.frame
         view.addSubview(drawingBoxesView)
         self.drawingBoxesView = drawingBoxesView
+    }
 
-        #if DEBUG_MODE
+    #if DEBUG_MODE
+        /// 디버깅모드용 바운딩박스 서브뷰 설정
+        private func setupDebugModeBoxesView() {
             let strokeBoxesView = TempStokeBoxesView()
             strokeBoxesView.frame = view.frame
             view.addSubview(strokeBoxesView)
             tempStrokeBoxesView = strokeBoxesView
-        #endif
-    }
+        }
+
+        /// 디버깅모드용 버스 이미지 크롭 확인용 서브뷰 설정
+        private func setupDebugCroppedImageView() {
+            let imageView = UIImageView()
+            imageView.contentMode = .scaleAspectFit
+            imageView.backgroundColor = .black.withAlphaComponent(0.7)
+            imageView.layer.borderColor = UIColor.green.cgColor
+            imageView.layer.borderWidth = 2
+            imageView.layer.cornerRadius = 8
+            imageView.clipsToBounds = true
+            view.addSubview(imageView)
+            croppedImageView = imageView
+        }
+    #endif
 }
 
 // MARK: - Video Delegate
@@ -168,36 +208,6 @@ extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelega
         let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer)
         try? handler.perform([request])
 
-        // 전체 프레임 대상 노선번호 탐지
-        if let currentPixelBuffer {
-            let ciBuffer = CIImage(cvPixelBuffer: currentPixelBuffer)
-            if let imageToGiveOCR = CIContext().createCGImage(ciBuffer, from: ciBuffer.extent) {
-                OCRManager.recognizeText(from: imageToGiveOCR) { fullString in
-                    guard let imageFullOCRString = fullString else { return }
-
-                    if let fullFrameDetected = OCRManager.isTextContains(
-                        text: imageFullOCRString,
-                        routeNumbers: self.routeNumbersToDetect
-                    ), self.isBusDetected {
-                        DispatchQueue.main.async {
-                            self.onDetectedRouteNumbersChanged?(fullFrameDetected)
-                        }
-                        // tts
-                        guard let firstBusDetected = fullFrameDetected.first else {
-                            return
-                        }
-                        self.ttsManager.speakNow(of: firstBusDetected)
-
-                        // 햅틱
-                        self.impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
-                        self.impactFeedbackGenerator?.impactOccurred()
-
-                    } else {
-                        self.onDetectedRouteNumbersChanged?([])
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -280,23 +290,14 @@ extension BusDetectionViewController {
             if prediction.confidence < 0.8 { continue }
             isBusDetected = true
 
-            // 이미지 자르기
-            guard let image = cropImage(
-                pixelBuffer: currentPixelBuffer,
-                prediction: prediction
-            ) else {
+            // 이미지 영역 정하기
+            guard let areaOfInterest = cropBusArea(prediction: prediction) else {
                 print("이미지 자르기 실패")
                 continue
             }
 
-            // 이미지 크기 조정
-            guard let resizedImage = resizeImage(image) else {
-                print("이미지 크기 조정 실패")
-                continue
-            }
-
             // 자른 이미지 OCR 처리하기
-            OCRManager.recognizeText(from: image) { ocrText in
+            OCRManager.recognizeText(from: currentPixelBuffer, in: areaOfInterest) { ocrText in
                 guard let ocrText else {
                     print("OCR 처리 실패")
                     return
@@ -323,12 +324,31 @@ extension BusDetectionViewController {
                     self.onDetectedRouteNumbersChanged?(tempDetected)
                     self.drawingBoxesView?.drawBox(with: finalPredictions)
                 }
-            }
-            #if DEBUG_MODE
-                DispatchQueue.main.async {
-                    self.tempStrokeBoxesView?.drawBox(with: predictions.filter { $0.confidence > 0.8 })
+
+                // tts
+                guard let firstBusDetected = tempDetected.first else {
+                    return
                 }
-            #endif
+                self.ttsManager.speakNow(of: firstBusDetected)
+
+                #if DEBUG_MODE
+                    DispatchQueue.main.async {
+                        if let pixelBuffer = self.currentPixelBuffer,
+                           let croppedImage = self.cropPixelBufferToImage(pixelBuffer, in: areaOfInterest)
+                        {
+                            self.croppedImageView?.image = croppedImage
+                        }
+                    }
+                #endif
+            }
         }
+        #if DEBUG_MODE
+            DispatchQueue.main.async {
+                self.tempStrokeBoxesView?.drawBox(with: predictions.filter { prediction in
+                    prediction.confidence >= 0.8 &&
+                        !finalPredictions.contains(where: { $0.uuid == prediction.uuid })
+                })
+            }
+        #endif
     }
 }
