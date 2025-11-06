@@ -14,8 +14,7 @@ struct HomeView: View {
     @State private var rotationAngle: Angle = .zero
 
     @Query(sort: [
-        SortDescriptor<Favorite>(\Favorite.order),
-        SortDescriptor<Favorite>(\Favorite.routeNo),
+        SortDescriptor<Favorite>(\.order),
     ]) private var favorites: [Favorite]
 
     private var favoritedStops: [FavoritedStop] {
@@ -134,11 +133,13 @@ struct HomeView: View {
                 .interactiveDismissDisabled(true)
             }
 
-            RefreshButton(countdown: countdown, rotationAngle: $rotationAngle) {
-                refreshTrigger = UUID()
-                resetTimer()
-                withAnimation(.easeInOut(duration: 0.6)) {
-                    rotationAngle += .degrees(360)
+            if !favoritedStops.isEmpty {
+                RefreshButton(countdown: countdown, rotationAngle: $rotationAngle) {
+                    refreshTrigger = UUID()
+                    resetTimer()
+                    withAnimation(.easeInOut(duration: 0.6)) {
+                        rotationAngle += .degrees(360)
+                    }
                 }
             }
         }
