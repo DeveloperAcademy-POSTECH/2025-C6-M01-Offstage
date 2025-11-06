@@ -325,6 +325,12 @@ extension BusDetectionViewController {
                     self.drawingBoxesView?.drawBox(with: finalPredictions)
                 }
 
+                // tts
+                guard let firstBusDetected = tempDetected.first else {
+                    return
+                }
+                self.ttsManager.speakNow(of: firstBusDetected)
+
                 #if DEBUG_MODE
                     DispatchQueue.main.async {
                         if let pixelBuffer = self.currentPixelBuffer,
