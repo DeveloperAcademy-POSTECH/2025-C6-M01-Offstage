@@ -12,6 +12,9 @@ final class LocationManager: NSObject, LocationProviding {
 
     lazy var currentLocation: AnyPublisher<LocationCoordinate, Error> = subject.eraseToAnyPublisher()
 
+    // [추가] Reverse Geocoding을 위한 지오코더
+    private let geocoder = CLGeocoder()
+
     override init() {
         super.init()
         locationManager.delegate = self
@@ -20,6 +23,21 @@ final class LocationManager: NSObject, LocationProviding {
 
     func requestLocationPermission() {
         locationManager.requestWhenInUseAuthorization()
+    }
+
+    // [추가] 프로토콜 함수 구현
+    func fetchPlacemark(from location: LocationCoordinate) async throws -> CLPlacemark? {
+        let clLocation = CLLocation(
+            latitude: location.latitude,
+            longitude: location.longitude
+        )
+
+        // 로케일을 "ko-KR"로 설정하여 주소를 한국어로 받습니다.
+        let placemarks = try await geocoder.reverseGeocodeLocation(
+            clLocation,
+            preferredLocale: Locale(identifier: "ko-KR")
+        )
+        return placemarks.first
     }
 }
 

@@ -25,31 +25,25 @@ final class TestViewModel: ObservableObject {
 
     private let locationProvider: LocationProviding
     private let busRepository: BusRepository
-    private let localBusStopRepository: LocalBusStopRepository
     private var cancellables = Set<AnyCancellable>()
     private let logger = Logger(label: "TestViewModel")
 
     init(
         busStopInfo: BusStopInfo? = nil,
         locationProvider: LocationProviding = LocationManager(),
-        busRepository: BusRepository = DefaultBusRepository()
+        busRepository: BusRepository = MainBusRepository()
     ) {
         self.busStopInfo = busStopInfo ?? BusStopInfo(
-            cityCode: 25,
-            nodeId: "DJB8001793",
-            routeId: "DJB30300002",
-            stopName: "대전역",
-            routeNo: "102",
-            gpsLati: 0,
-            gpsLong: 0
+            cityCode: 1000, // 서울시
+            nodeId: "100000001", // 서울역 버스정류장
+            routeId: "100100006", // 100번 버스
+            stopName: "서울역",
+            routeNo: "100",
+            gpsLati: 37.555946,
+            gpsLong: 126.972317
         )
         self.locationProvider = locationProvider
         self.busRepository = busRepository
-        do {
-            localBusStopRepository = try LocalBusStopRepository()
-        } catch {
-            fatalError("Could not initialize LocalBusStopRepository: \(error)")
-        }
     }
 
     func onAppear() {
@@ -67,7 +61,10 @@ final class TestViewModel: ObservableObject {
         await performRequest(
             name: "Stop search"
         ) {
-            try await localBusStopRepository.searchStops(byName: busStopInfo.stopName, page: 1)
+            try await busRepository.searchStops(
+                cityCode: String(busStopInfo.cityCode),
+                keyword: busStopInfo.stopName
+            )
         } onSuccess: { [weak self] stops in
             guard let self else { return }
             updateDisplay(with: stops, title: "정류장", describe: describeStops, emptyMessage: "정류장 정보를 찾을 수 없습니다.")
@@ -131,11 +128,10 @@ final class TestViewModel: ObservableObject {
         await performRequest(
             name: "Nearby stops"
         ) {
-            try await localBusStopRepository.findNearbyStops(
+            try await busRepository.fetchStopsNearby(
                 latitude: busStopInfo.gpsLati,
                 longitude: busStopInfo.gpsLong,
-                radiusInMeters: 1000,
-                page: 1
+                cityCode: String(busStopInfo.cityCode)
             )
         } onSuccess: { [weak self] stops in
             guard let self else { return }
@@ -191,6 +187,112 @@ final class TestViewModel: ObservableObject {
         } onSuccess: { [weak self] routes in
             guard let self else { return }
             updateDisplay(with: routes, title: "노선", describe: describeRoutes, emptyMessage: "노선 정보를 찾을 수 없습니다.")
+        }
+    }
+
+    // MARK: - Seoul API Tests
+
+    func testSeoulGpsSearch() async {
+        logger.info("testSeoulGpsSearch() called")
+        await performRequest(
+            name: "Seoul GPS search"
+        ) {
+            // [수정] busStopInfo 대신 서울 시청 좌표와 "1000" 코드를 하드코딩합니다.
+            let seoulLatitude = 37.5665 // 서울 시청 위도
+            let seoulLongitude = 126.9780 // 서울 시청 경도
+
+            return try await busRepository.fetchStopsNearby(
+                latitude: seoulLatitude,
+                longitude: seoulLongitude,
+                cityCode: "1000" // "1000"을 명시
+            )
+        } onSuccess: { [weak self] stops in
+            guard let self else { return }
+            updateDisplay(
+                with: stops,
+                title: "서울 GPS 검색 정류장 (시청 근처)",
+                describe: describeStops,
+                emptyMessage: "서울 GPS 검색으로 정류장을 찾을 수 없습니다."
+            )
+        }
+    }
+
+    func testSeoulKeywordSearch() async {
+        logger.info("testSeoulKeywordSearch() called")
+        await performRequest(
+            name: "Seoul keyword search"
+        ) {
+            // [수정] busStopInfo.cityCode 대신 "1000" 코드를 하드코딩합니다.
+            try await busRepository.searchStops(
+                cityCode: "1000", // "1000"을 명시
+                nodeName: "서울역",
+                nodeNumber: nil
+            )
+        } onSuccess: { [weak self] stops in
+            guard let self else { return }
+            updateDisplay(
+                with: stops,
+                title: "서울 키워드 '서울역' 검색 정류장",
+                describe: describeStops,
+                emptyMessage: "서울 키워드 검색으로 정류장을 찾을 수 없습니다."
+            )
+        }
+    }
+
+    func testSeoulStopDetail() async {
+        logger.info("testSeoulStopDetail() called")
+
+        // [수정] busStopInfo 대신 서울역 'arsId'와 "1000" 코드를 하드코딩합니다.
+        let seoulArsId = "02005" // 서울역 버스환승센터(6) 정류소 arsId
+        let cityCode = "1000"
+
+        await performRequest(
+            name: "Seoul stop detail (서울역)"
+        ) {
+            // BusStationViewModel과 동일한 로직:
+            // 1. fetchRoutesPassingThroughStop 호출
+            let routes = try await busRepository.fetchRoutesPassingThroughStop(
+                cityCode: cityCode,
+                nodeId: seoulArsId // nodeId 파라미터에 arsId 전달
+            )
+            // 2. fetchStopArrivals 호출
+            let arrivals = try await busRepository.fetchStopArrivals(
+                cityCode: cityCode,
+                nodeId: seoulArsId // nodeId 파라미터에 arsId 전달
+            )
+            return (arrivals, routes) // Tuple로 반환하여 한 번에 처리
+        } onSuccess: { [weak self] (arrivals: [BusArrival], routes: [BusRoute]) in
+            guard let self else { return }
+
+            // 도착 정보 표시 업데이트
+            updateDisplay(
+                with: arrivals,
+                title: "서울 정류소 도착 정보 (arsId: \(seoulArsId))",
+                describe: describeArrivals,
+                emptyMessage: "서울 정류소 도착 예정 정보가 없습니다."
+            )
+
+            // 노선 정보 표시 업데이트 (기존 arrival 정보에 추가)
+            if !routes.isEmpty {
+                let routeSections = makeSections(from: routes, title: "서울 정류소 노선 정보")
+                if displaySections == nil {
+                    displaySections = routeSections
+                } else {
+                    displaySections?.append(contentsOf: routeSections)
+                }
+                let routeDescription = describeRoutes(routes)
+                if resultText.contains("API 응답이 이 영역에 표시됩니다.") || resultText.contains("예정 정보가 없습니다.") {
+                    resultText = routeDescription
+                } else {
+                    resultText += "\n" + routeDescription
+                }
+            } else {
+                if resultText.contains("API 응답이 이 영역에 표시됩니다.") || resultText.contains("예정 정보가 없습니다.") {
+                    resultText = "서울 정류소 노선 정보를 찾을 수 없습니다."
+                } else {
+                    resultText += "\n" + resultText
+                }
+            }
         }
     }
 

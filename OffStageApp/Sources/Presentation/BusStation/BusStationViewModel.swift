@@ -79,7 +79,15 @@ final class BusStationViewModel: ObservableObject {
 
     private func fetchArrivals() async {
         do {
-            let arrivals = try await arrivalsFetcher(input.cityCode, input.nodeId)
+            // Seoul API expects arsId (정류소번호) as the node identifier.
+            // Use input.nodeNumber when cityCode == "1000" (Seoul), otherwise use input.nodeId.
+            let stopIDForAPI: String = if input.cityCode == "1000" {
+                input.nodeNumber ?? input.nodeId
+            } else {
+                input.nodeId
+            }
+
+            let arrivals = try await arrivalsFetcher(input.cityCode, stopIDForAPI)
             print("BusStationViewModel - Fetched arrivals: \(arrivals)")
 
             let groupedByRouteId = Dictionary(grouping: arrivals, by: \.routeId)

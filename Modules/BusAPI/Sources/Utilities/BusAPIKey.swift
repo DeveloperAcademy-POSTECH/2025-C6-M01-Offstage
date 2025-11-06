@@ -36,6 +36,25 @@ public enum BusAPIKey {
         throw BusAPIError.missingServiceKey(service)
     }
 
+    /// 서울시 API 키를 반환합니다.
+    /// 이 키는 `Project.swift`에 의해 Info.plist로 주입됩니다.
+    public static var seoul: String {
+        guard let encodedKey = Bundle.main.object(forInfoDictionaryKey: "SEOUL_API_KEY") as? String,
+              !encodedKey.isEmpty
+        else {
+            fatalError("SEOUL_API_KEY가 Info.plist에 설정되지 않았거나 비어있습니다.")
+        }
+
+        // Moya가 자체적으로 URL 인코딩을 수행하므로,
+        // Info.plist에 저장된 키가 이미 인코딩되어 있다면 이중 인코딩을 방지하기 위해 디코딩합니다.
+        if let decodedKey = encodedKey.removingPercentEncoding {
+            return decodedKey
+        } else {
+            // 디코딩에 실패하면(보통 이미 디코딩된 상태), 원본 키를 반환합니다.
+            return encodedKey
+        }
+    }
+
     /// Indicates whether the provided service has a configured key.
     /// - Parameter service: Service scope to validate.
     /// - Returns: `true` if a non-empty key exists in either the framework or main bundle.

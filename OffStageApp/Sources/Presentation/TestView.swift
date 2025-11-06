@@ -118,6 +118,10 @@ struct TestView: View {
             actionGroup(title: L10n.Test.Ui.titleStopSection, actions: stopActions)
             actionGroup(title: L10n.Test.Ui.titleArrivalSection, actions: arrivalActions)
             actionGroup(title: L10n.Test.Ui.titleRouteSection, actions: routeActions)
+
+            // MARK: - Seoul API Tests
+
+            actionGroup(title: "Seoul API Tests", actions: seoulAPIActions)
         }
         .cardStyle()
     }
@@ -220,6 +224,23 @@ struct TestView: View {
                 title: L10n.Test.Ui.buttonRouteStopsTitle,
                 subtitle: L10n.Test.Ui.buttonRouteStopsSubtitle
             ) { await viewModel.getRouteStops() },
+        ]
+    }
+
+    private var seoulAPIActions: [APIAction] {
+        [
+            APIAction(
+                title: "Seoul GPS Search",
+                subtitle: "현재 GPS로 서울 정류장 검색"
+            ) { await viewModel.testSeoulGpsSearch() },
+            APIAction(
+                title: "Seoul Keyword Search",
+                subtitle: "키워드로 서울 정류장 검색 (서울역)"
+            ) { await viewModel.testSeoulKeywordSearch() },
+            APIAction(
+                title: "Seoul Stop Detail",
+                subtitle: "서울 정류소 상세 정보 (도착, 노선)"
+            ) { await viewModel.testSeoulStopDetail() },
         ]
     }
 

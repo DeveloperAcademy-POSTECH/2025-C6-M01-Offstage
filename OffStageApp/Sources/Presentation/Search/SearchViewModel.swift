@@ -2,6 +2,7 @@ import BusAPI
 import Combine
 import CoreLocation
 import Foundation
+import SwiftUI
 
 @MainActor
 final class SearchViewModel: ObservableObject {
@@ -16,6 +17,7 @@ final class SearchViewModel: ObservableObject {
 
     @Published var viewState: ViewState = .idle
     @Published var searchTerm: String = ""
+    @Published private(set) var currentCityCode: String?
 
     // MARK: - Properties
 
@@ -26,7 +28,6 @@ final class SearchViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let busRepository: BusRepository // 실시간 데이터용
-    private let localBusStopRepository: LocalBusStopRepository // 로컬 검색용
     private let locationManager: LocationProviding
     private var cancellables = Set<AnyCancellable>()
 
@@ -35,18 +36,15 @@ final class SearchViewModel: ObservableObject {
     init(busRepository: BusRepository, locationManager: LocationProviding) {
         self.busRepository = busRepository
         self.locationManager = locationManager
-        do {
-            localBusStopRepository = try LocalBusStopRepository()
-        } catch {
-            fatalError("Could not initialize LocalBusStopRepository: \(error)")
-        }
 
         // 검색어 변경 구독
         $searchTerm
             .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
             .removeDuplicates()
             .sink { [weak self] term in
-                self?.performSearch(keyword: term)
+                if term.isEmpty {
+                    self?.performSearch(keyword: term)
+                }
             }
             .store(in: &cancellables)
 
@@ -102,12 +100,26 @@ final class SearchViewModel: ObservableObject {
 
     private func fetchStops(around location: LocationCoordinate) async {
         do {
-            let stops = try await localBusStopRepository.findNearbyStops(
+            // [추가] Step 1: Reverse Geocoding으로 Placemark(주소) 가져오기
+            guard let placemark = try await locationManager.fetchPlacemark(from: location) else {
+                throw BusAPIError.unknown // 또는 적절한 에러
+            }
+
+            // [추가] Step 2: Placemark로 CityCode 찾기
+            let detectedCityCode = CityCodeConverter
+                .findCode(from: placemark) ?? "31020" // 서울이 아니면 성남시(31020)를 기본값으로 사용
+
+            // [추가] Step 3: CityCode 저장 (Priming)
+            currentCityCode = detectedCityCode
+            print(
+                "GPS Priming: CityCode \(detectedCityCode) 감지됨. Placemark: \(placemark.administrativeArea ?? ""), \(placemark.locality ?? ""), \(placemark.thoroughfare ?? "")"
+            )
+
+            // [수정] Step 4: 감지된 cityCode로 API 호출
+            let stops = try await busRepository.fetchStopsNearby(
                 latitude: location.latitude,
                 longitude: location.longitude,
-                radiusInMeters: 500,
-                page: 1, // 첫 페이지만 가져오기
-                pageSize: 20 // 최대 20개 정류장 가져오기
+                cityCode: detectedCityCode // nil 대신 감지된 cityCode 전달
             )
 
             let presentations = processStops(stops, with: location.asCLLocation)
@@ -129,10 +141,10 @@ final class SearchViewModel: ObservableObject {
 
         searchTask = Task {
             do {
-                let stops = try await localBusStopRepository.searchStops(
-                    byName: keyword,
-                    page: 1, // 첫 페이지만 가져오기
-                    pageSize: 50 // 최대 50개 결과 가져오기
+                let searchCityCode = currentCityCode // GPS로 감지된 cityCode 사용
+                let stops = try await busRepository.searchStops(
+                    cityCode: searchCityCode,
+                    keyword: keyword
                 )
                 let presentations = processStops(stops, with: nil) // 이름 검색에는 위치 정보 없음
                 let (displayStops, inputs) = await makeDisplayStops(from: presentations)
@@ -164,21 +176,26 @@ final class SearchViewModel: ObservableObject {
         -> ([BusStopForSearch], [UUID: BusStationViewInput])
     {
         guard !stops.isEmpty else { return ([], [:]) }
-
+        let contextCityCode = currentCityCode
         return await withTaskGroup(
             of: (BusStopForSearch, BusStationViewInput?).self,
             returning: ([BusStopForSearch], [UUID: BusStationViewInput]).self
         ) { group in
             for entry in stops {
                 group.addTask {
+                    let cityCodeForAPI: String = if let entryCityCode = entry.stop.cityCode, entryCityCode != 0 {
+                        String(entryCityCode)
+                    } else {
+                        contextCityCode ?? "0"
+                    }
+
                     let routes = try? await self.busRepository
                         .fetchRoutesPassingThroughStop(
-                            cityCode: String(entry.stop.cityCode ?? 0),
+                            cityCode: cityCodeForAPI,
                             nodeId: entry.stop.nodeId
                         )
                         .map(\.routeNumber)
                         .sorted()
-
                     let identifier = UUID()
                     let result = BusStopForSearch(
                         id: identifier,
@@ -189,7 +206,7 @@ final class SearchViewModel: ObservableObject {
                     )
 
                     let input = BusStationViewInput(
-                        cityCode: String(entry.stop.cityCode ?? 0),
+                        cityCode: cityCodeForAPI,
                         nodeId: entry.stop.nodeId,
                         nodeName: entry.stop.name,
                         nodeNumber: entry.stop.number,

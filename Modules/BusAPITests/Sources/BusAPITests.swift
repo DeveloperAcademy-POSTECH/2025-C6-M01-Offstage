@@ -3,7 +3,7 @@ import Moya
 import XCTest
 
 final class BusAPITests: XCTestCase {
-    private var repository: DefaultBusRepository!
+    private var repository: TagoBusRepository!
 
     override func setUpWithError() throws {
         try super.setUpWithError()
@@ -12,7 +12,7 @@ final class BusAPITests: XCTestCase {
             NetworkLoggerPlugin(configuration: .init(logOptions: .verbose)),
         ]
         let provider = MoyaProvider<BusAPITarget>(plugins: plugins)
-        repository = DefaultBusRepository(provider: provider)
+        repository = TagoBusRepository(provider: provider)
     }
 
     override func tearDownWithError() throws {
