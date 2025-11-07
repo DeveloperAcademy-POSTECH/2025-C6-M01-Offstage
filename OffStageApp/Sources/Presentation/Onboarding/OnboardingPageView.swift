@@ -18,6 +18,7 @@ struct OnboardingPageView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityHidden(true)
 
             Spacer()
 

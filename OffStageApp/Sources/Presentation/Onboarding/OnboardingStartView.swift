@@ -11,6 +11,7 @@ struct OnboardingStartView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityHidden(true)
 
             VStack {
                 page.title
