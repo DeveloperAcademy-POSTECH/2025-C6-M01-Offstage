@@ -1,4 +1,3 @@
-import Accessibility // Added for UIAccessibility
 import SwiftData
 import SwiftUI
 
@@ -108,16 +107,6 @@ struct HomeEditView: View {
         // 변경사항 저장 및 뷰 닫기
         try? modelContext.save()
         router.pop()
-
-        // --- ⬇️ A11y 4단계 전략 적용 ⬇️ ---
-        // 2. 실행 결과를 음성으로 알림
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            UIAccessibility.post(
-                notification: .announcement,
-                argument:
-                L10n.HomeEdit.A11y.announceSaved
-            )
-        }
     }
 }
 

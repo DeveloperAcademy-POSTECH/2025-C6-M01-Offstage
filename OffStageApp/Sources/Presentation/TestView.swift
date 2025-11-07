@@ -13,16 +13,14 @@ struct TestView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     Section(
-                        header: Text(L10n.Test.A11y.headerDeviceInfo)
-                            .accessibilityAddTraits(.isHeader)
+                        header: Text("기기 정보")
                     ) {
                         actionSection
                         responseSection
                     }
 
                     Section(
-                        header: Text(L10n.Test.A11y.headerBusInfo)
-                            .accessibilityAddTraits(.isHeader)
+                        header: Text("버스 정보")
                     ) {
                         locationSection
                     }
@@ -266,10 +264,6 @@ struct TestView: View {
             Spacer()
             Text(value) // 시각적 UI
         }
-        // --- ⬇️ A11y 3단계 전략 적용 ⬇️ ---
-        .accessibilityElement(children: .ignore) // 1. [Element] 개별 Text 무시
-        .accessibilityLabel(title) // 2. [Label] "제목"
-        .accessibilityValue(Text(value)) // 3. [Value] "값"
     }
 
     @ViewBuilder
@@ -279,10 +273,6 @@ struct TestView: View {
             Spacer()
             Text(value)
         }
-        // --- ⬇️ A11y 3단계 전략 적용 ⬇️ ---
-        .accessibilityElement(children: .ignore) // 1. [Element]
-        .accessibilityLabel(title) // 2. [Label]
-        .accessibilityValue(Text(value)) // 3. [Value]
     }
 
     private func formattedCoordinate(_ value: Double) -> String {

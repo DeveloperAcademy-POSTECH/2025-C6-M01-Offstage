@@ -34,20 +34,6 @@ enum L10n {
     }
 
     enum Common {
-        enum A11y {
-            /// "삭제" (문맥: A11y: 공용: 삭제 액션 이름 (2단계에서 추가했다면 생략))
-            static let actionDelete = key("common.a11y.action.delete")
-
-            /// "홈으로 이동" (문맥: A11y: 홈으로 이동 버튼)
-            static let buttonHome = key("common.a11y.button.home")
-
-            /// "새로고침" (문맥: A11y: 새로고침 버튼의 VoiceOver 레이블)
-            static let buttonRefresh = key("common.a11y.button.refresh")
-
-            /// "즐겨찾기 토글" (문맥: A11y: 즐겨찾기 상태를 토글하는 버튼)
-            static let buttonToggleFavorite = key("common.a11y.button.toggleFavorite")
-        }
-
         enum Ui {
             /// "취소" (문맥: 공용: 취소 버튼)
             static let buttonCancel = key("common.ui.button.cancel")
@@ -86,11 +72,6 @@ enum L10n {
     }
 
     enum Home {
-        enum A11y {
-            /// "빠른 카메라" (문맥: A11y: 빠른 카메라 버튼)
-            static let buttonQuickCamera = key("home.a11y.button.quickCamera")
-        }
-
         enum Ui {
             /// "편집" (문맥: 홈 화면: 편집 버튼)
             static let buttonEdit = key("home.ui.button.edit")
@@ -113,32 +94,6 @@ enum L10n {
     }
 
     enum HomeEdit {
-        enum A11y {
-            /// "아래로 이동" (문맥: A11y: 편집 목록 항목을 아래로 이동시키는 액션 이름)
-            static let actionMoveDown = key("homeEdit.a11y.action.moveDown")
-
-            /// "위로 이동" (문맥: A11y: 편집 목록 항목을 위로 이동시키는 액션 이름)
-            static let actionMoveUp = key("homeEdit.a11y.action.moveUp")
-
-            /// "항목이 삭제되었습니다." (문맥: A11y: 즐겨찾기 항목 삭제 완료 시 음성 알림)
-            static let announceItemDeleted = key("homeEdit.a11y.announce.itemDeleted")
-
-            /// "항목이 아래로 이동했습니다." (문맥: A11y: 항목 순서 아래로 이동 완료 시 음성 알림)
-            static let announceItemMovedDown = key("homeEdit.a11y.announce.itemMovedDown")
-
-            /// "항목이 위로 이동했습니다." (문맥: A11y: 항목 순서 위로 이동 완료 시 음성 알림)
-            static let announceItemMovedUp = key("homeEdit.a11y.announce.itemMovedUp")
-
-            /// "변경 사항이 저장되었습니다." (문맥: A11y: 편집 완료(저장) 버튼 탭 시 음성 알림)
-            static let announceSaved = key("homeEdit.a11y.announce.saved")
-
-            /// "즐겨찾기 목록" (문맥: A11y: HomeEditView의 목록 헤더 (TestView의 헤더와 구별))
-            static let header = key("homeEdit.a11y.header")
-
-            /// "편집 가능한 항목입니다. 쓸어올리거나 내려서 삭제 또는 순서 변경 동작을 실행하십시오." (문맥: A11y: 편집 목록의 각 행에 대한 힌트)
-            static let rowHint = key("homeEdit.a11y.row.hint")
-        }
-
         enum Ui {
             /// "즐겨찾기 편집" (문맥: 즐겨찾기 편집: 내비게이션 타이틀)
             static let title = key("homeEdit.ui.title")
@@ -263,14 +218,6 @@ enum L10n {
     }
 
     enum Test {
-        enum A11y {
-            /// "버스 정보" (문맥: A11y: TestView의 '버스 정보' 섹션 헤더)
-            static let headerBusInfo = key("test.a11y.header.busInfo")
-
-            /// "기기 정보" (문맥: A11y: TestView의 '기기 정보' 섹션 헤더)
-            static let headerDeviceInfo = key("test.a11y.header.deviceInfo")
-        }
-
         enum Ui {
             /// "정류장 기준 전체 도착 예정 정보" (문맥: 테스트: 정류장 도착 정보 버튼 서브타이틀)
             static let buttonArrivalsSubtitle = key("test.ui.button.arrivals.subtitle")

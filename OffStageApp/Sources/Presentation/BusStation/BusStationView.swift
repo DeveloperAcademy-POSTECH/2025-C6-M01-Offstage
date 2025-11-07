@@ -74,7 +74,6 @@ struct BusStationView: View {
                 Button(action: { router.popToRoot() }) {
                     Image(systemName: "house")
                 }
-                .accessibilityLabel(Text(L10n.Common.A11y.buttonHome))
             )
 
             RefreshButton(countdown: countdown, rotationAngle: $rotationAngle) {
