@@ -34,6 +34,7 @@ struct OnboardingStartView: View {
                         .foregroundColor(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
+                .accessibilityLabel(page.ctaTitle)
                 .padding(.horizontal, 30)
             }
         }

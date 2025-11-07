@@ -37,6 +37,7 @@ struct OnboardingPageView: View {
                     }
                     .padding(.horizontal)
                 }
+                .accessibilityLabel(L10n.Common.Ui.buttonPrevious)
 
                 Spacer()
 
@@ -54,6 +55,7 @@ struct OnboardingPageView: View {
                     }
                     .padding(.horizontal)
                 }
+                .accessibilityLabel(L10n.Common.Ui.buttonNext)
             }
             .padding(.top, 15)
         }
