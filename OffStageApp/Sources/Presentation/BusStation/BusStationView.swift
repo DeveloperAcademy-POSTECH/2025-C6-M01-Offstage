@@ -74,6 +74,8 @@ struct BusStationView: View {
                 Button(action: { router.popToRoot() }) {
                     Image(systemName: "house")
                 }
+                .accessibilityLabel("홈 화면으로 가기")
+                .accessibilityHint("홈으로 가려면 두번 탭하십시오.")
             )
 
             RefreshButton(countdown: countdown, rotationAngle: $rotationAngle) {
@@ -109,8 +111,9 @@ struct BusStationView: View {
             ActivityIndicator(isAnimating: .constant(true), style: .large)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.vertical, 40)
+                .accessibilityHidden(true)
 
-        case let .success(routes):
+        case let .refreshing(routes), let .success(routes):
             if routes.isEmpty {
                 Group {
                     if viewModel.input.routes.isEmpty {

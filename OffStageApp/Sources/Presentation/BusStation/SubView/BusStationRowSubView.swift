@@ -20,6 +20,36 @@ struct BusStationRowSubView: View {
         isFavorite
     }
 
+    private var routeInfoAccessibilityLabel: String {
+        var label = "\(route.routeNumber)번 버스"
+        label += route.direction.isEmpty ? ", 방면 정보 없음" : ",\(route.direction) 방면"
+        if route.arrivals.isEmpty {
+            label += ", 도착 정보 없음"
+        } else {
+            for (index, arrival) in
+                route.arrivals.enumerated()
+            {
+                var arrivalLabel = ""
+                if route.arrivals.count > 1 {
+                    arrivalLabel += (
+                        index == 0) ? ", 첫번째 버스" : ", 두번째 버스"
+                } else {
+                    arrivalLabel += ","
+                }
+
+                arrivalLabel += "\(arrival.arrivalDescription)"
+
+                if let remaining =
+                    arrival.remainingStopsDescription
+                {
+                    arrivalLabel += ", \(remaining)"
+                }
+                label += arrivalLabel
+            }
+        }
+        return label
+    }
+
     var body: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 8) {
@@ -57,6 +87,8 @@ struct BusStationRowSubView: View {
                     }
                 }
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(routeInfoAccessibilityLabel)
 
             CircularToggleButton(isOn: isSavedOn) {
                 if isSavedOn {
