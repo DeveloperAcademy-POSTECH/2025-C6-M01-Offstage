@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// router와 연결되는 메인 버스 비전 뷰
 struct BusVisionView: View {
@@ -33,6 +34,7 @@ struct BusVisionView: View {
                         .font(.system(size: 120, weight: .black, design: .rounded))
                         .foregroundStyle(Color.white)
                         .frame(maxWidth: .infinity, alignment: .center)
+                        .accessibilityHidden(UIAccessibility.isVoiceOverRunning)
                 }
             }
             .padding(.vertical)
