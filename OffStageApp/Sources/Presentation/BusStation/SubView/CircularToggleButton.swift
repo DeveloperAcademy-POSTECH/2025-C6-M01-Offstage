@@ -28,5 +28,9 @@ struct CircularToggleButton: View {
                     .font(.system(size: 24, weight: .regular))
             }
         }
+        .accessibilityLabel("즐겨찾기 버튼")
+        .accessibilityValue(isOn ? "선택됨" : "선택 안됨")
+        .accessibilityHint("즐겨찾기 하려면 두번 탭하십시오.")
+        .accessibilityAddTraits(.isButton)
     }
 }

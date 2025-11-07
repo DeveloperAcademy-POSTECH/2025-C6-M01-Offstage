@@ -1,11 +1,13 @@
 import BusAPI
 import Foundation
+import UIKit
 
 @MainActor
 final class BusStationViewModel: ObservableObject {
     enum ViewState {
         case idle
         case loading
+        case refreshing([RouteDetail])
         case success([RouteDetail])
         case error(Error)
     }
@@ -73,7 +75,12 @@ final class BusStationViewModel: ObservableObject {
     }
 
     func refresh() {
-        viewState = .loading
+        switch viewState {
+        case let .success(details):
+            viewState = .refreshing(details)
+        default:
+            viewState = .loading
+        }
         Task { await fetchArrivals() }
     }
 
@@ -138,9 +145,8 @@ final class BusStationViewModel: ObservableObject {
                 }
             }
 
-            print("DETAIL \n\n\n\n\n\(details)\n\n\n\n\n\n")
-
             viewState = .success(details)
+            UIAccessibility.post(notification: .announcement, argument: "버스 도착정보가 갱신되었습니다.")
         } catch {
             viewState = .error(error)
         }
