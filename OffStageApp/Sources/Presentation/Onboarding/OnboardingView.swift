@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct OnboardingPage {
     let title: Text
@@ -75,6 +76,9 @@ struct OnboardingView: View {
             }
         }
         .animation(.easeInOut, value: currentPage)
+        .onChange(of: currentPage) {
+            UIAccessibility.post(notification: .screenChanged, argument: nil)
+        }
     }
 }
 
