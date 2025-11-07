@@ -84,6 +84,7 @@ struct HomeView: View {
                         Button(L10n.Home.Ui.buttonEdit) {
                             router.push(.homeEdit)
                         }
+                        .accessibilityHint("즐겨찾기를 편집하려면 두번 탭하십시오.")
                         .padding(.bottom)
                     } else {
                         Text(L10n.Home.Ui.emptyTitle)
