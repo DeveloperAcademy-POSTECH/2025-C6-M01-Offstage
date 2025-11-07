@@ -26,6 +26,8 @@ struct BusVisionView: View {
             VStack {
                 if detectedRouteNumbers.isEmpty {
                     ProgressView()
+                        .accessibilityLabel("버스 번호 인식 중")
+                        .accessibilityHint("버스가 인식되면 번호가 표시됩니다.")
                 } else {
                     Text(detectedRouteNumbers.joined(separator: "& "))
                         .font(.system(size: 120, weight: .black, design: .rounded))
