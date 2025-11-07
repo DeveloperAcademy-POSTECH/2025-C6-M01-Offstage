@@ -32,6 +32,7 @@ struct PermissionSubView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 60, height: 60)
+                            .accessibilityLabel(deniedPermissions.contains(.location) ? "거절됨" : "승인됨")
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text("위치 정보 접근")
@@ -51,6 +52,7 @@ struct PermissionSubView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 60, height: 60)
+                            .accessibilityLabel(deniedPermissions.contains(.camera) ? "거절됨" : "승인됨")
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text("카메라 접근")
@@ -70,6 +72,7 @@ struct PermissionSubView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 60, height: 60)
+                            .accessibilityLabel(deniedPermissions.contains(.microphone) ? "거절됨" : "승인됨")
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text("마이크 접근")
