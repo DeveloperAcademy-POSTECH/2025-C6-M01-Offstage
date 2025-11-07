@@ -12,6 +12,11 @@ struct BusStationCardSubView: View {
     let favorites: [Favorite]
     let refreshTrigger: UUID
 
+    private var favoritedRoutesAccessibilityValue: String {
+        let routeNumbers = favorites.map { "\($0.routeNo)번" }.joined(separator: ", ")
+        return "즐겨찾기된 노선 번호: \(routeNumbers)"
+    }
+
     init(
         stationName: String,
         stationNumber: String,
@@ -65,6 +70,9 @@ struct BusStationCardSubView: View {
                     .background(Color(.primarynormal))
                     .cornerRadius(10)
             }
+            .accessibilityLabel("카메라, 버스 인식하기")
+            .accessibilityValue(favoritedRoutesAccessibilityValue)
+            .accessibilityHint("두번 탭해서 카메라로 버스 인식하기 화면으로 이동할 수 있습니다.")
             .padding()
         }
         .background(.gray.opacity(0.1))
