@@ -32,7 +32,6 @@ struct RefreshButton: View {
                 }
             }
         }
-        .accessibilityLabel(Text(L10n.Common.A11y.buttonRefresh))
     }
 }
 

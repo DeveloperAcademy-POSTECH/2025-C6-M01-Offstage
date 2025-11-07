@@ -28,6 +28,5 @@ struct CircularToggleButton: View {
                     .font(.system(size: 24, weight: .regular))
             }
         }
-        .accessibilityLabel(Text(L10n.Common.A11y.buttonToggleFavorite))
     }
 }

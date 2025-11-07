@@ -59,7 +59,6 @@ struct HomeView: View {
                             .foregroundColor(.gray)
                             .padding(.trailing)
                     }
-                    .accessibilityLabel(Text(L10n.Home.A11y.buttonQuickCamera))
                 }
                 .background(.gray.opacity(0.1))
 
