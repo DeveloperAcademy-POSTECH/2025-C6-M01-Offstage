@@ -14,6 +14,12 @@ public enum SeoulBusAPITarget {
     case getRouteInfo(routeId: String)
     /// 5. 정류소 경유 노선 목록 (getRouteByStation)
     case getRouteByStation(arsId: String)
+    /// 6. 노선별 경유 정류소 목록 (getStaionByRoute)
+    case getStaionByRoute(busRouteId: String)
+    /// 7. 정류소-노선별 도착 정보 (getArrInfoByRoute)
+    case getArrInfoByRoute(stId: String, busRouteId: String, ord: String)
+    /// 8. 노선별 버스 위치 목록 (getBusPosByRtid)
+    case getBusPosByRtid(busRouteId: String)
 }
 
 extension SeoulBusAPITarget: TargetType {
@@ -26,6 +32,9 @@ extension SeoulBusAPITarget: TargetType {
         case .getStationArrivals: "/stationinfo/getStationByUid"
         case .getRouteInfo: "/busRouteInfo/getBusRouteList"
         case .getRouteByStation: "/stationinfo/getRouteByStation"
+        case .getStaionByRoute: "/busRouteInfo/getStaionByRoute"
+        case .getArrInfoByRoute: "/arrive/getArrInfoByRoute"
+        case .getBusPosByRtid: "/buspos/getBusPosByRtid"
         }
     }
 
@@ -46,13 +55,21 @@ extension SeoulBusAPITarget: TargetType {
             // GPS(WGS84) -> TM 좌표 변환은 Repository 단계에서 수행
             params["tmX"] = tmX
             params["tmY"] = tmY
-            params["radius"] = 500 // 500m 반경
+            params["radius"] = 200 // 200m 반경
         case let .getStationArrivals(arsId):
             params["arsId"] = arsId //
         case let .getRouteInfo(routeId):
             params["busRouteId"] = routeId //
         case let .getRouteByStation(arsId):
             params["arsId"] = arsId
+        case let .getStaionByRoute(busRouteId):
+            params["busRouteId"] = busRouteId
+        case let .getArrInfoByRoute(stId, busRouteId, ord):
+            params["stId"] = stId
+            params["busRouteId"] = busRouteId
+            params["ord"] = ord
+        case let .getBusPosByRtid(busRouteId):
+            params["busRouteId"] = busRouteId
         }
 
         return .requestParameters(parameters: params, encoding: URLEncoding.queryString)
