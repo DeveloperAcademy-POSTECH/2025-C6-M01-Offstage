@@ -20,5 +20,7 @@ struct BusDetectionView: UIViewControllerRepresentable {
         return vc
     }
 
-    func updateUIViewController(_: BusDetectionViewController, context _: Context) {}
+    func updateUIViewController(_ uiViewController: BusDetectionViewController, context _: Context) {
+        uiViewController.routeNumbersToDetect = routeNumbersToDetect
+    }
 }
