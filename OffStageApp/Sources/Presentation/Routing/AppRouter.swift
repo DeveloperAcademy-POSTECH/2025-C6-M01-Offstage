@@ -10,9 +10,6 @@ enum AppRoute: Routable {
     case onboarding
     case sttTest
     case quickCamera
-    case homelegacy
-    case businfolegacy
-    case busvisionlegacy
 
     @MainActor
     @ViewBuilder
@@ -44,15 +41,6 @@ enum AppRoute: Routable {
 
         case .quickCamera:
             QuickCameraView()
-
-        case .homelegacy:
-            HomeNewView()
-
-        case .businfolegacy:
-            BusInfoNewView()
-
-        case .busvisionlegacy:
-            BusVisionNewView()
         }
     }
 }

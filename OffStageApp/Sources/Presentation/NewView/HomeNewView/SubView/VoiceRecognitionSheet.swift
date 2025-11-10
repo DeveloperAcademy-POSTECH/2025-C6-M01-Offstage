@@ -5,7 +5,10 @@ struct VoiceRecognitionSheet: View {
 
     var body: some View {
         VStack {
-            Text("음성인식 중입니다.")
+            Text("번호를 듣는 중이에요.")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .padding(.bottom, 30)
 
             Button {
                 onComplete() // 결과 확인 sheet로 전환
