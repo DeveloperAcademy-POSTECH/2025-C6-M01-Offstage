@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct HomeNewView: View {
-    @EnvironmentObject var router: Router<AppRoute>
+    @EnvironmentObject var router: NewRouter<NewAppRoute>
     @State private var showSheet = false
 
     enum SheetType: Identifiable {

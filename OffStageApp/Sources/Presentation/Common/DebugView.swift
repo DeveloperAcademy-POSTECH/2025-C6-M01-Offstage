@@ -2,7 +2,7 @@
     import SwiftUI
 
     struct DebugView: View {
-        @EnvironmentObject var router: Router<AppRoute>
+        @EnvironmentObject var router: Router<NewAppRoute>
         @Environment(\.dismiss) private var dismiss
 
         private let debugSelectionKey = "Debug.MockLocationType"
@@ -89,7 +89,7 @@
             Button {
                 dismiss() // 시트 닫기
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    router.push(.sttTest) // 시트 애니메이션 후 라우팅
+//                    router.push(.sttTest) // 시트 애니메이션 후 라우팅
                 }
             } label: {
                 Text(L10n.Debug.Ui.buttonSttTtsTest)

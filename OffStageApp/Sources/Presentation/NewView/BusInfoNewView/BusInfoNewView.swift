@@ -1,17 +1,17 @@
 import SwiftUI
 
 struct BusInfoNewView: View {
-    @EnvironmentObject var router: Router<AppRoute>
+    @EnvironmentObject var router: NewRouter<NewAppRoute>
 
     var body: some View {
         VStack {
             Text("버스에 대한 정보를 인식하는 뷰 입니다.")
             Button {
-                router.push(.busvisionlegacy)
+                router.push(.busvisionnew)
             } label: { Text("비전버스 이동") }
 
             Button {
-                router.push(.busvisionlegacy)
+                router.push(.busvisionnew)
             } label: {
                 HStack {
                     Image(systemName: "camera")

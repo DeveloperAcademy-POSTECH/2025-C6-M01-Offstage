@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct BusVisionNewView: View {
-    @EnvironmentObject var router: Router<AppRoute>
+    @EnvironmentObject var router: NewRouter<NewAppRoute>
 
     var body: some View {
         Button {
