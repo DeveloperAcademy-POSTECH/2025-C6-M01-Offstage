@@ -2,8 +2,7 @@ import SwiftUI
 
 struct HomeLegacyView: View {
     @EnvironmentObject var router: Router<AppRoute>
-    @State private var showVoiceResultSheet = false
-    @State private var sheetType: SheetType?
+    @State private var showSheet = false
 
     enum SheetType: Identifiable {
         case voiceRecognition
@@ -19,29 +18,49 @@ struct HomeLegacyView: View {
 
     var body: some View {
         VStack {
-            Text("HomeView 입니다.")
+            ZStack {
+                Text("버스온다")
+                    .font(.body)
+                    .padding()
+                HStack {
+                    Spacer()
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 25))
+                        .fontWeight(.semibold)
+                        .padding()
+                }
+            }
 
-            Button {
-                sheetType = .voiceRecognition
-            } label: {
-                Text("음성인식하기")
-            }
-        }
-        .sheet(item: $sheetType) { type in
-            switch type {
-            case .voiceRecognition:
-                VoiceRecognitionLegacySheet(
-                    onComplete: {
-                        sheetType = .voiceResult // Sheet 교체
+            Spacer()
+
+            VStack {
+                Text("몇번 버스를\n탑승하시나요?")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.white)
+                    .padding(.bottom, 100)
+
+                Button {
+                    showSheet = true
+                } label: {
+                    ZStack {
+                        Circle()
+                            .stroke(Color(.primarynormal), lineWidth: 8)
+                            .frame(width: 110, height: 110)
+                        Image(systemName: "microphone")
+                            .font(.system(size: 45))
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
                     }
-                )
-            case .voiceResult:
-                VoiceResultConfirmLegacySheet()
+                }
+                .padding(.bottom, 80)
             }
+
+            Spacer()
+        }
+        .sheet(isPresented: $showSheet) {
+            VoiceFlowSheet()
         }
     }
-}
-
-#Preview {
-    HomeLegacyView()
 }
