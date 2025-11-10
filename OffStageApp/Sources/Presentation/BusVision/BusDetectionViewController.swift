@@ -20,6 +20,7 @@ final class BusDetectionViewController: UIViewController {
 
     // subviews
     private var drawingBoxesView: DrawingBoxesView?
+    private var detectingStatusView: BusDetectStatusView?
     #if DEBUG_MODE
         private var tempStrokeBoxesView: TempStokeBoxesView?
         private var croppedImageView: UIImageView?
@@ -41,6 +42,7 @@ final class BusDetectionViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupBoxesView()
+        setupStatusView()
 
         #if DEBUG_MODE
             setupDebugModeBoxesView()
@@ -63,11 +65,23 @@ final class BusDetectionViewController: UIViewController {
             height: view.bounds.height
         )
 
+        // 카메라뷰
         view.layer.sublayers?.first(where: { $0 is AVCaptureVideoPreviewLayer }
         )?.frame = fullFrame
+
+        // 바운딩박스뷰
         drawingBoxesView?.frame = fullFrame
 
+        // 상태표시뷰
+        detectingStatusView?.frame = CGRect(
+            x: 0,
+            y: 16,
+            width: view.bounds.width,
+            height: 160
+        )
+
         #if DEBUG_MODE
+            // 디버그뷰에서만 보이는 버스 인식 바운딩박스
             tempStrokeBoxesView?.frame = fullFrame
 
             // 크롭된 이미지 뷰 위치 설정 (우상단)
@@ -107,7 +121,7 @@ final class BusDetectionViewController: UIViewController {
         do {
             try device.lockForConfiguration()
             // zoom
-            let zoomfactor = min(device.maxAvailableVideoZoomFactor, 3.0)
+            let zoomfactor = min(device.maxAvailableVideoZoomFactor, 2.0)
             device.videoZoomFactor = zoomfactor
             print("zoom setting: \(zoomfactor)")
 
@@ -152,6 +166,13 @@ final class BusDetectionViewController: UIViewController {
         drawingBoxesView.frame = view.frame
         view.addSubview(drawingBoxesView)
         self.drawingBoxesView = drawingBoxesView
+    }
+
+    /// 감지상태 모니터링뷰
+    private func setupStatusView() {
+        let statusView = BusDetectStatusView()
+        view.addSubview(statusView)
+        detectingStatusView = statusView
     }
 
     #if DEBUG_MODE
@@ -270,12 +291,14 @@ extension BusDetectionViewController {
             (request.results as? [VNRecognizedObjectObservation])
         else {
             isBusDetected = false
+            detectingStatusView?.updateStatus(to: .unDetected)
             return
         }
 
         // 박스 초기화
         DispatchQueue.main.async {
             self.drawingBoxesView?.drawBox(with: [])
+            self.onDetectedRouteNumbersChanged?([])
             #if DEBUG_MODE
                 self.tempStrokeBoxesView?.drawBox(with: [])
             #endif
@@ -299,6 +322,7 @@ extension BusDetectionViewController {
             OCRManager.recognizeText(from: currentPixelBuffer, in: areaOfInterest) { ocrText in
                 guard let ocrText else {
                     print("OCR 처리 실패")
+                    self.detectingStatusView?.updateStatus(to: .notMine)
                     return
                 }
                 print("--BUS OCR--\n\(ocrText)\n------")
@@ -306,7 +330,10 @@ extension BusDetectionViewController {
                 guard let routeContained = OCRManager.isTextContains(
                     text: ocrText,
                     routeNumbers: self.routeNumbersToDetect
-                ) else { return }
+                ) else {
+                    self.detectingStatusView?.updateStatus(to: .notMine)
+                    return
+                }
 
                 self.impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
                 self.impactFeedbackGenerator?.impactOccurred()
@@ -320,6 +347,7 @@ extension BusDetectionViewController {
                 }
 
                 DispatchQueue.main.async {
+                    self.detectingStatusView?.updateStatus(to: .mineDetected)
                     self.onDetectedRouteNumbersChanged?(tempDetected)
                     self.drawingBoxesView?.drawBox(with: finalPredictions)
                 }
@@ -349,5 +377,9 @@ extension BusDetectionViewController {
                 })
             }
         #endif
+
+        if !isBusDetected {
+            detectingStatusView?.updateStatus(to: .unDetected)
+        }
     }
 }
