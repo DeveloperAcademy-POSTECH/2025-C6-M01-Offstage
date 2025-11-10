@@ -40,7 +40,7 @@ struct OffStageApp: App {
             _router = StateObject(wrappedValue: Router(root: .onboarding))
         #else
             let hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
-            _router = StateObject(wrappedValue: Router(root: hasLaunchedBefore ? .home : .onboarding))
+            _router = StateObject(wrappedValue: Router(root: hasLaunchedBefore ? .homelegacy : .onboarding))
         #endif
     }
 
