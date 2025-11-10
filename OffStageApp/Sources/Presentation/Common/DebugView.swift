@@ -69,6 +69,10 @@
                         destination: BusVisionView(routeNumbers: ["207", "306"])
                     )
                     NavigationLink(
+                        "빠른버스",
+                        destination: QuickCameraView()
+                    )
+                    NavigationLink(
                         L10n.Debug.Ui.buttonApiTest,
                         // TODO: 새로운 L10n 키가 필요하면 추가해야 합니다.
                         destination: TestView(busStopInfo: .init(
