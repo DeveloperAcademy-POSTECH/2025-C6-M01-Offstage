@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct HomeLegacyView: View {
+struct HomeNewView: View {
     @EnvironmentObject var router: Router<AppRoute>
     @State private var showSheet = false
 

@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct VoiceRecognitionLegacySheet: View {
+struct VoiceRecognitionSheet: View {
     let onComplete: () -> Void
 
     var body: some View {
@@ -10,8 +10,6 @@ struct VoiceRecognitionLegacySheet: View {
             Button {
                 onComplete() // 결과 확인 sheet로 전환
             } label: {
-                Text("완료")
-                    .padding()
                 ZStack {
                     Circle()
                         .stroke(Color(.primarynormal), lineWidth: 8)

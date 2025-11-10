@@ -8,13 +8,13 @@ struct VoiceFlowSheet: View {
     var body: some View {
         Group {
             if currentPage == 0 {
-                VoiceRecognitionLegacySheet(
+                VoiceRecognitionSheet(
                     onComplete: {
                         currentPage = 1 // 다음 페이지로
                     }
                 )
             } else if currentPage == 1 {
-                VoiceResultConfirmLegacySheet(
+                VoiceResultConfirmSheet(
                     onNavigate: {
                         dismiss()
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {

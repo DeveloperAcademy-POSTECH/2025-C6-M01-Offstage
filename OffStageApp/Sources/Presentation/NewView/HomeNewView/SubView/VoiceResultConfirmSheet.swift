@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct VoiceResultConfirmLegacySheet: View {
+struct VoiceResultConfirmSheet: View {
     let onNavigate: () -> Void
 
     var body: some View {

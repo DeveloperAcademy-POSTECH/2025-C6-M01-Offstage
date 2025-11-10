@@ -46,13 +46,13 @@ enum AppRoute: Routable {
             QuickCameraView()
 
         case .homelegacy:
-            HomeLegacyView()
+            HomeNewView()
 
         case .businfolegacy:
-            BusInfoLegacyView()
+            BusInfoNewView()
 
         case .busvisionlegacy:
-            BusVisionLegacyView()
+            BusVisionNewView()
         }
     }
 }
