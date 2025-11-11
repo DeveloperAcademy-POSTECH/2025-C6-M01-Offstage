@@ -6,7 +6,7 @@ COMMIT_MSG=$(tr -d '\r' < "$COMMIT_MSG_FILE")     # CR 제거
 TITLE=$(printf '%s\n' "$COMMIT_MSG" | head -n 1)  # 제목 추출
 
 # ✅ 예외 커밋 (머지 커밋·README 수정 등)
-if grep -Eq "^(Merge pull request|README\.md 업데이트)" <<<"$TITLE"; then
+if grep -Eq "^(Merge pull request|README\.md 업데이트|Revert|Merge remote-tracking branch)" <<<"$TITLE"; then
   exit 0
 fi
 
