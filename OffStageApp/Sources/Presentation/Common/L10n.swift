@@ -42,7 +42,7 @@ enum L10n {
             /// "207, 306" (문맥: 디버그: 버스 비전 테스트 링크)
             static let linkBusVision = key("debug.ui.link.busVision")
 
-            /// "Debug Logs" (문맥: 디버그: 화면 타이틀)
+            /// "Debug" (문맥: 디버그: 화면 타이틀)
             static let title = key("debug.ui.title")
         }
     }
