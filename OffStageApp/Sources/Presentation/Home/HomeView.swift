@@ -22,37 +22,37 @@ struct HomeView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                HStack {
+                ZStack {
                     Text(L10n.K.appName)
-                        .font(.title)
+                        .font(.body)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
-                    Spacer()
-                    Button {
-                        // TODO: Navigate to settings
-                    } label: {
-                        Image(systemName: "gearshape.fill")
-                            .font(.title2)
-                            .foregroundColor(.white)
+                    HStack {
+                        Spacer()
+                        Button {
+                            // TODO: Navigate to settings
+                        } label: {
+                            Image(systemName: "gearshape")
+                                .font(.title2)
+                                .foregroundColor(.white)
+                        }
                     }
                 }
                 .padding(.horizontal)
-                .padding(.bottom)
+                .padding(.bottom, 30)
 
                 stopInfoView()
 
-                Spacer()
-
                 Text("몇 번 버스를\n탑승하시나요?")
-                    .font(.largeTitle)
+                    .font(.title)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
-
-                Spacer()
+                    .padding(.vertical, 90)
 
                 micButton
-                    .padding(.bottom, 60)
+
+                Spacer()
             }
             .padding(.top)
         }
@@ -109,25 +109,36 @@ struct HomeView: View {
                 .padding(.horizontal)
         } else if let stop = viewModel.nearestBusStop {
             HStack {
-                let text = "현재 주변 정류장은\n**\(stop.name)** 입니다."
-                let attributedString = (try? AttributedString(markdown: text)) ?? AttributedString()
-                Text(attributedString)
-                    .font(.system(size: 20, weight: .medium))
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(.white)
+                (Text("현재 주변 정류장은\n") +
+                    Text(stop.name)
+                    .foregroundColor(Color(.primarynormal))
+                    .fontWeight(.bold) +
+                    Text(" 입니다.")
+                )
+                .font(.title3)
+                .fontWeight(.semibold)
+                .multilineTextAlignment(.leading)
+                .foregroundColor(.white)
+                .lineSpacing(8)
+
+                Spacer()
             }
             .padding()
             .frame(maxWidth: .infinity, minHeight: 60)
-            .background(Color.black.opacity(0.5))
+            .background(Color(red: 0x19 / 255, green: 0x1A / 255, blue: 0x1F / 255))
             .cornerRadius(12)
             .padding(.horizontal)
         } else {
             VStack(spacing: 10) {
-                Text("주변 정류장을 찾을 수 없습니다.\n위치 서비스를 확인해주세요.")
-                    .font(.headline)
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(.white)
-                    .padding(.horizontal)
+                HStack {
+                    Text("주변 탐색된 정류장이\n없습니다.")
+                        .font(.headline)
+                        .multilineTextAlignment(.leading)
+                        .foregroundColor(.white)
+                        .padding(.horizontal)
+
+                    Spacer()
+                }
 
                 Button {
                     viewModel.fetchNearestStop()
@@ -142,7 +153,7 @@ struct HomeView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 10)
-            .background(Color.black.opacity(0.5))
+            .background(Color(red: 0x19 / 255, green: 0x1A / 255, blue: 0x1F / 255))
             .cornerRadius(12)
             .padding(.horizontal)
         }
@@ -152,17 +163,17 @@ struct HomeView: View {
         Button {
             isSheetPresented = true
         } label: {
-            Image(systemName: "mic.fill")
-                .font(.system(size: 40))
-                .foregroundColor(.black)
-                .frame(width: 100, height: 100)
+            Image(systemName: "mic")
+                .font(.system(size: 45, weight: .semibold))
+                .foregroundColor(.white)
+                .frame(width: 90, height: 90)
                 .background(
                     Circle()
-                        .fill(Color.yellow)
+                        .fill(Color.black)
                 )
                 .overlay(
                     Circle()
-                        .stroke(Color.yellow, lineWidth: 4)
+                        .stroke(Color(.primarynormal), lineWidth: 6)
                         .scaleEffect(1.2)
                 )
         }

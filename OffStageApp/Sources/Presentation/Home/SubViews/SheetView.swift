@@ -33,6 +33,7 @@ struct SheetView: View {
                     }
                 }
                 .padding()
+                .padding(.bottom, 20)
 
                 Spacer()
 
@@ -66,111 +67,127 @@ struct SheetView: View {
 
     @ViewBuilder
     private func listeningContent() -> some View {
-        Text("번호를 듣는중이에요.")
-            .font(.title)
-            .fontWeight(.bold)
-            .foregroundColor(.white)
-            .padding(.bottom, 60)
+        VStack {
+            Text("번호를 듣는중이에요.")
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+                .padding(.bottom, 30)
 
-        ZStack {
-            // Concentric circles
-            ForEach(0 ..< 4) { i in
-                Circle()
-                    .stroke(Color.yellow.opacity(1 - Double(i) * 0.2), lineWidth: 2)
-                    .frame(width: 120 + CGFloat(i * 50))
-                    .scaleEffect(viewModel.isAnimating ? 1 : 0.9)
-                    .animation(
-                        .easeInOut(duration: 1).repeatForever().delay(Double(i) * 0.2),
-                        value: viewModel.isAnimating
-                    )
-            }
-
-            // Central icon
             ZStack {
-                Circle().fill(Color.yellow)
-                    .frame(width: 100, height: 100)
+                // Concentric circles
+                ForEach(0 ..< 4) { i in
+                    Circle()
+                        .stroke(Color(.primarynormal).opacity(1 - Double(i) * 0.2), lineWidth: 2)
+                        .frame(width: 120 + CGFloat(i * 50))
+                        .scaleEffect(viewModel.isAnimating ? 1 : 0.9)
+                        .animation(
+                            .easeInOut(duration: 1).repeatForever().delay(Double(i) * 0.2),
+                            value: viewModel.isAnimating
+                        )
+                }
 
-                HStack(spacing: 5) {
-                    Capsule().fill(.white).frame(width: 6, height: 25)
-                    Capsule().fill(.white).frame(width: 6, height: 50)
-                    Capsule().fill(.white).frame(width: 6, height: 35)
-                    Capsule().fill(.white).frame(width: 6, height: 25)
-                    Capsule().fill(.white).frame(width: 6, height: 50)
+                // Central icon
+                ZStack {
+                    Circle()
+                        .fill(.clear)
+                        .frame(width: 90, height: 90)
+                        .overlay(
+                            Circle()
+                                .stroke(Color(.primarynormal), lineWidth: 6)
+                                .scaleEffect(1.2)
+                        )
+
+                    HStack(spacing: 5) {
+                        Capsule().fill(.white).frame(width: 4, height: 10)
+                        Capsule().fill(.white).frame(width: 4, height: 30)
+                        Capsule().fill(.white).frame(width: 4, height: 50)
+                        Capsule().fill(.white).frame(width: 4, height: 20)
+                        Capsule().fill(.white).frame(width: 4, height: 40)
+                        Capsule().fill(.white).frame(width: 4, height: 25)
+                    }
                 }
             }
+            Spacer() // Add another spacer to balance the VStack
         }
-        Spacer() // Add another spacer to balance the VStack
     }
 
     // MARK: - Confirmation Content
 
     @ViewBuilder
     private func confirmationContent(recognizedBusNumber: String) -> some View {
-        Text("타려는 버스 번호가\n**\(recognizedBusNumber)번**이 맞나요?")
+        VStack {
+            (Text("타려는 버스 번호가\n") +
+                Text(recognizedBusNumber)
+                .foregroundColor(Color(.primarynormal))
+                .fontWeight(.bold) +
+                Text("번이 맞나요?")
+            )
             .font(.title)
             .fontWeight(.bold)
             .foregroundColor(.white)
             .multilineTextAlignment(.center)
             .padding(.bottom, 40)
 
-        VStack(spacing: 20) {
-            Button(action: {
-                if let matchingRoute = busRoutes.first(where: { $0.routeNumber == recognizedBusNumber }) {
-                    onRouteSelected(matchingRoute)
-                    print("Confirmed and returned matching route: \(matchingRoute.routeNumber)")
-                } else {
-                    print("No matching bus route found for recognized number: \(recognizedBusNumber)")
-                    // Optionally, you could keep the sheet open or show an alert here.
+            VStack(spacing: 20) {
+                Button(action: {
+                    if let matchingRoute = busRoutes.first(where: { $0.routeNumber == recognizedBusNumber }) {
+                        onRouteSelected(matchingRoute)
+                        print("Confirmed and returned matching route: \(matchingRoute.routeNumber)")
+                    } else {
+                        print("No matching bus route found for recognized number: \(recognizedBusNumber)")
+                        // Optionally, you could keep the sheet open or show an alert here.
+                    }
+                    dismiss()
+                }) {
+                    Text("네, 맞아요.")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 15)
+                                .stroke(Color.yellow, lineWidth: 2)
+                                .fill(Color.black.opacity(0.5))
+                        )
+                        .foregroundColor(.white)
                 }
-                dismiss()
-            }) {
-                Text("네, 맞아요.")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 15)
-                            .stroke(Color.yellow, lineWidth: 2)
-                            .fill(Color.black.opacity(0.5))
-                    )
-                    .foregroundColor(.white)
-            }
 
-            Button(action: {
-                viewModel.startListeningProcess()
-            }) {
-                Text("아니요, 다시 인식할게요")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 15)
-                            .stroke(Color.cyan, lineWidth: 2)
-                            .fill(Color.black.opacity(0.5))
-                    )
-                    .foregroundColor(.white)
-            }
+                Button(action: {
+                    viewModel.startListeningProcess()
+                }) {
+                    Text("아니요, 다시 인식할게요")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 15)
+                                .stroke(Color.cyan, lineWidth: 2)
+                                .fill(Color.black.opacity(0.5))
+                        )
+                        .foregroundColor(.white)
+                }
 
-            Button(action: {
-                viewModel.showBusRouteList(routes: busRoutes)
-            }) {
-                Text("아니요, 목록에서 고를게요")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 15)
-                            .stroke(Color.green, lineWidth: 2)
-                            .fill(Color.black.opacity(0.5))
-                    )
-                    .foregroundColor(.white)
+                Button(action: {
+                    viewModel.showBusRouteList(routes: busRoutes)
+                }) {
+                    Text("아니요, 목록에서 고를게요")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 15)
+                                .stroke(Color.green, lineWidth: 2)
+                                .fill(Color.black.opacity(0.5))
+                        )
+                        .foregroundColor(.white)
+                }
             }
+            .padding(.horizontal)
+            Spacer() // Add another spacer to balance the VStack
         }
-        .padding(.horizontal)
-        Spacer() // Add another spacer to balance the VStack
     }
 
     // MARK: - Bus Route List Content
