@@ -20,6 +20,7 @@ struct OnboardingPermissionsView: View {
                         .padding(.leading)
                         .foregroundColor(Color(red: 0.77, green: 0.78, blue: 0.83))
                     }
+                    .accessibilityLabel("이전")
                     Spacer()
                 }
                 Text(L10n.Onboarding.Ui.titlePermissions)
@@ -137,6 +138,7 @@ struct OnboardingPermissionsView: View {
                     .foregroundColor(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
+            .accessibilityLabel("앱 시작하기 버튼")
             .padding(.horizontal, 30)
         }
     }

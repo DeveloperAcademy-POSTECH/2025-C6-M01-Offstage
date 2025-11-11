@@ -32,6 +32,8 @@ struct RefreshButton: View {
                 }
             }
         }
+        .accessibilityLabel("새로고침 버튼")
+        .accessibilityHint("새로 고침 하려면 두번 탭하십시오.")
     }
 }
 

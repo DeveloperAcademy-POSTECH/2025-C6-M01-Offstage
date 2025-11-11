@@ -59,6 +59,8 @@ struct HomeView: View {
                             .foregroundColor(.gray)
                             .padding(.trailing)
                     }
+                    .accessibilityLabel("빠른 버스 인식")
+                    .accessibilityHint("두번 탭해서 빠른 버스 인식 화면으로 이동할 수 있습니다.")
                 }
                 .background(.gray.opacity(0.1))
 
@@ -84,6 +86,7 @@ struct HomeView: View {
                         Button(L10n.Home.Ui.buttonEdit) {
                             router.push(.homeEdit)
                         }
+                        .accessibilityHint("즐겨찾기를 편집하려면 두번 탭하십시오.")
                         .padding(.bottom)
                     } else {
                         Text(L10n.Home.Ui.emptyTitle)

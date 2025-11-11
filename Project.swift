@@ -8,7 +8,7 @@ let baseInfoPlist: [String: Plist.Value] = [
         "UIColorName": "",
         "UIImageName": "",
     ],
-    "CFBundleShortVersionString": "1.0",
+    "CFBundleShortVersionString": "1.0.1",
     "CFBundleVersion": "1",
     "ARRIVAL_SERVICE_KEY": "$(ARRIVAL_SERVICE_KEY)",
     "LOCATION_SERVICE_KEY": "$(LOCATION_SERVICE_KEY)",
@@ -57,19 +57,6 @@ let busAPI = Target.target(
     ]
 )
 
-let busAPITests = Target.target(
-    name: "BusAPITests",
-    destinations: [.iPhone],
-    product: .unitTests,
-    bundleId: "\(organizationName).BusAPITests",
-    infoPlist: .default,
-    sources: ["Modules/BusAPITests/Sources/**"],
-    dependencies: [
-        .target(name: "BusAPI"),
-        .target(name: "OffStage"),
-    ]
-)
-
 let configurations: [Configuration] = [
     .debug(name: "Debug-Dev", xcconfig: .relativeToRoot("Config/Dev.xcconfig")),
     .release(name: "Release-Dev", xcconfig: .relativeToRoot("Config/Dev.xcconfig")),
@@ -98,7 +85,7 @@ let settings = Settings.settings(configurations: configurations)
 let project = Project(
     name: "OffStage",
     settings: settings,
-    targets: [busAPI, busAPITests, app],
+    targets: [busAPI, app],
     schemes: [
         .scheme(
             name: "OffStage-Dev",

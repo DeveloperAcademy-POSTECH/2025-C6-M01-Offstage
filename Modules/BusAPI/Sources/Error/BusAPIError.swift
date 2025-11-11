@@ -11,12 +11,14 @@ public enum BusAPIError: Error {
     case invalidStatus(header: BusAPIHeader)
     /// Thrown when the API responds without a body or items payload.
     case emptyBody
+    /// Thrown when a successful API call returns no results.
+    case noResults
     /// Thrown when decoding the response payload fails.
     case decodingFailed(Error)
     /// Thrown when the underlying Moya request fails.
     case network(MoyaError)
     /// Thrown for unknown or unhandled errors.
-    case unknown
+    case unknown(String)
 }
 
 extension BusAPIError: LocalizedError {
@@ -30,12 +32,14 @@ extension BusAPIError: LocalizedError {
             "Bus API returned error code \(header.resultCode): \(header.resultMessage)"
         case .emptyBody:
             "Bus API returned an empty body."
+        case .noResults:
+            "The API request was successful, but returned no results."
         case let .decodingFailed(error):
             "Failed to decode Bus API response: \(error.localizedDescription)"
         case let .network(error):
             "Bus API network request failed: \(error.localizedDescription)"
-        case .unknown:
-            "An unknown Bus API error occurred."
+        case let .unknown(message):
+            "An unknown Bus API error occurred: \(message)"
         }
     }
 }
