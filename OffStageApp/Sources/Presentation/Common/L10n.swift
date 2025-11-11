@@ -9,30 +9,6 @@ enum L10n {
         LocalizedStringKey(key)
     }
 
-    enum Arbitrary {
-        /// "임의의 값" (문맥: 임의의 테스트 값)
-        static let sample = key("arbitrary.sample")
-    }
-
-    enum BusStation {
-        enum Ui {
-            /// "버스 인식하기" (문맥: 버스 정류장 화면: 버스 인식 버튼)
-            static let buttonRecognizeBus = key("busStation.ui.button.recognizeBus")
-
-            /// "정류장 정보를 불러오지 못했습니다." (문맥: 정류장 상세: 로드 실패 에러)
-            static let errorFailedToLoad = key("busStation.ui.error.failedToLoad")
-
-            /// "도착 예정 정보가 없습니다." (문맥: 정류장 상세: 도착 정보 없음 에러)
-            static let errorNoArrivalInfo = key("busStation.ui.error.noArrivalInfo")
-
-            /// "경유 노선 정보를 찾을 수 없습니다." (문맥: 정류장 상세: 경유 노선 없음 에러)
-            static let errorNoRoutes = key("busStation.ui.error.noRoutes")
-
-            /// "자주 이용하는 버스를 등록해 주세요." (문맥: 정류장 상세: 즐겨찾기 유도)
-            static let guidance = key("busStation.ui.guidance")
-        }
-    }
-
     enum Common {
         enum Ui {
             /// "취소" (문맥: 공용: 취소 버튼)
@@ -73,9 +49,6 @@ enum L10n {
 
     enum Home {
         enum Ui {
-            /// "편집" (문맥: 홈 화면: 편집 버튼)
-            static let buttonEdit = key("home.ui.button.edit")
-
             /// "나의 버스 추가하기" (문맥: 홈 화면: 즐겨찾기 비어있을 때 추가 버튼)
             static let emptyButtonAdd = key("home.ui.empty.button.add")
 
@@ -93,94 +66,9 @@ enum L10n {
         }
     }
 
-    enum HomeEdit {
-        enum Ui {
-            /// "즐겨찾기 편집" (문맥: 즐겨찾기 편집: 내비게이션 타이틀)
-            static let title = key("homeEdit.ui.title")
-        }
-    }
-
     enum K {
         /// "버스온다" (문맥: 앱의 공식 이름)
         static let appName = key("k.appName")
-    }
-
-    enum Onboarding {
-        enum Ui {
-            /// "시작하기" (문맥: 온보딩 권한: 앱 시작 버튼)
-            static let buttonStartApp = key("onboarding.ui.button.startApp")
-
-            /// "알아보기" (문맥: 온보딩 시작: 알아보기 버튼)
-            static let buttonStartCTA = key("onboarding.ui.button.startCTA")
-
-            /// "버스 번호 인식을 위해 사용" (문맥: 온보딩 권한: 카메라 사용 이유)
-            static let descriptionCamera = key("onboarding.ui.description.camera")
-
-            /// "위치 기반 정류장 안내를 위해 사용" (문맥: 온보딩 권한: 위치 정보 사용 이유)
-            static let descriptionLocation = key("onboarding.ui.description.location")
-
-            /// "음성 검색 기능을 위해 사용" (문맥: 온보딩 권한: 마이크 사용 이유)
-            static let descriptionMicrophone = key("onboarding.ui.description.microphone")
-
-            /// "시작하기 전에" (문맥: 온보딩 권한: 상단 헤더)
-            static let headerPermissions = key("onboarding.ui.header.permissions")
-
-            /// "카메라" (문맥: 온보딩 권한: 카메라 레이블)
-            static let labelCamera = key("onboarding.ui.label.camera")
-
-            /// "위 권한 사용에 동의하지 않는 경우 앱 사용이 제한됩니다." (문맥: 온보딩 권한: 미동의 시 안내)
-            static let labelDisclaimer = key("onboarding.ui.label.disclaimer")
-
-            /// "위치 정보" (문맥: 온보딩 권한: 위치 정보 레이블)
-            static let labelLocation = key("onboarding.ui.label.location")
-
-            /// "마이크" (문맥: 온보딩 권한: 마이크 레이블)
-            static let labelMicrophone = key("onboarding.ui.label.microphone")
-
-            /// "더 나은 앱 사용을 위해 동의가 필요한 권한을 확인해주세요." (문맥: 온보딩 권한: 부제목)
-            static let subtitlePermissions = key("onboarding.ui.subtitle.permissions")
-
-            /// "탑승하려는 버스를 즐겨찾기 하면 버스 인식을 시작할 수 있 습니다." (문맥: 온보딩 1페이지 문구)
-            static let titlePage1 = key("onboarding.ui.title.page1")
-
-            /// "버스 인식 카메라로 버스 번호 를 확인할 수 있습니다. " (문맥: 온보딩 2페이지 문구)
-            static let titlePage2 = key("onboarding.ui.title.page2")
-
-            /// "즐겨찾기한 버스는 홈화면에 서 빠르게 버스인식을 할 수 있 습니다." (문맥: 온보딩 3페이지 문구)
-            static let titlePage3 = key("onboarding.ui.title.page3")
-
-            /// "권한 요청" (문맥: 온보딩 권한: 내비게이션 타이틀)
-            static let titlePermissions = key("onboarding.ui.title.permissions")
-
-            /// "필수 접근 권한" (문맥: 온보딩 권한: 필수 권한 섹션 타이틀)
-            static let titleRequiredAccess = key("onboarding.ui.title.requiredAccess")
-
-            /// "는 저시력자를 위한 버스 안내 앱입니다." (문맥: 온보딩 시작: 앱 설명 (앱 이름 뒤에 붙음))
-            static let titleStart = key("onboarding.ui.title.start")
-        }
-    }
-
-    enum QuickCamera {
-        enum Ui {
-            /// "빠른 카메라" (문맥: 빠른 카메라 화면: 타이틀)
-            static let title = key("quickCamera.ui.title")
-        }
-    }
-
-    enum Search {
-        enum Ui {
-            /// "표시할 정류장이 없습니다." (문맥: 검색 화면: 주변 정류장 없을 때)
-            static let emptyNoStops = key("search.ui.empty.noStops")
-
-            /// "검색..." (문맥: 검색 화면: 검색창 플레이스홀더)
-            static let placeholder = key("search.ui.placeholder")
-
-            /// "ID:" (문맥: 검색 결과: 정류장 ID 접두사)
-            static let prefixStopID = key("search.ui.prefix.stopID")
-
-            /// "주변 정류장" (문맥: 검색 화면: 주변 정류장 섹션 타이틀)
-            static let titleNearbyStops = key("search.ui.title.nearbyStops")
-        }
     }
 
     enum SttTtsTest {

@@ -36,11 +36,6 @@ final class TestViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private let logger = Logger(label: "TestViewModel")
 
-    struct GpsInfo {
-        let latitude: Double
-        let longitude: Double
-    }
-
     init(
         locationProvider: LocationProviding = LocationManager(),
         busRepository: BusRepository = MainBusRepository()
@@ -389,7 +384,7 @@ final class TestViewModel: ObservableObject {
         logger.error("\(name) 실패: \(error.localizedDescription)")
     }
 
-    private func detectCityCode(from gps: GpsInfo) async throws -> String {
+    private func detectCityCode(from gps: LocationCoordinate) async throws -> String {
         let locationCoordinate = LocationCoordinate(latitude: gps.latitude, longitude: gps.longitude)
         guard let placemark = try await locationProvider.fetchPlacemark(from: locationCoordinate) else {
             throw BusAPIError.unknown("Failed to fetch placemark for city code detection.")

@@ -33,25 +33,6 @@ struct HomeView: View {
             VStack {
                 HStack {
                     Button {
-                        // 검색 페이지로 이동
-                        router.push(.search)
-                    } label: {
-                        HStack {
-                            Image(systemName: "magnifyingglass")
-                                .foregroundColor(.gray)
-                                .accessibilityHidden(true)
-
-                            Text(L10n.Home.Ui.placeholderSearch)
-                                .foregroundColor(.gray)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
-                    }
-                    .padding()
-
-                    Button {
                         router.push(.quickCamera)
                     } label: {
                         Image("quickFindBus")
@@ -82,12 +63,6 @@ struct HomeView: View {
                             )
                             .padding(.horizontal)
                         }
-
-                        Button(L10n.Home.Ui.buttonEdit) {
-                            router.push(.homeEdit)
-                        }
-                        .accessibilityHint("즐겨찾기를 편집하려면 두번 탭하십시오.")
-                        .padding(.bottom)
                     } else {
                         Text(L10n.Home.Ui.emptyTitle)
                             .foregroundColor(.gray)
@@ -97,23 +72,6 @@ struct HomeView: View {
                             .foregroundColor(.gray)
                             .padding(.bottom, 30)
 
-                        Button {
-                            router.push(.search)
-                        } label: {
-                            HStack(spacing: 8) {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 20, weight: .semibold))
-                                Text("추가하기")
-                                    .font(.system(size: 20, weight: .semibold))
-                            }
-                            .foregroundColor(Color(.primarynormal))
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 10)
-                            .background(
-                                Capsule()
-                                    .stroke(Color(.primarynormal), lineWidth: 2)
-                            )
-                        }
                         Spacer()
                     }
                 }
@@ -140,16 +98,6 @@ struct HomeView: View {
                     grantedPermissions: permissionManager.grantedPermissions()
                 )
                 .interactiveDismissDisabled(true)
-            }
-
-            if !favoritedStops.isEmpty {
-                RefreshButton(countdown: countdown, rotationAngle: $rotationAngle) {
-                    refreshTrigger = UUID()
-                    resetTimer()
-                    withAnimation(.easeInOut(duration: 0.6)) {
-                        rotationAngle += .degrees(360)
-                    }
-                }
             }
         }
     }

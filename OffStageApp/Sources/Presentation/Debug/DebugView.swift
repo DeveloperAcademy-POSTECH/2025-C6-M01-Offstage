@@ -74,26 +74,21 @@
                     )
                     NavigationLink(
                         L10n.Debug.Ui.buttonApiTest,
-                        // TODO: 새로운 L10n 키가 필요하면 추가해야 합니다.
                         destination: TestView()
                     )
                     NavigationLink(
                         "MVP API Flow Test",
                         destination: MVPTestView()
                     )
+                    NavigationLink(
+                        L10n.Debug.Ui.buttonSttTtsTest,
+                        destination: STTandTTSTestView()
+                    )
                 }
                 .navigationTitle(L10n.Debug.Ui.title)
                 .navigationBarTitleDisplayMode(.inline)
             }
 
-            Button {
-                dismiss() // 시트 닫기
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    router.push(.sttTest) // 시트 애니메이션 후 라우팅
-                }
-            } label: {
-                Text(L10n.Debug.Ui.buttonSttTtsTest)
-            }
             Spacer()
         }
     }
