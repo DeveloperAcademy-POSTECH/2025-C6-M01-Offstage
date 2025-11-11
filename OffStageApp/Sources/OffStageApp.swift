@@ -55,6 +55,5 @@ struct OffStageApp: App {
                 RouterView(router: router)
             #endif
         }
-        .modelContainer(for: Favorite.self)
     }
 }

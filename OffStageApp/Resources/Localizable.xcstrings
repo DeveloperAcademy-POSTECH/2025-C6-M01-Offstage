@@ -1,102 +1,17 @@
 {
   "sourceLanguage" : "ko",
   "strings" : {
-    "%@" : {
+    "**%@** 정류장을 통과하는 버스 번호를 입력하세요." : {
 
     },
-    "%@ %@" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ %2$@"
-          }
-        }
-      }
-    },
-    "%@ 버스 인식하기" : {
+    "%@번 탐지중" : {
 
     },
-    "%@ 정류장" : {
+    "API Calls" : {
 
     },
-    "%@번째전" : {
+    "API Response" : {
 
-    },
-    "%@분" : {
-
-    },
-    "arbitrary.sample" : {
-      "comment" : "임의의 테스트 값",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "임의의 값"
-          }
-        }
-      }
-    },
-    "busStation.ui.button.recognizeBus" : {
-      "comment" : "버스 정류장 화면: 버스 인식 버튼",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "버스 인식하기"
-          }
-        }
-      }
-    },
-    "busStation.ui.error.failedToLoad" : {
-      "comment" : "정류장 상세: 로드 실패 에러",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "정류장 정보를 불러오지 못했습니다."
-          }
-        }
-      }
-    },
-    "busStation.ui.error.noArrivalInfo" : {
-      "comment" : "정류장 상세: 도착 정보 없음 에러",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "도착 예정 정보가 없습니다."
-          }
-        }
-      }
-    },
-    "busStation.ui.error.noRoutes" : {
-      "comment" : "정류장 상세: 경유 노선 없음 에러",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "경유 노선 정보를 찾을 수 없습니다."
-          }
-        }
-      }
-    },
-    "busStation.ui.guidance" : {
-      "comment" : "정류장 상세: 즐겨찾기 유도",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "자주 이용하는 버스를 등록해 주세요."
-          }
-        }
-      }
     },
     "common.a11y.action.delete" : {
       "comment" : "A11y: 공용: 삭제 액션 이름 (2단계에서 추가했다면 생략)",
@@ -118,30 +33,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "홈으로 이동"
-          }
-        }
-      }
-    },
-    "common.a11y.button.refresh" : {
-      "comment" : "A11y: 새로고침 버튼의 VoiceOver 레이블",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "새로고침"
-          }
-        }
-      }
-    },
-    "common.a11y.button.toggleFavorite" : {
-      "comment" : "A11y: 즐겨찾기 상태를 토글하는 버튼",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "즐겨찾기 토글"
           }
         }
       }
@@ -261,34 +152,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Debug Logs"
-          }
-        }
-      }
-    },
-    "Error: %@" : {
-
-    },
-    "home.a11y.button.quickCamera" : {
-      "comment" : "A11y: 빠른 카메라 버튼",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "빠른 카메라"
-          }
-        }
-      }
-    },
-    "home.ui.button.edit" : {
-      "comment" : "홈 화면: 편집 버튼",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "편집"
+            "value" : "Debug"
           }
         }
       }
@@ -353,117 +217,6 @@
         }
       }
     },
-    "homeEdit.a11y.action.moveDown" : {
-      "comment" : "A11y: 편집 목록 항목을 아래로 이동시키는 액션 이름",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "아래로 이동"
-          }
-        }
-      }
-    },
-    "homeEdit.a11y.action.moveUp" : {
-      "comment" : "A11y: 편집 목록 항목을 위로 이동시키는 액션 이름",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "위로 이동"
-          }
-        }
-      }
-    },
-    "homeEdit.a11y.announce.itemDeleted" : {
-      "comment" : "A11y: 즐겨찾기 항목 삭제 완료 시 음성 알림",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "항목이 삭제되었습니다."
-          }
-        }
-      }
-    },
-    "homeEdit.a11y.announce.itemMovedDown" : {
-      "comment" : "A11y: 항목 순서 아래로 이동 완료 시 음성 알림",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "항목이 아래로 이동했습니다."
-          }
-        }
-      }
-    },
-    "homeEdit.a11y.announce.itemMovedUp" : {
-      "comment" : "A11y: 항목 순서 위로 이동 완료 시 음성 알림",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "항목이 위로 이동했습니다."
-          }
-        }
-      }
-    },
-    "homeEdit.a11y.announce.saved" : {
-      "comment" : "A11y: 편집 완료(저장) 버튼 탭 시 음성 알림",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "변경 사항이 저장되었습니다."
-          }
-        }
-      }
-    },
-    "homeEdit.a11y.header" : {
-      "comment" : "A11y: HomeEditView의 목록 헤더 (TestView의 헤더와 구별)",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "즐겨찾기 목록"
-          }
-        }
-      }
-    },
-    "homeEdit.a11y.row.hint" : {
-      "comment" : "A11y: 편집 목록의 각 행에 대한 힌트",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "편집 가능한 항목입니다. 쓸어올리거나 내려서 삭제 또는 순서 변경 동작을 실행하십시오."
-          }
-        }
-      }
-    },
-    "homeEdit.ui.title" : {
-      "comment" : "즐겨찾기 편집: 내비게이션 타이틀",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "즐겨찾기 편집"
-          }
-        }
-      }
-    },
-    "ID: %@" : {
-
-    },
     "k.appName" : {
       "comment" : "앱의 공식 이름",
       "extractionState" : "stale",
@@ -476,210 +229,6 @@
         }
       }
     },
-    "onboarding.ui.button.startApp" : {
-      "comment" : "온보딩 권한: 앱 시작 버튼",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "시작하기"
-          }
-        }
-      }
-    },
-    "onboarding.ui.button.startCTA" : {
-      "comment" : "온보딩 시작: 알아보기 버튼",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "알아보기"
-          }
-        }
-      }
-    },
-    "onboarding.ui.description.camera" : {
-      "comment" : "온보딩 권한: 카메라 사용 이유",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "버스 번호 인식을 위해 사용"
-          }
-        }
-      }
-    },
-    "onboarding.ui.description.location" : {
-      "comment" : "온보딩 권한: 위치 정보 사용 이유",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "위치 기반 정류장 안내를 위해 사용"
-          }
-        }
-      }
-    },
-    "onboarding.ui.description.microphone" : {
-      "comment" : "온보딩 권한: 마이크 사용 이유",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "음성 검색 기능을 위해 사용"
-          }
-        }
-      }
-    },
-    "onboarding.ui.header.permissions" : {
-      "comment" : "온보딩 권한: 상단 헤더",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "시작하기 전에"
-          }
-        }
-      }
-    },
-    "onboarding.ui.label.camera" : {
-      "comment" : "온보딩 권한: 카메라 레이블",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "카메라"
-          }
-        }
-      }
-    },
-    "onboarding.ui.label.disclaimer" : {
-      "comment" : "온보딩 권한: 미동의 시 안내",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "위 권한 사용에 동의하지 않는 경우\n앱 사용이 제한됩니다."
-          }
-        }
-      }
-    },
-    "onboarding.ui.label.location" : {
-      "comment" : "온보딩 권한: 위치 정보 레이블",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "위치 정보"
-          }
-        }
-      }
-    },
-    "onboarding.ui.label.microphone" : {
-      "comment" : "온보딩 권한: 마이크 레이블",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "마이크"
-          }
-        }
-      }
-    },
-    "onboarding.ui.subtitle.permissions" : {
-      "comment" : "온보딩 권한: 부제목",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "더 나은 앱 사용을 위해\n동의가 필요한 권한을 확인해주세요."
-          }
-        }
-      }
-    },
-    "onboarding.ui.title.page1" : {
-      "comment" : "온보딩 1페이지 문구",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "탑승하려는 버스를 즐겨찾기\n하면 버스 인식을 시작할 수 있\n습니다."
-          }
-        }
-      }
-    },
-    "onboarding.ui.title.page2" : {
-      "comment" : "온보딩 2페이지 문구",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "버스 인식 카메라로 버스 번호\n를 확인할 수 있습니다.\n"
-          }
-        }
-      }
-    },
-    "onboarding.ui.title.page3" : {
-      "comment" : "온보딩 3페이지 문구",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "즐겨찾기한 버스는 홈화면에\n서 빠르게 버스인식을 할 수 있\n습니다."
-          }
-        }
-      }
-    },
-    "onboarding.ui.title.permissions" : {
-      "comment" : "온보딩 권한: 내비게이션 타이틀",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "권한 요청"
-          }
-        }
-      }
-    },
-    "onboarding.ui.title.requiredAccess" : {
-      "comment" : "온보딩 권한: 필수 권한 섹션 타이틀",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "필수 접근 권한"
-          }
-        }
-      }
-    },
-    "onboarding.ui.title.start" : {
-      "comment" : "온보딩 시작: 앱 설명 (앱 이름 뒤에 붙음)",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "는 저시력자를 위한\n버스 안내 앱입니다."
-          }
-        }
-      }
-    },
     "quickCamera.ui.title" : {
       "comment" : "빠른 카메라 화면: 타이틀",
       "extractionState" : "stale",
@@ -688,54 +237,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "빠른 카메라"
-          }
-        }
-      }
-    },
-    "search.ui.empty.noStops" : {
-      "comment" : "검색 화면: 주변 정류장 없을 때",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "표시할 정류장이 없습니다."
-          }
-        }
-      }
-    },
-    "search.ui.placeholder" : {
-      "comment" : "검색 화면: 검색창 플레이스홀더",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "검색..."
-          }
-        }
-      }
-    },
-    "search.ui.prefix.stopID" : {
-      "comment" : "검색 결과: 정류장 ID 접두사",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ID:"
-          }
-        }
-      }
-    },
-    "search.ui.title.nearbyStops" : {
-      "comment" : "검색 화면: 주변 정류장 섹션 타이틀",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "주변 정류장"
           }
         }
       }
@@ -1256,7 +757,55 @@
         }
       }
     },
-    "노선 정보를 불러올 수 없습니다." : {
+    "가장 가까운 정류장은 **%@** 입니다. 맞습니까?" : {
+
+    },
+    "마이크 접근" : {
+
+    },
+    "몇번 버스를 탑승하시나요?" : {
+
+    },
+    "버스 번호 인식을 위해 사용" : {
+
+    },
+    "버스 찾기" : {
+
+    },
+    "버스온다를 사용하고 정보를\n위치, 카메라 및 마이크 접근을 허용해 주세요." : {
+
+    },
+    "버스온다에 접근\n권한이 필요합니다." : {
+
+    },
+    "사용자 위치 기반 정류장 안내를 위해 사용" : {
+
+    },
+    "설정으로 이동" : {
+
+    },
+    "아니오" : {
+
+    },
+    "예" : {
+
+    },
+    "위치 정보 접근" : {
+
+    },
+    "음성 검색 기능을 위해 사용" : {
+
+    },
+    "주변 정류장 찾기" : {
+
+    },
+    "주변에 정류장이 없습니다." : {
+
+    },
+    "카메라 접근" : {
+
+    },
+    "현재 위치를 기반으로 버스 정보를 검색합니다." : {
 
     }
   },
