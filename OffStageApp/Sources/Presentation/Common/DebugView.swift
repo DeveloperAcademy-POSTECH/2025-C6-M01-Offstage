@@ -101,7 +101,7 @@
     struct DebugView_Previews: PreviewProvider {
         static var previews: some View {
             DebugView()
-                .environmentObject(LegacyRouter<LegacyAppRoute>(root: .home))
+                .environmentObject(LegacyRouter<AppRoute>(root: .home))
         }
     }
 #endif

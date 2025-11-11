@@ -2,7 +2,7 @@ import Speech // (프로젝트 전역에서 쓰더라도 여기서 임포트해�
 import SwiftUI
 
 struct STTandTTSTestView: View {
-    @EnvironmentObject var router: LegacyRouter<LegacyAppRoute>
+    @EnvironmentObject var router: LegacyRouter<AppRoute>
     // 뷰 생애주기 동안 한 번 생성되어 유지되는 상태 객체
     @StateObject private var speechRecognizer = STTManager()
     @StateObject private var vm = TTSManager()
