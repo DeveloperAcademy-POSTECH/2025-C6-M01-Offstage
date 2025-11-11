@@ -21,7 +21,15 @@ final class TestViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var displaySections: [DTOSection]?
     @Published var rawResponseText: String?
-    @Published var busStopInfo: BusStopInfo
+
+    // Properties for text fields
+    @Published var cityCode: String = "1000"
+    @Published var nodeId: String = "100000001"
+    @Published var routeId: String = "100100006"
+    @Published var stopName: String = "서울역"
+    @Published var routeNo: String = "100"
+    @Published var gpsLati: String = "37.555946"
+    @Published var gpsLong: String = "126.972317"
 
     private let locationProvider: LocationProviding
     private let busRepository: BusRepository
@@ -29,19 +37,9 @@ final class TestViewModel: ObservableObject {
     private let logger = Logger(label: "TestViewModel")
 
     init(
-        busStopInfo: BusStopInfo? = nil,
         locationProvider: LocationProviding = LocationManager(),
         busRepository: BusRepository = MainBusRepository()
     ) {
-        self.busStopInfo = busStopInfo ?? BusStopInfo(
-            cityCode: 1000, // 서울시
-            nodeId: "100000001", // 서울역 버스정류장
-            routeId: "100100006", // 100번 버스
-            stopName: "서울역",
-            routeNo: "100",
-            gpsLati: 37.555946,
-            gpsLong: 126.972317
-        )
         self.locationProvider = locationProvider
         self.busRepository = busRepository
     }
@@ -62,8 +60,8 @@ final class TestViewModel: ObservableObject {
             name: "Stop search"
         ) {
             try await busRepository.searchStops(
-                cityCode: String(busStopInfo.cityCode),
-                keyword: busStopInfo.stopName
+                cityCode: self.cityCode,
+                keyword: self.stopName
             )
         } onSuccess: { [weak self] stops in
             guard let self else { return }
@@ -77,8 +75,8 @@ final class TestViewModel: ObservableObject {
             name: "Stop arrivals"
         ) {
             try await busRepository.fetchStopArrivals(
-                cityCode: String(busStopInfo.cityCode),
-                nodeId: busStopInfo.nodeId
+                cityCode: self.cityCode,
+                nodeId: self.nodeId
             )
         } onSuccess: { [weak self] arrivals in
             guard let self else { return }
@@ -92,9 +90,9 @@ final class TestViewModel: ObservableObject {
             name: "Route-specific arrivals"
         ) {
             try await busRepository.fetchRouteArrivals(
-                cityCode: String(busStopInfo.cityCode),
-                nodeId: busStopInfo.nodeId,
-                routeId: busStopInfo.routeId
+                cityCode: self.cityCode,
+                nodeId: self.nodeId,
+                routeId: self.routeId
             )
         } onSuccess: { [weak self] arrivals in
             guard let self else { return }
@@ -108,8 +106,8 @@ final class TestViewModel: ObservableObject {
             name: "Route vehicle locations"
         ) {
             try await busRepository.fetchRouteLocations(
-                cityCode: String(busStopInfo.cityCode),
-                routeId: busStopInfo.routeId,
+                cityCode: self.cityCode,
+                routeId: self.routeId,
                 page: nil
             )
         } onSuccess: { [weak self] locations in
@@ -128,10 +126,13 @@ final class TestViewModel: ObservableObject {
         await performRequest(
             name: "Nearby stops"
         ) {
-            try await busRepository.fetchStopsNearby(
-                latitude: busStopInfo.gpsLati,
-                longitude: busStopInfo.gpsLong,
-                cityCode: String(busStopInfo.cityCode)
+            guard let lat = Double(self.gpsLati), let lon = Double(self.gpsLong) else {
+                throw BusAPIError.unknown("Invalid GPS coordinates in text fields.")
+            }
+            return try await busRepository.fetchStopsNearby(
+                latitude: lat,
+                longitude: lon,
+                cityCode: self.cityCode
             )
         } onSuccess: { [weak self] stops in
             guard let self else { return }
@@ -145,8 +146,8 @@ final class TestViewModel: ObservableObject {
             name: "Routes by stop"
         ) {
             try await busRepository.fetchRoutesPassingThroughStop(
-                cityCode: String(busStopInfo.cityCode),
-                nodeId: busStopInfo.nodeId
+                cityCode: self.cityCode,
+                nodeId: self.nodeId
             )
         } onSuccess: { [weak self] routes in
             guard let self else { return }
@@ -160,8 +161,8 @@ final class TestViewModel: ObservableObject {
             name: "Route info"
         ) {
             try await busRepository.fetchRouteInfo(
-                cityCode: String(busStopInfo.cityCode),
-                routeId: busStopInfo.routeId
+                cityCode: self.cityCode,
+                routeId: self.routeId
             )
         } onSuccess: { [weak self] route in
             guard let self else { return }
@@ -181,8 +182,8 @@ final class TestViewModel: ObservableObject {
             name: "Route number search"
         ) {
             try await busRepository.searchRoutes(
-                cityCode: String(busStopInfo.cityCode),
-                routeNumber: busStopInfo.routeNo
+                cityCode: self.cityCode,
+                routeNumber: self.routeNo
             )
         } onSuccess: { [weak self] routes in
             guard let self else { return }
@@ -302,8 +303,8 @@ final class TestViewModel: ObservableObject {
             name: "Route stations"
         ) {
             try await busRepository.fetchRouteStations(
-                cityCode: String(busStopInfo.cityCode),
-                routeId: busStopInfo.routeId
+                cityCode: self.cityCode,
+                routeId: self.routeId
             )
         } onSuccess: { [weak self] stations in
             guard let self else { return }
@@ -312,6 +313,26 @@ final class TestViewModel: ObservableObject {
                 title: "경유 정류장",
                 describe: describeStations,
                 emptyMessage: "경유 정류장 정보를 찾을 수 없습니다."
+            )
+        }
+    }
+
+    func testSeoulRouteStations() async {
+        logger.info("testSeoulRouteStations() called")
+        await performRequest(
+            name: "Seoul Route Stations"
+        ) {
+            try await self.busRepository.fetchRouteStations(
+                cityCode: "1000",
+                routeId: self.routeId
+            )
+        } onSuccess: { [weak self] stations in
+            guard let self else { return }
+            updateDisplay(
+                with: stations,
+                title: "서울 노선 경유 정류장",
+                describe: describeStations,
+                emptyMessage: "경유 정류장 정보 없음"
             )
         }
     }
@@ -328,15 +349,8 @@ final class TestViewModel: ObservableObject {
                 }
             } receiveValue: { [weak self] coordinate in
                 guard let self else { return }
-                busStopInfo = BusStopInfo(
-                    cityCode: busStopInfo.cityCode,
-                    nodeId: busStopInfo.nodeId,
-                    routeId: busStopInfo.routeId,
-                    stopName: busStopInfo.stopName,
-                    routeNo: busStopInfo.routeNo,
-                    gpsLati: coordinate.latitude,
-                    gpsLong: coordinate.longitude
-                )
+                gpsLati = String(coordinate.latitude)
+                gpsLong = String(coordinate.longitude)
             }
             .store(in: &cancellables)
     }
@@ -368,6 +382,16 @@ final class TestViewModel: ObservableObject {
             resultText = "오류가 발생했습니다: \(error.localizedDescription)"
         }
         logger.error("\(name) 실패: \(error.localizedDescription)")
+    }
+
+    private func detectCityCode(from gps: GpsInfo) async throws -> String {
+        let locationCoordinate = LocationCoordinate(latitude: gps.latitude, longitude: gps.longitude)
+        guard let placemark = try await locationProvider.fetchPlacemark(from: locationCoordinate) else {
+            throw BusAPIError.unknown("Failed to fetch placemark for city code detection.")
+        }
+        // CityCodeConverter is in BusAPI module, but it should be fine as it has no external dependencies
+        let detectedCityCode = CityCodeConverter.findCode(from: placemark) ?? "31020" // Default to Seongnam
+        return detectedCityCode
     }
 
     private func describeStops(_ stops: [BusStop]) -> String {

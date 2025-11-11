@@ -1,3 +1,4 @@
+import BusAPI
 import Foundation
 
 public final class MainBusRepository: BusRepository {

@@ -100,20 +100,11 @@ final class SearchViewModel: ObservableObject {
 
     private func fetchStops(around location: LocationCoordinate) async {
         do {
-            // [추가] Step 1: Reverse Geocoding으로 Placemark(주소) 가져오기
-            guard let placemark = try await locationManager.fetchPlacemark(from: location) else {
-                throw BusAPIError.unknown // 또는 적절한 에러
-            }
-
-            // [추가] Step 2: Placemark로 CityCode 찾기
-            let detectedCityCode = CityCodeConverter
-                .findCode(from: placemark) ?? "31020" // 서울이 아니면 성남시(31020)를 기본값으로 사용
+            let detectedCityCode = try await detectCityCode(from: location)
 
             // [추가] Step 3: CityCode 저장 (Priming)
             currentCityCode = detectedCityCode
-            print(
-                "GPS Priming: CityCode \(detectedCityCode) 감지됨. Placemark: \(placemark.administrativeArea ?? ""), \(placemark.locality ?? ""), \(placemark.thoroughfare ?? "")"
-            )
+            print("GPS Priming: CityCode \(detectedCityCode) 감지됨.")
 
             // [수정] Step 4: 감지된 cityCode로 API 호출
             let stops = try await busRepository.fetchStopsNearby(
@@ -246,6 +237,14 @@ final class SearchViewModel: ObservableObject {
 
             return (results, inputs)
         }
+    }
+
+    private func detectCityCode(from location: LocationCoordinate) async throws -> String {
+        guard let placemark = try await locationManager.fetchPlacemark(from: location) else {
+            throw BusAPIError.unknown("Failed to fetch placemark for city code detection.")
+        }
+        let detectedCityCode = CityCodeConverter.findCode(from: placemark) ?? "31020" // 서울이 아니면 성남시(31020)를 기본값으로 사용
+        return detectedCityCode
     }
 }
 

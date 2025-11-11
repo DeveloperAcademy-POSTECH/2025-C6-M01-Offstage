@@ -61,3 +61,30 @@ struct SeoulStationRouteDTO: Decodable {
     let busRouteId: String
     let busRouteNm: String
 }
+
+// MARK: - 노선별 경유 정류소 DTO (getStaionByRoute)
+
+struct SeoulRouteStationResponse: Decodable { let msgBody: SeoulRouteStationMsgBody }
+struct SeoulRouteStationMsgBody: Decodable { let itemList: [SeoulRouteStationDTO] }
+
+struct SeoulRouteStationDTO: Codable {
+    let arsId: String
+    let station: String
+    let nodeNm: String
+    let nodeOrd: String
+    let gpsX: String
+    let gpsY: String
+}
+
+// MARK: - 노선별 버스 위치 DTO (getBusPosByRtid)
+
+struct SeoulBusLocationResponse: Decodable { let msgBody: SeoulBusLocationMsgBody }
+struct SeoulBusLocationMsgBody: Decodable { let itemList: [SeoulBusLocationDTO] }
+
+struct SeoulBusLocationDTO: Decodable {
+    let busType: String? // 1: 저상, 0: 일반
+    let lastStnId: String?
+    let plainNo: String?
+    let posX: String?
+    let posY: String?
+}

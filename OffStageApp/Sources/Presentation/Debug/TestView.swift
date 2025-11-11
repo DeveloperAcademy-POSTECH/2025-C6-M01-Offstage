@@ -1,28 +1,46 @@
 import BusAPI
 import SwiftUI
 
-struct TestView: View {
-    @StateObject private var viewModel: TestViewModel
+enum TestProfile: String, CaseIterable, Identifiable {
+    case seoul = "Seoul"
+    case nonSeoul = "Pangyo"
+    var id: Self { self }
+}
 
-    init(busStopInfo: BusStopInfo) {
-        _viewModel = StateObject(wrappedValue: TestViewModel(busStopInfo: busStopInfo))
-    }
+struct TestView: View {
+    @StateObject private var viewModel = TestViewModel()
+    @State private var selectedProfile: TestProfile = .seoul
 
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 24) {
+                    Picker("Test Profile", selection: $selectedProfile) {
+                        ForEach(TestProfile.allCases) { profile in
+                            Text(profile.rawValue).tag(profile)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .onChange(of: selectedProfile) { newProfile in
+                        updateViewModel(for: newProfile)
+                    }
+
+//                    Section(
+//                        header: Text("API Parameters")
+//                    ) {
+//                        parameterSection
+//                    }
+
                     Section(
-                        header: Text("기기 정보")
+                        header: Text("API Calls")
                     ) {
                         actionSection
-                        responseSection
                     }
 
                     Section(
-                        header: Text("버스 정보")
+                        header: Text("API Response")
                     ) {
-                        locationSection
+                        responseSection
                     }
                 }
                 .padding(.horizontal, 20)
@@ -38,47 +56,53 @@ struct TestView: View {
         }
         .onAppear {
             viewModel.onAppear()
+            updateViewModel(for: selectedProfile)
+        }
+    }
+
+    private func updateViewModel(for profile: TestProfile) {
+        switch profile {
+        case .seoul:
+            viewModel.cityCode = "1000"
+            viewModel.nodeId = "100000001"
+            viewModel.routeId = "100100006"
+            viewModel.stopName = "서울역"
+            viewModel.routeNo = "100"
+            viewModel.gpsLati = "37.555946"
+            viewModel.gpsLong = "126.972317"
+        case .nonSeoul:
+            viewModel.cityCode = "31020"
+            viewModel.nodeId = "GGB204000163"
+            viewModel.routeId = "GGB204000013"
+            viewModel.stopName = "판교"
+            viewModel.routeNo = "111"
+            viewModel.gpsLati = "37.394726159"
+            viewModel.gpsLong = "127.1112090472"
         }
     }
 
     @ViewBuilder
-    private var locationSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            let info = viewModel.busStopInfo
-
-            VStack(alignment: .leading, spacing: 12) {
-                if info.stopName.isEmpty {
-                    infoRow(
-                        title: L10n.Test.Ui.labelSearchTerm,
-                        value: L10n.Test.Ui.placeholderNoSearchTerm
-                    )
-                } else {
-                    infoRow(
-                        title: L10n.Test.Ui.labelSearchTerm,
-                        value: info.stopName
-                    )
-                }
-                infoRow(
-                    title: L10n.Test.Ui.labelCoordinates,
-                    value: "\(formattedCoordinate(info.gpsLati))/\(formattedCoordinate(info.gpsLong))"
-                )
-                infoRow(
-                    title: L10n.Test.Ui.labelCityCode,
-                    value: "\(info.cityCode)"
-                )
-                infoRow(
-                    title: L10n.Test.Ui.labelRoute,
-                    value: "\(info.routeId.isEmpty ? "-" : info.routeId)/\(info.routeNo.isEmpty ? "-" : info.routeNo)"
-                )
-                infoRow(
-                    title: L10n.Test.Ui.labelNodeId,
-                    value: info.nodeId.isEmpty ? "-" : info.nodeId
-                )
-            }
-
-            Divider()
+    private var parameterSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            textFieldRow(title: "City Code", text: $viewModel.cityCode)
+            textFieldRow(title: "Stop Name", text: $viewModel.stopName)
+            textFieldRow(title: "Node ID", text: $viewModel.nodeId)
+            textFieldRow(title: "Route ID", text: $viewModel.routeId)
+            textFieldRow(title: "Route No", text: $viewModel.routeNo)
+            textFieldRow(title: "Latitude", text: $viewModel.gpsLati)
+            textFieldRow(title: "Longitude", text: $viewModel.gpsLong)
         }
         .cardStyle()
+    }
+
+    @ViewBuilder
+    private func textFieldRow(title: String, text: Binding<String>) -> some View {
+        HStack {
+            Text(title).frame(width: 80, alignment: .leading)
+            TextField(title, text: text)
+                .textFieldStyle(.roundedBorder)
+                .multilineTextAlignment(.trailing)
+        }
     }
 
     private var responseSection: some View {
@@ -113,13 +137,13 @@ struct TestView: View {
             Label(L10n.Test.Ui.labelApiCall, systemImage: "play.circle.fill")
                 .font(.headline)
 
-            actionGroup(title: L10n.Test.Ui.titleStopSection, actions: stopActions)
-            actionGroup(title: L10n.Test.Ui.titleArrivalSection, actions: arrivalActions)
-            actionGroup(title: L10n.Test.Ui.titleRouteSection, actions: routeActions)
-
-            // MARK: - Seoul API Tests
-
-            actionGroup(title: "Seoul API Tests", actions: seoulAPIActions)
+            if selectedProfile == .seoul {
+                actionGroup(title: "Seoul API Tests", actions: seoulAPIActions)
+            } else {
+                actionGroup(title: L10n.Test.Ui.titleStopSection, actions: stopActions)
+                actionGroup(title: L10n.Test.Ui.titleArrivalSection, actions: arrivalActions)
+                actionGroup(title: L10n.Test.Ui.titleRouteSection, actions: routeActions)
+            }
         }
         .cardStyle()
     }
@@ -239,6 +263,10 @@ struct TestView: View {
                 title: "Seoul Stop Detail",
                 subtitle: "서울 정류소 상세 정보 (도착, 노선)"
             ) { await viewModel.testSeoulStopDetail() },
+            APIAction(
+                title: "Seoul Route Stations",
+                subtitle: "서울 노선 경유 정류장 목록"
+            ) { await viewModel.testSeoulRouteStations() },
         ]
     }
 
@@ -255,28 +283,6 @@ struct TestView: View {
         }
 
         return Array(repeating: GridItem(.flexible(), spacing: 12), count: columnCount)
-    }
-
-    @ViewBuilder
-    private func infoRow(title: LocalizedStringKey, value: String) -> some View {
-        HStack { // Changed from VStack to HStack for accessibility grouping
-            Text(title) // 시각적 UI
-            Spacer()
-            Text(value) // 시각적 UI
-        }
-    }
-
-    @ViewBuilder
-    private func infoRow(title: LocalizedStringKey, value: LocalizedStringKey) -> some View {
-        HStack { // Changed from VStack to HStack for accessibility grouping
-            Text(title)
-            Spacer()
-            Text(value)
-        }
-    }
-
-    private func formattedCoordinate(_ value: Double) -> String {
-        String(format: "%.5f", value)
     }
 }
 
@@ -366,13 +372,5 @@ private extension View {
 }
 
 #Preview {
-    TestView(busStopInfo: .init(
-        cityCode: 25,
-        nodeId: "",
-        routeId: "",
-        stopName: "",
-        routeNo: "",
-        gpsLati: 0,
-        gpsLong: 0
-    ))
+    TestView()
 }

@@ -75,15 +75,11 @@
                     NavigationLink(
                         L10n.Debug.Ui.buttonApiTest,
                         // TODO: 새로운 L10n 키가 필요하면 추가해야 합니다.
-                        destination: TestView(busStopInfo: .init(
-                            cityCode: 31020,
-                            nodeId: "GGB204000163",
-                            routeId: "GGB204000013",
-                            stopName: "판교",
-                            routeNo: "111",
-                            gpsLati: 37.394726159,
-                            gpsLong: 127.1112090472
-                        ))
+                        destination: TestView()
+                    )
+                    NavigationLink(
+                        "MVP API Flow Test",
+                        destination: MVPTestView()
                     )
                 }
                 .navigationTitle(L10n.Debug.Ui.title)

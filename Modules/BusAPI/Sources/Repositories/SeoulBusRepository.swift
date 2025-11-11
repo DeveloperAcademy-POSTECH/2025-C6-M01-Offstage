@@ -22,37 +22,72 @@ public final class SeoulBusRepository: BusRepository {
         []
     }
 
-    public func fetchRouteLocations(cityCode _: String, routeId _: String, page _: Int?) async throws -> [BusLocation] {
-        // 서울 API의 경우 별도 구현이 필요. 일단 미지원으로 빈 배열 반환.
-        []
+    // MARK: - BusRepository Conformance
+
+    public func fetchRouteLocations(cityCode _: String, routeId: String, page _: Int?) async throws -> [BusLocation] {
+        let response = try await provider.request(.getBusPosByRtid(busRouteId: routeId))
+        let body = try decoder.decode(SeoulBusLocationResponse.self, from: response.data)
+        return body.msgBody.itemList.compactMap { dto in
+            guard let lat = Double(dto.posY ?? "0"),
+                  let lon = Double(dto.posX ?? "0")
+            else { return nil }
+
+            return BusLocation(
+                routeId: routeId,
+                routeNumber: "", // Not provided
+                routeType: dto.busType == "1" ? "저상버스" : "일반버스",
+                vehicleNumber: dto.plainNo ?? "",
+                nodeId: dto.lastStnId ?? "",
+                nodeName: "", // Not provided
+                nodeOrder: 0, // Not provided
+                latitude: lat,
+                longitude: lon
+            )
+        }
+    }
+
+    public func fetchRouteStations(cityCode _: String, routeId: String) async throws -> [BusRouteStation] {
+        let response = try await provider.request(.getStaionByRoute(busRouteId: routeId))
+        let body = try decoder.decode(SeoulRouteStationResponse.self, from: response.data)
+
+        return body.msgBody.itemList.compactMap { dto in
+            guard let stationOrder = Int(dto.nodeOrd),
+                  let lat = Double(dto.gpsY),
+                  let lon = Double(dto.gpsX)
+            else {
+                logger.warning("Failed to parse SeoulRouteStationDTO: \(dto)")
+                return nil
+            }
+            return BusRouteStation(
+                stationId: dto.arsId,
+                internalId: dto.station,
+                stationName: dto.nodeNm,
+                stationOrder: stationOrder,
+                turnYn: nil, // Not available in this DTO
+                latitude: lat,
+                longitude: lon
+            )
+        }
     }
 
     public func searchStops(cityCode _: String?, nodeName: String?, nodeNumber: String?) async throws -> [BusStop] {
-        // [수정] 서울 키워드 검색 DTO를 사용
         if let name = nodeName, !name.isEmpty {
             let response = try await provider.request(.getStationByName(name: name))
-            // [수정] SeoulStopResponse -> SeoulKeywordStopResponse
             let body = try decoder.decode(SeoulKeywordStopResponse.self, from: response.data)
-            // [수정] adaptToBusStop(from: SeoulKeywordStopDTO) 헬퍼 사용
             return body.msgBody.itemList.compactMap { adaptToBusStop(from: $0) }
         }
 
         if let number = nodeNumber, !number.isEmpty {
             let response = try await provider.request(.getStationByName(name: number))
-            // [수정] SeoulStopResponse -> SeoulKeywordStopResponse
             let body = try decoder.decode(SeoulKeywordStopResponse.self, from: response.data)
-            // [수정] adaptToBusStop(from: SeoulKeywordStopDTO) 헬퍼 사용
             return body.msgBody.itemList.compactMap { adaptToBusStop(from: $0) }
         }
         return []
     }
 
     public func fetchStopsNearby(latitude: Double, longitude: Double, cityCode _: String?) async throws -> [BusStop] {
-        // 서울 API는 WGS84 좌표를 그대로 사용 (tmX = longitude, tmY = latitude)
         let response = try await provider.request(.getStationByPos(tmX: longitude, tmY: latitude))
-        // [수정] SeoulStopResponse -> SeoulGpsStopResponse
         let body = try decoder.decode(SeoulGpsStopResponse.self, from: response.data)
-        // [수정] adaptToBusStop(from: SeoulGpsStopDTO) 헬퍼 사용
         return body.msgBody.itemList.compactMap { adaptToBusStop(from: $0) }
     }
 
@@ -80,19 +115,12 @@ public final class SeoulBusRepository: BusRepository {
     }
 
     public func searchRoutes(cityCode _: String, routeNumber: String) async throws -> [BusRoute] {
-        // Seoul API's getBusRouteList supports searching by routeId/name; here we pass routeNumber
         let response = try await provider.request(.getRouteInfo(routeId: routeNumber))
         let body = try decoder.decode(SeoulRouteInfoResponse.self, from: response.data)
         return body.msgBody.itemList.map { adaptToBusRoute(from: $0) }
     }
 
-    public func fetchRouteStations(cityCode _: String, routeId _: String) async throws -> [BusRouteStation] {
-        // Not implemented: would require a different Seoul API endpoint and DTOs
-        []
-    }
-
     public func fetchStopArrivals(cityCode _: String, nodeId: String) async throws -> [BusArrival] {
-        // Seoul API expects arsId (정류소번호) for station arrival query
         let response = try await provider.request(.getStationArrivals(arsId: nodeId))
         let body = try decoder.decode(SeoulArrivalResponse.self, from: response.data)
 
@@ -103,36 +131,32 @@ public final class SeoulBusRepository: BusRepository {
     }
 
     public func fetchRouteArrivals(cityCode: String, nodeId: String, routeId: String) async throws -> [BusArrival] {
-        // Seoul API doesn't provide a combined node+route arrival endpoint in the current Target; fallback to
-        // fetchStopArrivals and filter
         let all = try await fetchStopArrivals(cityCode: cityCode, nodeId: nodeId)
         return all.filter { $0.routeId == routeId }
     }
 
     // MARK: - Adapter helpers
 
-    // [수정] GPS 검색용 헬퍼
     private func adaptToBusStop(from dto: SeoulGpsStopDTO) -> BusStop? {
         guard let lat = Double(dto.gpsY), let lon = Double(dto.gpsX) else { return nil }
         return BusStop(
-            nodeId: dto.arsId, // 'arsId' 사용
-            name: dto.stationNm, // 'stationNm' 사용
+            nodeId: dto.arsId,
+            name: dto.stationNm,
             number: dto.arsId,
-            cityCode: Int(1000),
+            cityCode: 1000,
             direction: nil,
             latitude: lat,
             longitude: lon
         )
     }
 
-    // [추가] 키워드 검색용 헬퍼
     private func adaptToBusStop(from dto: SeoulKeywordStopDTO) -> BusStop? {
         guard let lat = Double(dto.tmY), let lon = Double(dto.tmX) else { return nil }
         return BusStop(
-            nodeId: dto.arsId, // 'arsId' 사용
-            name: dto.stNm, // 'stNm' 사용
+            nodeId: dto.arsId,
+            name: dto.stNm,
             number: dto.arsId,
-            cityCode: Int(1000),
+            cityCode: 1000,
             direction: nil,
             latitude: lat,
             longitude: lon
@@ -171,6 +195,21 @@ public final class SeoulBusRepository: BusRepository {
             endStopName: dto.edStationNm,
             startTime: nil,
             endTime: nil
+        )
+    }
+
+    private func adaptToBusLocation(from dto: SeoulBusLocationDTO, routeId: String) -> BusLocation? {
+        guard let lat = Double(dto.posY ?? "0"), let lon = Double(dto.posX ?? "0") else { return nil }
+        return BusLocation(
+            routeId: routeId,
+            routeNumber: "", // Not provided
+            routeType: dto.busType == "1" ? "저상버스" : "일반버스",
+            vehicleNumber: dto.plainNo ?? "",
+            nodeId: dto.lastStnId ?? "",
+            nodeName: "", // Not provided
+            nodeOrder: 0, // Not provided
+            latitude: lat,
+            longitude: lon
         )
     }
 }
