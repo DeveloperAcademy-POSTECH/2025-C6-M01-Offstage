@@ -15,4 +15,6 @@ public protocol LocationProviding {
 
     /// GPS 좌표를 주소(CLPlacemark)로 변환합니다.
     func fetchPlacemark(from location: LocationCoordinate) async throws -> CLPlacemark?
+
+    func requestLocation() async throws -> LocationCoordinate
 }

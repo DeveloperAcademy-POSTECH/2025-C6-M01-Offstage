@@ -9,6 +9,7 @@ import Foundation
 final class LocationManager: NSObject, LocationProviding {
     private let locationManager = CLLocationManager()
     private let subject = PassthroughSubject<LocationCoordinate, Error>()
+    private var locationContinuation: CheckedContinuation<LocationCoordinate, Error>?
 
     lazy var currentLocation: AnyPublisher<LocationCoordinate, Error> = subject.eraseToAnyPublisher()
 
@@ -23,6 +24,13 @@ final class LocationManager: NSObject, LocationProviding {
 
     func requestLocationPermission() {
         locationManager.requestWhenInUseAuthorization()
+    }
+
+    func requestLocation() async throws -> LocationCoordinate {
+        try await withCheckedThrowingContinuation { continuation in
+            locationContinuation = continuation
+            locationManager.requestLocation()
+        }
     }
 
     // [추가] 프로토콜 함수 구현
@@ -47,7 +55,8 @@ extension LocationManager: CLLocationManagerDelegate {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         switch manager.authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:
-            manager.startUpdatingLocation()
+            // locationManager.startUpdatingLocation() // requestLocation()을 위해 자동 시작 제거
+            break
         case .denied, .restricted:
             // TODO: Handle location access denial. Maybe publish an error.
             break
@@ -65,9 +74,13 @@ extension LocationManager: CLLocationManagerDelegate {
             longitude: location.coordinate.longitude
         )
         subject.send(coordinate)
+        locationContinuation?.resume(returning: coordinate)
+        locationContinuation = nil
     }
 
     func locationManager(_: CLLocationManager, didFailWithError error: Error) {
         subject.send(completion: .failure(error))
+        locationContinuation?.resume(throwing: error)
+        locationContinuation = nil
     }
 }

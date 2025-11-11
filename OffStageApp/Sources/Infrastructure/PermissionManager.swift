@@ -122,6 +122,20 @@ final class PermissionManager: NSObject, ObservableObject {
         return allPermissions.filter { !deniedPermissions.contains($0) }
     }
 
+    func isGranted(_ permission: PermissionType) -> Bool {
+        switch permission {
+        case .location:
+            let status = CLLocationManager.authorizationStatus()
+            return status == .authorizedWhenInUse || status == .authorizedAlways
+        case .camera:
+            return AVCaptureDevice.authorizationStatus(for: .video) == .authorized
+        case .microphone:
+            return AVAudioSession.sharedInstance().recordPermission == .granted
+        case .speech:
+            return SFSpeechRecognizer.authorizationStatus() == .authorized
+        }
+    }
+
     // MARK: - 알림 권한 요청
 
     private func requestNotifications() async -> Bool {
