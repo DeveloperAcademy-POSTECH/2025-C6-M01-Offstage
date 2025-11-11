@@ -17,8 +17,7 @@ final class HomeViewModel: ObservableObject {
     }
 
     private func detectCityCode(from gps: CLLocationCoordinate2D) async throws -> String {
-        let locationCoordinate = LocationCoordinate(latitude: gps.latitude, longitude: gps.longitude)
-        guard let placemark = try await locationProvider.fetchPlacemark(from: locationCoordinate) else {
+        guard let placemark = try await locationProvider.fetchPlacemark(from: gps) else {
             throw BusAPIError.unknown("Failed to fetch placemark for city code detection.")
         }
         let detectedCityCode = CityCodeConverter.findCode(from: placemark) ?? "31020" // Default to Seongnam
