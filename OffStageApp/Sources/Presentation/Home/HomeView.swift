@@ -83,7 +83,16 @@ struct HomeView: View {
             }
         }
         .sheet(isPresented: $isSheetPresented) {
-            SheetView()
+            SheetView(
+                nearestBusStop: viewModel.nearestBusStop,
+                busRoutes: viewModel.busRoutes, // Pass routes
+                onRouteSelected: { selectedRoute in
+                    // This closure will be called when a route is selected in SheetView
+                    print("HomeView received selected route: \(selectedRoute.routeNumber)")
+                    // You can add further logic here, e.g., update a @State variable in HomeView
+                    // or trigger another action based on the selected route.
+                }
+            )
         }
     }
 

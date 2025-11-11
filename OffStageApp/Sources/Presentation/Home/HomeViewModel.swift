@@ -7,6 +7,7 @@ import BusAPI
 @MainActor
 final class HomeViewModel: ObservableObject {
     @Published var nearestBusStop: BusStop?
+    @Published var busRoutes: [BusRoute] = []
     @Published var isLoading = false
 
     private var locationProvider: LocationProviding
@@ -26,6 +27,8 @@ final class HomeViewModel: ObservableObject {
 
     func fetchNearestStop() {
         Task {
+            isLoading = true
+            defer { isLoading = false }
             do {
                 let location = try await locationProvider.requestLocation()
                 let coordinate = CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude)
@@ -35,11 +38,38 @@ final class HomeViewModel: ObservableObject {
                     longitude: coordinate.longitude,
                     cityCode: cityCodeString
                 )
-                nearestBusStop = stops.first
+
+                if let firstStop = stops.first {
+                    nearestBusStop = firstStop
+                    await fetchBusRoutes(for: firstStop)
+                } else {
+                    nearestBusStop = nil
+                    busRoutes = []
+                }
+
             } catch {
                 // TODO: Handle error properly
                 print("Error fetching nearest stop: \(error)")
+                nearestBusStop = nil
+                busRoutes = []
             }
+        }
+    }
+
+    private func fetchBusRoutes(for stop: BusStop) async {
+        do {
+            let cityCodeString = try await detectCityCode(from: CLLocationCoordinate2D(
+                latitude: stop.latitude,
+                longitude: stop.longitude
+            ))
+            let routes = try await busRepository.fetchRoutesPassingThroughStop(
+                cityCode: cityCodeString,
+                nodeId: stop.nodeId
+            )
+            busRoutes = routes
+        } catch {
+            print("Error fetching bus routes: \(error)")
+            busRoutes = []
         }
     }
 }
