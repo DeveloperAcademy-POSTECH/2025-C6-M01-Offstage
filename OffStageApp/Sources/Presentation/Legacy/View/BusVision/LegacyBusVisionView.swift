@@ -6,7 +6,7 @@ struct LegacyBusVisionView: View {
     var routeNumbers: [String]
     @State var detectedRouteNumbers: [String] = []
 
-    @EnvironmentObject var router: Router<AppRoute>
+    @EnvironmentObject var router: LegacyRouter<AppRoute>
 
     // init
     init(routeNumbers: [String]) {

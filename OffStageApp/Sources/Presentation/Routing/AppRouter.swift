@@ -2,26 +2,26 @@ import BusAPI
 import SwiftUI
 
 enum AppRouter: Routable {
-    case onboardingnew
-    case homenew
-    case businfonew
-    case busvisionnew
+    case onboarding
+    case home
+    case businfo
+    case busvision
 
     @MainActor
     @ViewBuilder
     func view() -> some View {
         switch self {
-        case .onboardingnew:
-            OnboardingNewView()
+        case .onboarding:
+            OnboardingView()
 
-        case .homenew:
-            HomeNewView()
+        case .home:
+            HomeView()
 
-        case .businfonew:
-            BusInfoNewView()
+        case .businfo:
+            BusInfoView()
 
-        case .busvisionnew:
-            BusVisionNewView()
+        case .busvision:
+            BusVisionView()
         }
     }
 }

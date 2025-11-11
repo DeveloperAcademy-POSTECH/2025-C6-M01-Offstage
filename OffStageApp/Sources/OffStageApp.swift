@@ -3,7 +3,7 @@ import SwiftUI
 
 #if DEBUG_MODE
     struct DebugOverlay<Content: View>: View {
-        @ObservedObject var router: NewRouter<NewAppRoute>
+        @ObservedObject var router: Router<AppRouter>
         @ViewBuilder let content: Content
         @State private var showDebugSheet = false
 
@@ -33,14 +33,14 @@ import SwiftUI
 
 @main
 struct OffStageApp: App {
-    @StateObject private var router: NewRouter<NewAppRoute>
+    @StateObject private var router: Router<AppRouter>
 
     init() {
         #if DEBUG_MODE
-            _router = StateObject(wrappedValue: NewRouter(root: .onboardingnew))
+            _router = StateObject(wrappedValue: Router(root: .onboardingnew))
         #else
             let hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
-            _router = StateObject(wrappedValue: NewRouter(root: hasLaunchedBefore ? .homenew : .onboardingnew))
+            _router = StateObject(wrappedValue: Router(root: hasLaunchedBefore ? .home : .onboarding))
         #endif
     }
 
@@ -48,10 +48,10 @@ struct OffStageApp: App {
         WindowGroup {
             #if DEBUG_MODE
                 DebugOverlay(router: router) {
-                    NewRouterView(router: router)
+                    RouterView(router: router)
                 }
             #else
-                NewRouterView(router: router)
+                RouterView(router: router)
             #endif
         }
         .modelContainer(for: Favorite.self)

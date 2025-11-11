@@ -4,7 +4,7 @@ import SwiftUI
 import UIKit
 
 struct LegacyHomeView: View {
-    @EnvironmentObject var router: Router<AppRoute>
+    @EnvironmentObject var router: LegacyRouter<AppRoute>
     @Environment(\.modelContext) private var modelContext
     @State private var locationProvider: LocationProviding = LocationManager()
     @StateObject private var permissionManager = PermissionManager()

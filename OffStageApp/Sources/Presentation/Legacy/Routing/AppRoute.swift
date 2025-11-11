@@ -1,7 +1,7 @@
 import BusAPI
 import SwiftUI
 
-enum AppRoute: Routable {
+enum AppRoute: LegacyRoutable {
     case home
     case search
     case busVision(routeToDetect: [String])

@@ -7,7 +7,7 @@ struct OnboardingPage {
 }
 
 struct LegacyOnboardingView: View {
-    @EnvironmentObject var router: Router<AppRoute>
+    @EnvironmentObject var router: LegacyRouter<AppRoute>
     @State private var currentPage = 0
     @State private var didFinishOnboarding = false
     private let startPage = OnboardingPage(
@@ -79,5 +79,5 @@ struct LegacyOnboardingView: View {
 }
 
 #Preview {
-    RouterView(router: Router<AppRoute>(root: .onboarding))
+    LegacyRouterView(router: LegacyRouter<AppRoute>(root: .onboarding))
 }

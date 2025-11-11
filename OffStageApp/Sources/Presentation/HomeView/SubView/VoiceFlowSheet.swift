@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct VoiceFlowSheet: View {
-    @EnvironmentObject var router: NewRouter<NewAppRoute>
+    @EnvironmentObject var router: Router<AppRouter>
     @Environment(\.dismiss) var dismiss
     @State private var currentPage = 0
 
@@ -18,7 +18,7 @@ struct VoiceFlowSheet: View {
                     onNavigate: {
                         dismiss()
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            router.push(.businfonew)
+                            router.push(.businfo)
                         }
                     },
                     onShowBusList: {
@@ -40,7 +40,7 @@ struct VoiceFlowSheet: View {
                     onNavigate: {
                         dismiss()
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            router.push(.businfonew)
+                            router.push(.businfo)
                         }
                     }
                 )
