@@ -1,5 +1,6 @@
 import BusAPI
 import Combine
+import CoreLocation
 import Foundation
 import Logging
 
@@ -60,7 +61,7 @@ final class MVPTestViewModel: ObservableObject {
         }
 
         do {
-            let cityCodeString = try await detectCityCode(from: LocationCoordinate(latitude: lat, longitude: lon))
+            let cityCodeString = try await detectCityCode(from: CLLocationCoordinate2D(latitude: lat, longitude: lon))
             let stops = try await busRepository.fetchStopsNearby(
                 latitude: lat,
                 longitude: lon,
@@ -82,7 +83,7 @@ final class MVPTestViewModel: ObservableObject {
         displaySections = nil
         rawResponseText = nil
 
-        let locationCoordinate = LocationCoordinate(latitude: stop.latitude, longitude: stop.longitude)
+        let locationCoordinate = CLLocationCoordinate2D(latitude: stop.latitude, longitude: stop.longitude)
 
         do {
             let cityCodeString = try await detectCityCode(from: locationCoordinate)
@@ -166,7 +167,7 @@ final class MVPTestViewModel: ObservableObject {
     }
 
     private func fetchMVPBusInfo(
-        gps: LocationCoordinate,
+        gps: CLLocationCoordinate2D,
         cityCode: Int,
         routeQuery: String
     ) async -> MVPResult {
@@ -215,9 +216,8 @@ final class MVPTestViewModel: ObservableObject {
         }
     }
 
-    private func detectCityCode(from gps: LocationCoordinate) async throws -> String {
-        let locationCoordinate = LocationCoordinate(latitude: gps.latitude, longitude: gps.longitude)
-        guard let placemark = try await locationProvider.fetchPlacemark(from: locationCoordinate) else {
+    private func detectCityCode(from gps: CLLocationCoordinate2D) async throws -> String {
+        guard let placemark = try await locationProvider.fetchPlacemark(from: gps) else {
             throw BusAPIError.unknown("Failed to fetch placemark for city code detection.")
         }
         let detectedCityCode = CityCodeConverter.findCode(from: placemark) ?? "31020" // Default to Seongnam

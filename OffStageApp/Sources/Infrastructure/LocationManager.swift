@@ -8,9 +8,10 @@ import Foundation
 /// with the `CLLocationManager` system API.
 final class LocationManager: NSObject, LocationProviding {
     private let locationManager = CLLocationManager()
-    private let subject = PassthroughSubject<LocationCoordinate, Error>()
+    private let subject = PassthroughSubject<CLLocationCoordinate2D, Error>()
+    private var locationContinuation: CheckedContinuation<CLLocationCoordinate2D, Error>?
 
-    lazy var currentLocation: AnyPublisher<LocationCoordinate, Error> = subject.eraseToAnyPublisher()
+    lazy var currentLocation: AnyPublisher<CLLocationCoordinate2D, Error> = subject.eraseToAnyPublisher()
 
     // [추가] Reverse Geocoding을 위한 지오코더
     private let geocoder = CLGeocoder()
@@ -25,8 +26,15 @@ final class LocationManager: NSObject, LocationProviding {
         locationManager.requestWhenInUseAuthorization()
     }
 
+    func requestLocation() async throws -> CLLocationCoordinate2D {
+        try await withCheckedThrowingContinuation { continuation in
+            locationContinuation = continuation
+            locationManager.requestLocation()
+        }
+    }
+
     // [추가] 프로토콜 함수 구현
-    func fetchPlacemark(from location: LocationCoordinate) async throws -> CLPlacemark? {
+    func fetchPlacemark(from location: CLLocationCoordinate2D) async throws -> CLPlacemark? {
         let clLocation = CLLocation(
             latitude: location.latitude,
             longitude: location.longitude
@@ -47,7 +55,8 @@ extension LocationManager: CLLocationManagerDelegate {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         switch manager.authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:
-            manager.startUpdatingLocation()
+            // locationManager.startUpdatingLocation() // requestLocation()을 위해 자동 시작 제거
+            break
         case .denied, .restricted:
             // TODO: Handle location access denial. Maybe publish an error.
             break
@@ -60,14 +69,18 @@ extension LocationManager: CLLocationManagerDelegate {
 
     func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        let coordinate = LocationCoordinate(
+        let coordinate = CLLocationCoordinate2D(
             latitude: location.coordinate.latitude,
             longitude: location.coordinate.longitude
         )
         subject.send(coordinate)
+        locationContinuation?.resume(returning: coordinate)
+        locationContinuation = nil
     }
 
     func locationManager(_: CLLocationManager, didFailWithError error: Error) {
         subject.send(completion: .failure(error))
+        locationContinuation?.resume(throwing: error)
+        locationContinuation = nil
     }
 }

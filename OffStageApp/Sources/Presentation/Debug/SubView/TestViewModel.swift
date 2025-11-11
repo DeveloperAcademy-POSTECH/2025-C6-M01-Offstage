@@ -1,5 +1,6 @@
 import BusAPI
 import Combine
+import CoreLocation
 import Foundation
 import Logging
 
@@ -384,9 +385,8 @@ final class TestViewModel: ObservableObject {
         logger.error("\(name) 실패: \(error.localizedDescription)")
     }
 
-    private func detectCityCode(from gps: LocationCoordinate) async throws -> String {
-        let locationCoordinate = LocationCoordinate(latitude: gps.latitude, longitude: gps.longitude)
-        guard let placemark = try await locationProvider.fetchPlacemark(from: locationCoordinate) else {
+    private func detectCityCode(from gps: CLLocationCoordinate2D) async throws -> String {
+        guard let placemark = try await locationProvider.fetchPlacemark(from: gps) else {
             throw BusAPIError.unknown("Failed to fetch placemark for city code detection.")
         }
         // CityCodeConverter is in BusAPI module, but it should be fine as it has no external dependencies
