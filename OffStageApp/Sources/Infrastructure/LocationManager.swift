@@ -12,7 +12,7 @@ final class LocationManager: NSObject, LocationProviding {
     static let shared = LocationManager()
     private let locationManager = CLLocationManager()
     // CurrentValueSubject을 사용하여 최신 위치(모의 또는 실제)를 저장합니다.
-    // 이렇게 하면 토글로 mock을 켠 뒤 화면을 갱신하지 않아도 새로운 구독자(예: SearchViewModel)
+    // 이렇게 하면 토글로 mock을 켠 뒤 화면을 갱신하지 않아도 새로운 구독자(예: LegacySearchViewModel)
     // 가 즉시 마지막 위치를 받을 수 있습니다.
     private let subject = CurrentValueSubject<LocationCoordinate?, Error>(nil)
 
