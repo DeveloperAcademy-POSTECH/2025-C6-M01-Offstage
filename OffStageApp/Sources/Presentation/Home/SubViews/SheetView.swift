@@ -1,6 +1,7 @@
 import BusAPI
 import SwiftUI
 
+// TODO: tts기반으로, busRoutes 목록 중 유사값 추측하는 모델 필요
 struct SheetView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = SheetViewModel()
@@ -114,7 +115,14 @@ struct SheetView: View {
 
         VStack(spacing: 20) {
             Button(action: {
-                // 비워두세요
+                if let matchingRoute = busRoutes.first(where: { $0.routeNumber == recognizedBusNumber }) {
+                    onRouteSelected(matchingRoute)
+                    print("Confirmed and returned matching route: \(matchingRoute.routeNumber)")
+                } else {
+                    print("No matching bus route found for recognized number: \(recognizedBusNumber)")
+                    // Optionally, you could keep the sheet open or show an alert here.
+                }
+                dismiss()
             }) {
                 Text("네, 맞아요.")
                     .font(.title2)

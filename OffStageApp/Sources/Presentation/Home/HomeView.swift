@@ -3,6 +3,7 @@ import SwiftData
 import SwiftUI
 import UIKit
 
+// TODO: 정류장 데이터 없을 시, mic 버튼 비활성화
 struct HomeView: View {
     @EnvironmentObject var router: Router<AppRoute>
     @StateObject private var viewModel: HomeViewModel
@@ -85,12 +86,15 @@ struct HomeView: View {
         .sheet(isPresented: $isSheetPresented) {
             SheetView(
                 nearestBusStop: viewModel.nearestBusStop,
-                busRoutes: viewModel.busRoutes, // Pass routes
+                busRoutes: viewModel.busRoutes,
                 onRouteSelected: { selectedRoute in
-                    // This closure will be called when a route is selected in SheetView
                     print("HomeView received selected route: \(selectedRoute.routeNumber)")
-                    // You can add further logic here, e.g., update a @State variable in HomeView
-                    // or trigger another action based on the selected route.
+                    isSheetPresented = false // Dismiss the sheet
+                    if let nearestStop = viewModel.nearestBusStop {
+                        router.push(.busArrival(busStop: nearestStop, busRoute: selectedRoute))
+                    } else {
+                        print("Error: Nearest bus stop not available for navigation.")
+                    }
                 }
             )
         }
