@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct BusVisionNewView: View {
-    @EnvironmentObject var router: NewRouter<NewAppRoute>
+struct BusVisionView: View {
+    @EnvironmentObject var router: Router<AppRouter>
 
     var body: some View {
         ZStack {

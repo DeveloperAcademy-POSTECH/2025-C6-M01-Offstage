@@ -1,7 +1,7 @@
 import Combine
 import SwiftUI
 
-final class NewRouter<T: NewRoutable>: ObservableObject {
+final class LegacyRouter<T: LegacyRoutable>: ObservableObject {
     @Published var root: T
     @Published var paths: [T] = []
 

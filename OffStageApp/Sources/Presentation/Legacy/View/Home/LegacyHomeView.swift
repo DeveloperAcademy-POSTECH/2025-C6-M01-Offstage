@@ -3,7 +3,7 @@ import SwiftData
 import SwiftUI
 import UIKit
 
-struct HomeView: View {
+struct LegacyHomeView: View {
     @EnvironmentObject var router: Router<AppRoute>
     @Environment(\.modelContext) private var modelContext
     @State private var locationProvider: LocationProviding = LocationManager()
@@ -177,7 +177,7 @@ struct HomeView: View {
     }
 }
 
-extension HomeView {
+extension LegacyHomeView {
     struct FavoritedStop: Identifiable {
         let favorites: [Favorite]
         var id: String { (favorites.first?.nodeId ?? "") + favorites.map(\.id).joined() }

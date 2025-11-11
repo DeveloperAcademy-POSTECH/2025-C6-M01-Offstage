@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct BusInfoNewView: View {
-    @EnvironmentObject var router: NewRouter<NewAppRoute>
+struct BusInfoView: View {
+    @EnvironmentObject var router: Router<AppRouter>
     @State private var busRecognition = true // 로직 구현시 삭제
 
     var body: some View {
@@ -55,7 +55,7 @@ struct BusInfoNewView: View {
                 .multilineTextAlignment(.center)
 
             Button {
-                router.push(.busvisionnew)
+                router.push(.busvision)
             } label: {
                 HStack {
                     Image(systemName: "camera")

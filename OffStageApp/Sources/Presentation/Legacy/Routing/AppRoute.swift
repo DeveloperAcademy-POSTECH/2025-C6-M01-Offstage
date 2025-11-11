@@ -16,7 +16,7 @@ enum AppRoute: Routable {
     func view() -> some View {
         switch self {
         case .home:
-            HomeView()
+            LegacyHomeView()
 
         case .search:
             // Use shared LocationManager so DebugView can toggle mock mode on the same instance
@@ -28,13 +28,13 @@ enum AppRoute: Routable {
             BusStationView(input: input)
 
         case let .busVision(routeToDetect):
-            BusVisionView(routeNumbers: routeToDetect)
+            LegacyBusVisionView(routeNumbers: routeToDetect)
 
         case .homeEdit:
             HomeEditView()
 
         case .onboarding:
-            OnboardingView()
+            LegacyOnboardingView()
 
         case .sttTest:
             STTandTTSTestView()

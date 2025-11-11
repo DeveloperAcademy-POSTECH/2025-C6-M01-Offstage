@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct NewRouterView<Route: NewRoutable>: View {
-    @ObservedObject var router: NewRouter<Route>
+struct LegacyRouterView<Route: LegacyRoutable>: View {
+    @ObservedObject var router: LegacyRouter<Route>
 
     var body: some View {
         NavigationStack(path: $router.paths) {

@@ -1,6 +1,6 @@
 import SwiftUI
 
-protocol NewRoutable: Hashable {
+protocol LegacyRoutable: Hashable {
     associatedtype V: View
     @ViewBuilder func view() -> V
 }

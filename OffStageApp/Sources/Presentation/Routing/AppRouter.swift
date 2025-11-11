@@ -1,7 +1,7 @@
 import BusAPI
 import SwiftUI
 
-enum NewAppRoute: NewRoutable {
+enum AppRouter: Routable {
     case onboardingnew
     case homenew
     case businfonew
