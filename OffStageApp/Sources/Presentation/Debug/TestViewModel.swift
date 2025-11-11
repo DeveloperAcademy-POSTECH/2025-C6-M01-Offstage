@@ -36,6 +36,11 @@ final class TestViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private let logger = Logger(label: "TestViewModel")
 
+    struct GpsInfo {
+        let latitude: Double
+        let longitude: Double
+    }
+
     init(
         locationProvider: LocationProviding = LocationManager(),
         busRepository: BusRepository = MainBusRepository()
