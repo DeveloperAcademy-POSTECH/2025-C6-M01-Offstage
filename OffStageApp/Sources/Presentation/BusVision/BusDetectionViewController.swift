@@ -15,7 +15,7 @@ final class BusDetectionViewController: UIViewController {
     // APIs
     private var captureSession: AVCaptureSession?
     private var request: VNCoreMLRequest?
-    var impactFeedbackGenerator: UIImpactFeedbackGenerator? // TODO: Haptic Manager로 교체
+    private var hapticManager = HapticManager.shared
     private var ttsManager: TTSManager = .init()
 
     // subviews
@@ -335,8 +335,7 @@ extension BusDetectionViewController {
                     return
                 }
 
-                self.impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
-                self.impactFeedbackGenerator?.impactOccurred()
+                self.hapticManager.playHaptic(intensity: 1.0, sharpness: 0.0, duration: 0.2)
 
                 finalPredictions.append(prediction)
 
