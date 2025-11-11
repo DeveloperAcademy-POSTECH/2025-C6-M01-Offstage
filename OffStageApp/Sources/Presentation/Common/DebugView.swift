@@ -2,7 +2,7 @@
     import SwiftUI
 
     struct DebugView: View {
-        @EnvironmentObject var router: Router<AppRouter>
+        @EnvironmentObject var router: Router<AppRoute>
         @Environment(\.dismiss) private var dismiss
 
         private let debugSelectionKey = "Debug.MockLocationType"
@@ -66,7 +66,7 @@
                     }
                     NavigationLink(
                         L10n.Debug.Ui.linkBusVision,
-                        destination: LegacyBusVisionView(routeNumbers: ["207", "306"])
+                        destination: BusVisionView(routeNumbers: ["207", "306"])
                     )
                     NavigationLink(
                         L10n.Debug.Ui.buttonApiTest,
@@ -89,7 +89,7 @@
             Button {
                 dismiss() // 시트 닫기
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-//                    router.push(.sttTest) // 시트 애니메이션 후 라우팅
+                    router.push(.sttTest) // 시트 애니메이션 후 라우팅
                 }
             } label: {
                 Text(L10n.Debug.Ui.buttonSttTtsTest)
@@ -101,7 +101,7 @@
     struct DebugView_Previews: PreviewProvider {
         static var previews: some View {
             DebugView()
-                .environmentObject(LegacyRouter<AppRoute>(root: .home))
+                .environmentObject(Router<AppRoute>(root: .home))
         }
     }
 #endif

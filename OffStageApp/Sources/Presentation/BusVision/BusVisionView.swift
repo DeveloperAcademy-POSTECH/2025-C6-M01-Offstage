@@ -1,12 +1,12 @@
 import SwiftUI
 
 /// router와 연결되는 메인 버스 비전 뷰
-struct LegacyBusVisionView: View {
+struct BusVisionView: View {
     // properties
     var routeNumbers: [String]
     @State var detectedRouteNumbers: [String] = []
 
-    @EnvironmentObject var router: LegacyRouter<AppRoute>
+    @EnvironmentObject var router: Router<AppRoute>
 
     // init
     init(routeNumbers: [String]) {
@@ -43,7 +43,7 @@ struct LegacyBusVisionView: View {
     }
 }
 
-extension LegacyBusVisionView {
+extension BusVisionView {
     private func removeParenthesesContent(_ text: String) -> String {
         if let range = text.range(of: "\\(.*\\)", options: .regularExpression) {
             return text.replacingCharacters(in: range, with: "").trimmingCharacters(in: .whitespaces)

@@ -2,7 +2,7 @@ import BusAPI
 import SwiftUI
 
 struct BusStationCardSubView: View {
-    @EnvironmentObject var router: LegacyRouter<AppRoute>
+    @EnvironmentObject var router: Router<AppRoute>
     @StateObject private var viewModel: BusStationCardViewModel
 
     let stationName: String
@@ -89,5 +89,5 @@ struct BusStationCardSubView: View {
         favorites: [],
         refreshTrigger: UUID()
     )
-    .environmentObject(LegacyRouter<AppRoute>(root: .home))
+    .environmentObject(Router<AppRoute>(root: .home))
 }

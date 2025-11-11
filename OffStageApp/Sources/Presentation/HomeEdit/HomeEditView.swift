@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 struct HomeEditView: View {
-    @EnvironmentObject var router: LegacyRouter<AppRoute>
+    @EnvironmentObject var router: Router<AppRoute>
     @Environment(\.modelContext) private var modelContext
     @Query(sort: [
         SortDescriptor<Favorite>(\Favorite.order),
@@ -126,7 +126,7 @@ extension HomeEditView {
 #Preview {
     do {
         let container = try ModelContainer(for: Favorite.self, configurations: .init(isStoredInMemoryOnly: true))
-        return LegacyRouterView(router: LegacyRouter<AppRoute>(root: .homeEdit))
+        return RouterView(router: Router<AppRoute>(root: .homeEdit))
             .modelContainer(container)
     } catch {
         return Text("Failed to create preview: \(error.localizedDescription)")

@@ -3,7 +3,7 @@ import SwiftUI
 
 #if DEBUG_MODE
     struct DebugOverlay<Content: View>: View {
-        @ObservedObject var router: Router<AppRouter>
+        @ObservedObject var router: Router<AppRoute>
         @ViewBuilder let content: Content
         @State private var showDebugSheet = false
 
@@ -33,11 +33,11 @@ import SwiftUI
 
 @main
 struct OffStageApp: App {
-    @StateObject private var router: Router<AppRouter>
+    @StateObject private var router: Router<AppRoute>
 
     init() {
         #if DEBUG_MODE
-            _router = StateObject(wrappedValue: Router(root: .onboardingnew))
+            _router = StateObject(wrappedValue: Router(root: .onboarding))
         #else
             let hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
             _router = StateObject(wrappedValue: Router(root: hasLaunchedBefore ? .home : .onboarding))

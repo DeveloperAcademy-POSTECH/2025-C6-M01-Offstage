@@ -2,7 +2,7 @@ import BusAPI
 import SwiftUI
 
 struct SearchView: View {
-    @EnvironmentObject var router: LegacyRouter<AppRoute>
+    @EnvironmentObject var router: Router<AppRoute>
     @StateObject private var viewModel: SearchViewModel
 
     init(viewModel: SearchViewModel) {
@@ -84,5 +84,5 @@ private extension SearchView {
     let viewModel = SearchViewModel(busRepository: MainBusRepository(), locationManager: LocationManager())
     viewModel.viewState = .success(BusStopForSearch.sampleBusStop)
     return SearchView(viewModel: viewModel)
-        .environmentObject(LegacyRouter<AppRoute>(root: .search))
+        .environmentObject(Router<AppRoute>(root: .search))
 }

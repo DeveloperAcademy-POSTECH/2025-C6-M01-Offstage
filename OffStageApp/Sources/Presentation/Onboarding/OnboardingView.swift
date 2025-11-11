@@ -6,8 +6,8 @@ struct OnboardingPage {
     let ctaTitle: LocalizedStringKey // 페이지별 버튼 라벨을 명시
 }
 
-struct LegacyOnboardingView: View {
-    @EnvironmentObject var router: LegacyRouter<AppRoute>
+struct OnboardingView: View {
+    @EnvironmentObject var router: Router<AppRoute>
     @State private var currentPage = 0
     @State private var didFinishOnboarding = false
     private let startPage = OnboardingPage(
@@ -79,5 +79,5 @@ struct LegacyOnboardingView: View {
 }
 
 #Preview {
-    LegacyRouterView(router: LegacyRouter<AppRoute>(root: .onboarding))
+    RouterView(router: Router<AppRoute>(root: .onboarding))
 }

@@ -3,7 +3,7 @@ import SwiftData
 import SwiftUI
 
 struct BusStationView: View {
-    @EnvironmentObject private var router: LegacyRouter<AppRoute>
+    @EnvironmentObject private var router: Router<AppRoute>
     @StateObject private var viewModel: BusStationViewModel
     @State private var countdown: Int = 10
     @State private var timer: Timer?
