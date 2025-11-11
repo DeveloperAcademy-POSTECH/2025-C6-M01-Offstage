@@ -28,11 +28,6 @@ final class MVPTestViewModel: ObservableObject {
         self.busRepository = busRepository
     }
 
-    struct GpsInfo {
-        let latitude: Double
-        let longitude: Double
-    }
-
     /// MVP 시나리오의 결과를 나타내는 열거형
     enum MVPResult {
         /// 도착 정보가 있는 경우
@@ -65,7 +60,7 @@ final class MVPTestViewModel: ObservableObject {
         }
 
         do {
-            let cityCodeString = try await detectCityCode(from: GpsInfo(latitude: lat, longitude: lon))
+            let cityCodeString = try await detectCityCode(from: LocationCoordinate(latitude: lat, longitude: lon))
             let stops = try await busRepository.fetchStopsNearby(
                 latitude: lat,
                 longitude: lon,
@@ -87,16 +82,16 @@ final class MVPTestViewModel: ObservableObject {
         displaySections = nil
         rawResponseText = nil
 
-        let gpsInfo = GpsInfo(latitude: stop.latitude, longitude: stop.longitude)
+        let locationCoordinate = LocationCoordinate(latitude: stop.latitude, longitude: stop.longitude)
 
         do {
-            let cityCodeString = try await detectCityCode(from: gpsInfo)
+            let cityCodeString = try await detectCityCode(from: locationCoordinate)
             guard let cityCode = Int(cityCodeString) else {
                 resultText = "유효하지 않은 cityCode를 받았습니다: \(cityCodeString)"
                 return
             }
 
-            let result = await fetchMVPBusInfo(gps: gpsInfo, cityCode: cityCode, routeQuery: routeQuery)
+            let result = await fetchMVPBusInfo(gps: locationCoordinate, cityCode: cityCode, routeQuery: routeQuery)
 
             switch result {
             case let .arrivals(arrivals):
@@ -171,7 +166,7 @@ final class MVPTestViewModel: ObservableObject {
     }
 
     private func fetchMVPBusInfo(
-        gps: GpsInfo,
+        gps: LocationCoordinate,
         cityCode: Int,
         routeQuery: String
     ) async -> MVPResult {
@@ -220,7 +215,7 @@ final class MVPTestViewModel: ObservableObject {
         }
     }
 
-    private func detectCityCode(from gps: GpsInfo) async throws -> String {
+    private func detectCityCode(from gps: LocationCoordinate) async throws -> String {
         let locationCoordinate = LocationCoordinate(latitude: gps.latitude, longitude: gps.longitude)
         guard let placemark = try await locationProvider.fetchPlacemark(from: locationCoordinate) else {
             throw BusAPIError.unknown("Failed to fetch placemark for city code detection.")
