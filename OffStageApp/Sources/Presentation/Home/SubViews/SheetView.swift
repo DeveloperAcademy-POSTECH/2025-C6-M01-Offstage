@@ -1,8 +1,24 @@
+import BusAPI
 import SwiftUI
 
+// TODO: tts기반으로, busRoutes 목록 중 유사값 추측하는 모델 필요
 struct SheetView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = SheetViewModel()
+    let nearestBusStopFromHome: BusStop?
+    let busRoutes: [BusRoute] // New property
+    let onRouteSelected: (BusRoute) -> Void
+
+    init(
+        nearestBusStop: BusStop?,
+        busRoutes: [BusRoute], // New parameter
+        onRouteSelected: @escaping (BusRoute) -> Void
+    ) {
+        _viewModel = StateObject(wrappedValue: SheetViewModel())
+        nearestBusStopFromHome = nearestBusStop
+        self.busRoutes = busRoutes // Initialize
+        self.onRouteSelected = onRouteSelected
+    }
 
     var body: some View {
         ZStack {
@@ -26,13 +42,19 @@ struct SheetView: View {
                     listeningContent()
                 case let .confirmation(recognizedBusNumber):
                     confirmationContent(recognizedBusNumber: recognizedBusNumber)
+                case let .busRouteList(routes):
+                    busRouteListContent(routes: routes)
                 }
 
                 Spacer()
             }
         }
         .onAppear {
+            viewModel.currentBusStop = nearestBusStopFromHome // Set initially
             viewModel.startListeningProcess()
+        }
+        .onChange(of: nearestBusStopFromHome) { newBusStop in
+            viewModel.currentBusStop = newBusStop // Update if HomeView's nearestBusStop changes
         }
         .onDisappear {
             viewModel.stopSpeaking()
@@ -52,8 +74,7 @@ struct SheetView: View {
 
         ZStack {
             // Concentric circles
-            ForEach(0 ..< 4) {
-                i in
+            ForEach(0 ..< 4) { i in
                 Circle()
                     .stroke(Color.yellow.opacity(1 - Double(i) * 0.2), lineWidth: 2)
                     .frame(width: 120 + CGFloat(i * 50))
@@ -94,7 +115,13 @@ struct SheetView: View {
 
         VStack(spacing: 20) {
             Button(action: {
-                // TODO: Handle "네, 맞아요."
+                if let matchingRoute = busRoutes.first(where: { $0.routeNumber == recognizedBusNumber }) {
+                    onRouteSelected(matchingRoute)
+                    print("Confirmed and returned matching route: \(matchingRoute.routeNumber)")
+                } else {
+                    print("No matching bus route found for recognized number: \(recognizedBusNumber)")
+                    // Optionally, you could keep the sheet open or show an alert here.
+                }
                 dismiss()
             }) {
                 Text("네, 맞아요.")
@@ -111,8 +138,6 @@ struct SheetView: View {
             }
 
             Button(action: {
-                // TODO: Handle "아니요, 다시 인식할게요"
-                // Reset to listening state
                 viewModel.startListeningProcess()
             }) {
                 Text("아니요, 다시 인식할게요")
@@ -129,8 +154,7 @@ struct SheetView: View {
             }
 
             Button(action: {
-                // TODO: Handle "아니요, 목록에서 고를게요"
-                dismiss()
+                viewModel.showBusRouteList(routes: busRoutes)
             }) {
                 Text("아니요, 목록에서 고를게요")
                     .font(.title2)
@@ -147,5 +171,12 @@ struct SheetView: View {
         }
         .padding(.horizontal)
         Spacer() // Add another spacer to balance the VStack
+    }
+
+    // MARK: - Bus Route List Content
+
+    @ViewBuilder
+    private func busRouteListContent(routes: [BusRoute]) -> some View {
+        BusRouteListView(busRoutes: routes, onRouteSelected: onRouteSelected) // Pass the closure
     }
 }
