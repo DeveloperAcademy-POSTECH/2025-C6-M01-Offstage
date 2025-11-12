@@ -3,7 +3,6 @@ import SwiftData
 import SwiftUI
 import UIKit
 
-// TODO: 정류장 데이터 없을 시, mic 버튼 비활성화
 struct HomeView: View {
     @EnvironmentObject var router: Router<AppRoute>
     @StateObject private var viewModel: HomeViewModel
@@ -160,7 +159,10 @@ struct HomeView: View {
     }
 
     private var micButton: some View {
-        Button {
+        // 활성화 조건: 주변 정류장이 있는 경우
+        let isMicDisabled = viewModel.isLoading || viewModel.nearestBusStop == nil
+
+        return Button {
             isSheetPresented = true
         } label: {
             Image(systemName: "mic")
@@ -177,5 +179,20 @@ struct HomeView: View {
                         .scaleEffect(1.2)
                 )
         }
+        .disabled(isMicDisabled)
+        .opacity(isMicDisabled ? 0.4 : 1.0)
+        .accessibilityLabel("타야할 버스 번호 음성 입력 버튼")
+        .accessibilityHint(
+            {
+                if viewModel.isLoading {
+                    return "주변 정류장을 찾는 중입니다. 잠시만 기다려주세요."
+                }
+                // 로딩이 아니고 정류장 데이터가 없는 경우
+                if viewModel.nearestBusStop == nil {
+                    return "주변 정류장을 찾지 못했습니다. 위치 권한을 확인하거나 다시 시도해 주세요."
+                }
+                return "타야할 버스 번호를 말씀해주세요."
+            }()
+        )
     }
 }
