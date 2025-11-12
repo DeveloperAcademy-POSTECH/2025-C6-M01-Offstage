@@ -1,5 +1,6 @@
 import BusAPI
 import Combine
+import CoreHaptics
 import CoreLocation
 import Foundation
 
@@ -11,7 +12,14 @@ final class BusArrivalViewModel: ObservableObject {
     @Published var busLocationInfo: BusLocation?
     @Published var isLoading = false
     @Published var errorMessage: String?
-    @Published var isBusVisionButtonEnabled = false
+    @Published var isBusVisionButtonEnabled = false {
+        didSet {
+            if isBusVisionButtonEnabled {
+                HapticManager.shared.playHaptic(intensity: 1.0, sharpness: 0.2, duration: 0.3)
+            }
+        }
+    }
+
     @Published var currentEstimatedArrivalTime: Int?
 
     @Published var busUrgencyStatus: BusUrgencyStatus = .notApplicable { // 버스 긴급도 상태
