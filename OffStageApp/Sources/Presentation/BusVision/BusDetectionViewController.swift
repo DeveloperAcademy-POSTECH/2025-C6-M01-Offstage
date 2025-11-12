@@ -308,6 +308,8 @@ extension BusDetectionViewController {
         var finalPredictions: [VNRecognizedObjectObservation] = []
         isBusDetected = false
 
+        let ocrGroup = DispatchGroup()
+
         for prediction in predictions {
             if prediction.confidence < 0.8 { continue }
             isBusDetected = true
@@ -318,11 +320,16 @@ extension BusDetectionViewController {
                 continue
             }
 
+            ocrGroup.enter()
+
             // 자른 이미지 OCR 처리하기
             OCRManager.recognizeText(from: currentPixelBuffer, in: areaOfInterest) { ocrText in
+                defer {
+                    ocrGroup.leave()
+                }
+
                 guard let ocrText else {
                     print("OCR 처리 실패")
-                    self.detectingStatusView?.updateStatus(to: .notMine)
                     return
                 }
                 print("--BUS OCR--\n\(ocrText)\n------")
@@ -331,54 +338,63 @@ extension BusDetectionViewController {
                     text: ocrText,
                     routeNumbers: self.routeNumbersToDetect
                 ) else {
-                    self.detectingStatusView?.updateStatus(to: .notMine)
                     return
                 }
 
-                self.hapticManager.playHaptic(intensity: 1.0, sharpness: 0.0, duration: 0.2)
-
-                finalPredictions.append(prediction)
-
-                for route in routeContained {
-                    if !tempDetected.contains(route) {
-                        tempDetected.append(route)
-                    }
-                }
-
+                // 배열 접근 동기화
                 DispatchQueue.main.async {
-                    self.detectingStatusView?.updateStatus(to: .mineDetected)
-                    self.onDetectedRouteNumbersChanged?(tempDetected)
-                    self.drawingBoxesView?.drawBox(with: finalPredictions)
-                }
+                    finalPredictions.append(prediction)
 
-                // tts
-                guard let firstBusDetected = tempDetected.first else {
-                    return
-                }
-                self.ttsManager.speakNow(of: firstBusDetected)
+                    for route in routeContained {
+                        if !tempDetected.contains(route) {
+                            tempDetected.append(route)
+                        }
+                    }
 
-                #if DEBUG_MODE
-                    DispatchQueue.main.async {
+                    #if DEBUG_MODE
                         if let pixelBuffer = self.currentPixelBuffer,
                            let croppedImage = self.cropPixelBufferToImage(pixelBuffer, in: areaOfInterest)
                         {
                             self.croppedImageView?.image = croppedImage
                         }
-                    }
-                #endif
+                    #endif
+                }
             }
         }
-        #if DEBUG_MODE
-            DispatchQueue.main.async {
+
+        // 한 프레임의 prediction이 끝나면 한 번에 처리
+        ocrGroup.notify(queue: .main) {
+            // 버스가 하나라도 감지되었나?
+            if !finalPredictions.isEmpty {
+                // 상태 업데이트
+                self.detectingStatusView?.updateStatus(to: .mineDetected)
+                self.onDetectedRouteNumbersChanged?(tempDetected)
+
+                // haptic
+                self.hapticManager.playHaptic(intensity: 1.0, sharpness: 0.0, duration: 0.2)
+
+                // 박스 그리기
+                self.drawingBoxesView?.drawBox(with: finalPredictions)
+
+                // TTS
+                if let firstBusDetected = tempDetected.first {
+                    self.ttsManager.speakNow(of: firstBusDetected)
+                }
+            } else if self.isBusDetected {
+                // 버스는 감지됐지만 내 버스가 아님
+                self.detectingStatusView?.updateStatus(to: .notMine)
+            } else {
+                // 버스가 아예 없음
+                self.detectingStatusView?.updateStatus(to: .unDetected)
+            }
+
+            // 디버그용 흰색박스
+            #if DEBUG_MODE
                 self.tempStrokeBoxesView?.drawBox(with: predictions.filter { prediction in
                     prediction.confidence >= 0.8 &&
                         !finalPredictions.contains(where: { $0.uuid == prediction.uuid })
                 })
-            }
-        #endif
-
-        if !isBusDetected {
-            detectingStatusView?.updateStatus(to: .unDetected)
+            #endif
         }
     }
 }
