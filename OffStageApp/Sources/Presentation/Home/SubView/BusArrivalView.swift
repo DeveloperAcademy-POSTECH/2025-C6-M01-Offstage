@@ -111,21 +111,21 @@ struct BusArrivalInfoView: View {
                 .font(.title3)
                 .foregroundColor(.white.opacity(0.8))
 
-            if let remainingStops = arrival.remainingStopCount {
-                (Text("\(remainingStops)")
-                    .foregroundColor(.white)
-                    .fontWeight(.bold) +
-                    Text("번째전 ")
-                    .foregroundColor(.white)
-                    .fontWeight(.bold) +
-                    Text("정류장에 있습니다.")
-                )
+            Text(formatRemainingStops(arrival.remainingStopCount ?? 0))
                 .font(.title3)
                 .fontWeight(.bold)
-                .foregroundColor(.white.opacity(0.8)
-                )
-            }
+                .foregroundColor(.white.opacity(0.8))
         }
+    }
+
+    private func formatRemainingStops(_ remainingStops: Int) -> String {
+        var result = ""
+        if remainingStops > 1 {
+            result = "\(remainingStops)번째전"
+        } else {
+            result = "전"
+        }
+        return result + " 정류장에서 출발했습니다."
     }
 
     private func formatArrivalTime(_ seconds: Int?) -> String {
