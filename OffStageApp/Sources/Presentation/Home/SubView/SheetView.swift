@@ -131,7 +131,9 @@ struct SheetView: View {
 
             VStack(spacing: 20) {
                 Button(action: {
-                    if let matchingRoute = busRoutes.first(where: { $0.routeNumber == recognizedBusNumber }) {
+                    if let matchingRoute = busRoutes
+                        .first(where: { $0.routeNumber.removeParenthesesContent() == recognizedBusNumber })
+                    {
                         onRouteSelected(matchingRoute)
                         print("Confirmed and returned matching route: \(matchingRoute.routeNumber)")
                     } else {
