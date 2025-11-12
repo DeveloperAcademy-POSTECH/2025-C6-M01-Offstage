@@ -47,14 +47,20 @@ struct BusArrivalView: View {
                     router.push(.busVision(routeToDetect: [viewModel.busRoute.routeNumber]))
                 }) {
                     HStack {
-                        Image(systemName: "camera.fill")
+                        Image(systemName: "camera")
                         Text("버스 인식하기")
                     }
-                    .font(.headline)
-                    .foregroundColor(.black)
-                    .padding()
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundColor(Color(.white))
+                    .padding(.vertical, 13)
                     .frame(maxWidth: .infinity)
-                    .background(Capsule().fill(Color.yellow))
+                    .background(Color.black)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color(.primarynormal), lineWidth: 2)
+                    )
+                    .cornerRadius(10)
                 }
                 .disabled(!viewModel.isBusVisionButtonEnabled) // Disable based on ViewModel state
                 .opacity(viewModel.isBusVisionButtonEnabled ? 1.0 : 0.5) // Visual feedback for disabled state
@@ -83,12 +89,13 @@ struct BusArrivalInfoView: View {
                 Text(busRoute.routeNumber) // Use busRoute.routeNumber
                     .font(.title2)
                     .fontWeight(.bold)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Capsule().fill(Color.gray.opacity(0.5)))
                     .foregroundColor(.white)
             }
-            .padding(.bottom, 10)
+            .padding(8)
+            .background(Color.gray.opacity(0.5))
+            .cornerRadius(12)
+            .padding(.top, 5)
+            .padding(.bottom, 8)
 
             Text(formatArrivalTime(currentEstimatedArrivalTime)) // Use mutable time
                 .font(.largeTitle)
@@ -100,9 +107,18 @@ struct BusArrivalInfoView: View {
                 .foregroundColor(.white.opacity(0.8))
 
             if let remainingStops = arrival.remainingStopCount {
-                Text("\(remainingStops)번째전 정류장에 있습니다.")
-                    .font(.title3)
-                    .foregroundColor(.white.opacity(0.8))
+                (Text("\(remainingStops)")
+                    .foregroundColor(.white)
+                    .fontWeight(.bold) +
+                    Text("번째전 ")
+                    .foregroundColor(.white)
+                    .fontWeight(.bold) +
+                    Text("정류장에 있습니다.")
+                )
+                .font(.title3)
+                .fontWeight(.bold)
+                .foregroundColor(.white.opacity(0.8)
+                )
             }
         }
     }
