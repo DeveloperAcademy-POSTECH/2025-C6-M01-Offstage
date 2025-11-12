@@ -19,9 +19,9 @@ final class BusDetectionViewController: UIViewController {
     private var ttsManager: TTSManager = .init()
 
     // subviews
-    private var drawingBoxesView: DrawingBoxesView?
     private var detectingStatusView: BusDetectStatusView?
     #if DEBUG_MODE
+        private var drawingBoxesView: DrawingBoxesView?
         private var tempStrokeBoxesView: TempStokeBoxesView?
     #endif
 
@@ -67,9 +67,6 @@ final class BusDetectionViewController: UIViewController {
         view.layer.sublayers?.first(where: { $0 is AVCaptureVideoPreviewLayer }
         )?.frame = fullFrame
 
-        // 바운딩박스뷰
-        drawingBoxesView?.frame = fullFrame
-
         // 상태표시뷰
         detectingStatusView?.frame = CGRect(
             x: 0,
@@ -79,9 +76,11 @@ final class BusDetectionViewController: UIViewController {
         )
 
         #if DEBUG_MODE
-            // 디버그뷰에서만 보이는 버스 인식 바운딩박스
-            tempStrokeBoxesView?.frame = fullFrame
+            // 내버스 바운딩박스
+            drawingBoxesView?.frame = fullFrame
 
+            // 버스 인식 바운딩박스
+            tempStrokeBoxesView?.frame = fullFrame
         #endif
     }
 
@@ -149,14 +148,6 @@ final class BusDetectionViewController: UIViewController {
         }
     }
 
-    /// 바운딩박스 뷰 서브뷰 설정
-    private func setupBoxesView() {
-        let drawingBoxesView = DrawingBoxesView()
-        drawingBoxesView.frame = view.frame
-        view.addSubview(drawingBoxesView)
-        self.drawingBoxesView = drawingBoxesView
-    }
-
     /// 감지상태 모니터링뷰
     private func setupStatusView() {
         let statusView = BusDetectStatusView()
@@ -165,7 +156,15 @@ final class BusDetectionViewController: UIViewController {
     }
 
     #if DEBUG_MODE
-        /// 디버깅모드용 바운딩박스 서브뷰 설정
+        /// 디버깅모드용 내버스 바운딩박스 뷰 서브뷰 설정
+        private func setupBoxesView() {
+            let drawingBoxesView = DrawingBoxesView()
+            drawingBoxesView.frame = view.frame
+            view.addSubview(drawingBoxesView)
+            self.drawingBoxesView = drawingBoxesView
+        }
+
+        /// 디버깅모드용 감지된 버스 바운딩박스 서브뷰 설정
         private func setupDebugModeBoxesView() {
             let strokeBoxesView = TempStokeBoxesView()
             strokeBoxesView.frame = view.frame
@@ -273,9 +272,9 @@ extension BusDetectionViewController {
 
         // 박스 초기화
         DispatchQueue.main.async {
-            self.drawingBoxesView?.drawBox(with: [])
             self.onDetectedRouteNumbersChanged?([])
             #if DEBUG_MODE
+                self.drawingBoxesView?.drawBox(with: [])
                 self.tempStrokeBoxesView?.drawBox(with: [])
             #endif
         }
@@ -332,17 +331,19 @@ extension BusDetectionViewController {
 
         // 한 프레임의 prediction이 끝나면 한 번에 처리
         ocrGroup.notify(queue: .main) {
-            // 버스가 하나라도 감지되었나?
+            // 내가 탈 버스가 감지되었는지
             if !finalPredictions.isEmpty {
                 // 상태 업데이트
                 self.detectingStatusView?.updateStatus(to: .mineDetected)
                 self.onDetectedRouteNumbersChanged?(tempDetected)
 
-                // haptic
+                // 햅틱
                 self.hapticManager.playHaptic(intensity: 1.0, sharpness: 0.0, duration: 0.2)
 
-                // 박스 그리기
-                self.drawingBoxesView?.drawBox(with: finalPredictions)
+                #if DEBUG_MODE
+                    // 박스 그리기
+                    self.drawingBoxesView?.drawBox(with: finalPredictions)
+                #endif
 
                 // TTS
                 if let firstBusDetected = tempDetected.first {
@@ -356,8 +357,8 @@ extension BusDetectionViewController {
                 self.detectingStatusView?.updateStatus(to: .unDetected)
             }
 
-            // 디버그용 흰색박스
             #if DEBUG_MODE
+                // 디버깅모드용 흰색박스
                 self.tempStrokeBoxesView?.drawBox(with: predictions.filter { prediction in
                     prediction.confidence >= 0.8 &&
                         !finalPredictions.contains(where: { $0.uuid == prediction.uuid })
