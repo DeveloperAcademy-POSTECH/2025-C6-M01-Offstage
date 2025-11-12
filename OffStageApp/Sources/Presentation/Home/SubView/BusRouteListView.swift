@@ -19,8 +19,24 @@ struct BusRouteListView: View {
                     ForEach(busRoutes, id: \.id) { route in
                         BusRouteButton(route: route, dismiss: dismiss, onRouteSelected: onRouteSelected) // Pass closure
                     }
+
+                    Button(action: {
+                        dismiss() // Dismiss the sheet after selection
+                    }) {
+                        Text("목록에 없어요.")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.white, lineWidth: 2)
+                                    .fill(Color(red: 0.86, green: 0.87, blue: 0.91).opacity(0.05))
+                            )
+                            .foregroundColor(.white)
+                    }
                 }
-                .padding(.horizontal)
+                .padding()
             }
             Spacer()
         }
@@ -46,8 +62,8 @@ struct BusRouteButton: View {
                 .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 15)
-                        .stroke(Color.white.opacity(0.5), lineWidth: 1)
-                        .fill(Color.black.opacity(0.3))
+                        .stroke(Color.white, lineWidth: 2)
+                        .fill(Color(red: 0.86, green: 0.87, blue: 0.91).opacity(0.05))
                 )
                 .foregroundColor(.white)
         }
