@@ -5,6 +5,7 @@ import SwiftUI
 struct SheetView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = SheetViewModel()
+    @State private var step: Int = 0
     let nearestBusStopFromHome: BusStop?
     let busRoutes: [BusRoute] // New property
     let onRouteSelected: (BusRoute) -> Void
@@ -53,13 +54,19 @@ struct SheetView: View {
         .onAppear {
             viewModel.currentBusStop = nearestBusStopFromHome // Set initially
             viewModel.startListeningProcess()
+
+            step = 0
+            for i in 1 ... 3 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.35) {
+                    step = i
+                }
+            }
         }
         .onChange(of: nearestBusStopFromHome) { newBusStop in
             viewModel.currentBusStop = newBusStop // Update if HomeView's nearestBusStop changes
         }
         .onDisappear {
             viewModel.stopSpeaking()
-            viewModel.stopListeningAnimation()
         }
     }
 
@@ -76,15 +83,12 @@ struct SheetView: View {
 
             ZStack {
                 // Concentric circles
-                ForEach(0 ..< 4) { i in
+                ForEach(1 ... 3, id: \.self) { i in
                     Circle()
-                        .stroke(Color(.primarynormal).opacity(1 - Double(i) * 0.2), lineWidth: 2)
-                        .frame(width: 120 + CGFloat(i * 50))
-                        .scaleEffect(viewModel.isAnimating ? 1 : 0.9)
-                        .animation(
-                            .easeInOut(duration: 1).repeatForever().delay(Double(i) * 0.2),
-                            value: viewModel.isAnimating
-                        )
+                        .stroke(Color(.primarynormal).opacity([0.6, 0.4, 0.2][i - 1]), lineWidth: 6)
+                        .frame(width: 110 + 48 * CGFloat(i))
+                        .opacity(step >= i ? 1 : 0)
+                        .animation(.easeOut(duration: 0.35), value: step)
                 }
 
                 // Central icon
@@ -108,6 +112,19 @@ struct SheetView: View {
                     }
                 }
             }
+            .task {
+                // 순차로 나타났다 리셋(무한 반복)
+                while true {
+                    for i in 0 ... 3 {
+                        step = i
+                        try? await Task.sleep(for: .milliseconds(250)) // 간격 조절
+                    }
+                    try? await Task.sleep(for: .milliseconds(600)) // 다 켜진 상태 유지
+                    step = 0 // 다시 중앙만
+                    try? await Task.sleep(for: .milliseconds(300))
+                }
+            }
+
             Spacer() // Add another spacer to balance the VStack
         }
     }

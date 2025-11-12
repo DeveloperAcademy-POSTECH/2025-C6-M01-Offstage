@@ -10,7 +10,6 @@ enum SheetState {
 
 @MainActor
 class SheetViewModel: ObservableObject {
-    @Published var isAnimating: Bool = false
     @Published var currentSheetState: SheetState = .listening
     @Published var recognizedBusNumber: String? = nil
     @Published var currentBusStop: BusStop? = nil
@@ -20,19 +19,7 @@ class SheetViewModel: ObservableObject {
 
     init() {}
 
-    func startListeningAnimation() {
-        isAnimating = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-            self.isAnimating = true
-        }
-    }
-
-    func stopListeningAnimation() {
-        isAnimating = false
-    }
-
     func startListeningProcess() {
-        startListeningAnimation()
         currentSheetState = .listening
         Task {
             if let recognizedText = await speakAndListenMock(text: "번호를 말씀해주세요.") {
