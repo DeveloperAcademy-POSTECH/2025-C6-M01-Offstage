@@ -28,7 +28,8 @@ struct BusArrivalView: View {
                 BusArrivalInfoView(
                     arrival: arrival,
                     busRoute: viewModel.busRoute,
-                    currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime
+                    currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime,
+                    busUrgencyStatus: viewModel.busUrgencyStatus
                 )
             } else if let location = viewModel.busLocationInfo {
                 BusLocationInfoView(location: location, busRoute: viewModel.busRoute)
@@ -37,7 +38,7 @@ struct BusArrivalView: View {
             Spacer()
             VStack(alignment: .center, spacing: 10) {
                 // Callout/Emphasized
-                Text("도착 예정 시간이 1분 미만일 때\n버스 인식을 시작할 수 있어요")
+                Text("버스가 직전 정류장에서 출발하면\n버스 인식을 시작할 수 있어요.")
                     .font(.callout)
                     .foregroundColor(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
@@ -84,6 +85,7 @@ struct BusArrivalInfoView: View {
     let arrival: BusArrival
     let busRoute: BusRoute
     let currentEstimatedArrivalTime: Int?
+    let busUrgencyStatus: BusUrgencyStatus
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -129,6 +131,9 @@ struct BusArrivalInfoView: View {
     }
 
     private func formatArrivalTime(_ seconds: Int?) -> String {
+        if busUrgencyStatus == .arrived {
+            return "잠시후"
+        }
         guard let seconds else { return "정보 없음" }
         let minutes = seconds / 60
         let remainingSeconds = seconds % 60

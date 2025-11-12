@@ -12,15 +12,12 @@ final class BusArrivalViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var isBusVisionButtonEnabled = false
-    @Published var currentEstimatedArrivalTime: Int? {
-        didSet {
-            updateBusVisionButtonState()
-        }
-    }
+    @Published var currentEstimatedArrivalTime: Int?
 
     @Published var busUrgencyStatus: BusUrgencyStatus = .notApplicable { // 버스 긴급도 상태
         didSet {
             print("버스 긴급도 상태 변경: \(busUrgencyStatus.rawValue)")
+            updateBusVisionButtonState()
         }
     }
 
@@ -138,7 +135,7 @@ final class BusArrivalViewModel: ObservableObject {
     }
 
     private func updateBusVisionButtonState() {
-        if let estimatedTime = currentEstimatedArrivalTime, estimatedTime <= 60 {
+        if busUrgencyStatus == .oneStop || busUrgencyStatus == .arrived {
             isBusVisionButtonEnabled = true
         } else {
             isBusVisionButtonEnabled = false
