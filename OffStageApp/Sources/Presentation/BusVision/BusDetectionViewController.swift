@@ -23,7 +23,6 @@ final class BusDetectionViewController: UIViewController {
     private var detectingStatusView: BusDetectStatusView?
     #if DEBUG_MODE
         private var tempStrokeBoxesView: TempStokeBoxesView?
-        private var croppedImageView: UIImageView?
     #endif
 
     // for view logic
@@ -46,7 +45,6 @@ final class BusDetectionViewController: UIViewController {
 
         #if DEBUG_MODE
             setupDebugModeBoxesView()
-            setupDebugCroppedImageView()
         #endif
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
@@ -84,15 +82,6 @@ final class BusDetectionViewController: UIViewController {
             // 디버그뷰에서만 보이는 버스 인식 바운딩박스
             tempStrokeBoxesView?.frame = fullFrame
 
-            // 크롭된 이미지 뷰 위치 설정 (우상단)
-            let imageSize: CGFloat = 150
-            let padding: CGFloat = 16
-            croppedImageView?.frame = CGRect(
-                x: view.bounds.width - imageSize - padding,
-                y: view.safeAreaInsets.top + padding,
-                width: imageSize,
-                height: imageSize
-            )
         #endif
     }
 
@@ -182,19 +171,6 @@ final class BusDetectionViewController: UIViewController {
             strokeBoxesView.frame = view.frame
             view.addSubview(strokeBoxesView)
             tempStrokeBoxesView = strokeBoxesView
-        }
-
-        /// 디버깅모드용 버스 이미지 크롭 확인용 서브뷰 설정
-        private func setupDebugCroppedImageView() {
-            let imageView = UIImageView()
-            imageView.contentMode = .scaleAspectFit
-            imageView.backgroundColor = .black.withAlphaComponent(0.7)
-            imageView.layer.borderColor = UIColor.green.cgColor
-            imageView.layer.borderWidth = 2
-            imageView.layer.cornerRadius = 8
-            imageView.clipsToBounds = true
-            view.addSubview(imageView)
-            croppedImageView = imageView
         }
     #endif
 }
@@ -350,14 +326,6 @@ extension BusDetectionViewController {
                             tempDetected.append(route)
                         }
                     }
-
-                    #if DEBUG_MODE
-                        if let pixelBuffer = self.currentPixelBuffer,
-                           let croppedImage = self.cropPixelBufferToImage(pixelBuffer, in: areaOfInterest)
-                        {
-                            self.croppedImageView?.image = croppedImage
-                        }
-                    #endif
                 }
             }
         }
