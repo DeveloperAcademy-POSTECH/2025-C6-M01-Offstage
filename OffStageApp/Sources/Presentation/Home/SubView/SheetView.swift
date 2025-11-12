@@ -4,8 +4,8 @@ import SwiftUI
 // TODO: tts기반으로, busRoutes 목록 중 유사값 추측하는 모델 필요
 struct SheetView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel = SheetViewModel()
     @State private var step: Int = 0
+    @StateObject private var viewModel: SheetViewModel
     let nearestBusStopFromHome: BusStop?
     let busRoutes: [BusRoute] // New property
     let onRouteSelected: (BusRoute) -> Void
@@ -15,7 +15,7 @@ struct SheetView: View {
         busRoutes: [BusRoute], // New parameter
         onRouteSelected: @escaping (BusRoute) -> Void
     ) {
-        _viewModel = StateObject(wrappedValue: SheetViewModel())
+        _viewModel = StateObject(wrappedValue: SheetViewModel(busRoutes: busRoutes))
         nearestBusStopFromHome = nearestBusStop
         self.busRoutes = busRoutes // Initialize
         self.onRouteSelected = onRouteSelected

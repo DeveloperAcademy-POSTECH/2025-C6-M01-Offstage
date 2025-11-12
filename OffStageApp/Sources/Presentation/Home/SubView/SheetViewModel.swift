@@ -16,15 +16,18 @@ class SheetViewModel: ObservableObject {
 
     private let synthesizer = AVSpeechSynthesizer()
     private let sttManager = STTManager()
+    private let busRouteMatcher: BusRouteMatcher
 
-    init() {}
+    init(busRoutes: [BusRoute]) { // init 수정
+        busRouteMatcher = .init(busRoutes: busRoutes)
+    }
 
     func startListeningProcess() {
         currentSheetState = .listening
         Task {
             if let recognizedText = await speakAndListenMock(text: "번호를 말씀해주세요.") {
-                self.recognizedBusNumber = recognizedText
-                currentSheetState = .confirmation(recognizedBusNumber: recognizedText)
+                // 정규화 및 추론 전략을 수행하는 함수를 호출합니다.
+                self.processRecognizedText(recognizedText)
             } else {
                 // Handle case where nothing is recognized
             }
@@ -33,6 +36,21 @@ class SheetViewModel: ObservableObject {
 
     func showBusRouteList(routes: [BusRoute]) {
         currentSheetState = .busRouteList(routes)
+    }
+
+    @MainActor
+    private func processRecognizedText(_ transcript: String) {
+        let matchResult = busRouteMatcher.process(transcript: transcript)
+
+        switch matchResult {
+        case let .exact(route), let .fuzzy(route):
+            recognizedBusNumber = route.routeNumber
+            currentSheetState = .confirmation(recognizedBusNumber: route.routeNumber)
+        case let .partial(routes):
+            currentSheetState = .busRouteList(routes)
+        case let .none(normalizedText):
+            currentSheetState = .confirmation(recognizedBusNumber: normalizedText)
+        }
     }
 
     private func speakAndListenMock(text: String) async -> String? {
