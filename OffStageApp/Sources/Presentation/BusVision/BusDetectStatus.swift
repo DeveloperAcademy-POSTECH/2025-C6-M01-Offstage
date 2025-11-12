@@ -1,6 +1,6 @@
 import Foundation
 
-enum BusDetectStatus {
+enum BusDetectStatus: Equatable {
     /// 인식중: 아무런 버스도 인식 안된 상태
     case unDetected
     /// 내가 탈 버스가 아닌 다른 버스가 인식된 상태

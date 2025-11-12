@@ -9,8 +9,8 @@ final class BusDetectionViewController: UIViewController {
     // input properties
     /// 인식할 노선번호
     var routeNumbersToDetect: [String] = []
-    /// 감지된 노선번호 배열이 변경될 때 SwiftUI에서 처리하기 위한 클로저
-    var onDetectedRouteNumbersChanged: (([String]) -> Void)?
+    /// 감지된 상태가 변경될 때 SwiftUI에서 처리하기 위한 클로저
+    var onDetectedStatusChanged: ((BusDetectStatus) -> Void)?
 
     // APIs
     private var captureSession: AVCaptureSession?
@@ -19,7 +19,6 @@ final class BusDetectionViewController: UIViewController {
     private var ttsManager: TTSManager = .init()
 
     // subviews
-    private var detectingStatusView: BusDetectStatusView?
     #if DEBUG_MODE
         private var drawingBoxesView: DrawingBoxesView?
         private var tempStrokeBoxesView: TempStokeBoxesView?
@@ -29,6 +28,7 @@ final class BusDetectionViewController: UIViewController {
     private var currentPixelBuffer: CVPixelBuffer?
     private var frameCount: UInt = 0
     private var isBusDetected: Bool = false
+    private var detectStatus: BusDetectStatus = .unDetected
 
     // MARK: Life Cycle
 
@@ -40,10 +40,9 @@ final class BusDetectionViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setupBoxesView()
-        setupStatusView()
 
         #if DEBUG_MODE
+            setupBoxesView()
             setupDebugModeBoxesView()
         #endif
 
@@ -66,14 +65,6 @@ final class BusDetectionViewController: UIViewController {
         // 카메라뷰
         view.layer.sublayers?.first(where: { $0 is AVCaptureVideoPreviewLayer }
         )?.frame = fullFrame
-
-        // 상태표시뷰
-        detectingStatusView?.frame = CGRect(
-            x: 0,
-            y: 16,
-            width: view.bounds.width,
-            height: 160
-        )
 
         #if DEBUG_MODE
             // 내버스 바운딩박스
@@ -146,13 +137,6 @@ final class BusDetectionViewController: UIViewController {
         } else {
             print("Couldn't add video output")
         }
-    }
-
-    /// 감지상태 모니터링뷰
-    private func setupStatusView() {
-        let statusView = BusDetectStatusView()
-        view.addSubview(statusView)
-        detectingStatusView = statusView
     }
 
     #if DEBUG_MODE
@@ -266,20 +250,18 @@ extension BusDetectionViewController {
             (request.results as? [VNRecognizedObjectObservation])
         else {
             isBusDetected = false
-            detectingStatusView?.updateStatus(to: .unDetected)
+            self.onDetectedStatusChanged?(.unDetected)
             return
         }
 
-        // 박스 초기화
-        DispatchQueue.main.async {
-            self.onDetectedRouteNumbersChanged?([])
-            #if DEBUG_MODE
+        #if DEBUG_MODE
+            // 박스 초기화
+            DispatchQueue.main.async {
                 self.drawingBoxesView?.drawBox(with: [])
                 self.tempStrokeBoxesView?.drawBox(with: [])
-            #endif
-        }
+            }
+        #endif
 
-        var tempDetected: [String] = []
         var finalPredictions: [VNRecognizedObjectObservation] = []
         isBusDetected = false
 
@@ -320,11 +302,7 @@ extension BusDetectionViewController {
                 DispatchQueue.main.async {
                     finalPredictions.append(prediction)
 
-                    for route in routeContained {
-                        if !tempDetected.contains(route) {
-                            tempDetected.append(route)
-                        }
-                    }
+                    // TODO: for prediction in predictions for문 탈출
                 }
             }
         }
@@ -334,8 +312,7 @@ extension BusDetectionViewController {
             // 내가 탈 버스가 감지되었는지
             if !finalPredictions.isEmpty {
                 // 상태 업데이트
-                self.detectingStatusView?.updateStatus(to: .mineDetected(routeNum: self.routeNumbersToDetect.first!))
-                self.onDetectedRouteNumbersChanged?(tempDetected)
+                self.onDetectedStatusChanged?(.mineDetected(routeNum: self.routeNumbersToDetect.first!))
 
                 // 햅틱
                 self.hapticManager.playHaptic(intensity: 1.0, sharpness: 0.0, duration: 0.2)
@@ -346,15 +323,13 @@ extension BusDetectionViewController {
                 #endif
 
                 // TTS
-                if let firstBusDetected = tempDetected.first {
-                    self.ttsManager.speakNow(of: firstBusDetected)
-                }
+                self.ttsManager.speakNow(of: self.routeNumbersToDetect.first!)
             } else if self.isBusDetected {
                 // 버스는 감지됐지만 내 버스가 아님
-                self.detectingStatusView?.updateStatus(to: .notMine)
+                self.onDetectedStatusChanged?(.notMine)
             } else {
                 // 버스가 아예 없음
-                self.detectingStatusView?.updateStatus(to: .unDetected)
+                self.onDetectedStatusChanged?(.unDetected)
             }
 
             #if DEBUG_MODE
