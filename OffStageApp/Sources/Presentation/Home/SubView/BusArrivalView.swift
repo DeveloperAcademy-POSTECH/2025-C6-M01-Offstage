@@ -1,8 +1,6 @@
 import BusAPI
 import SwiftUI
 
-// TODO: API 재호출 시간 알고리즘 적용
-
 struct BusArrivalView: View {
     @Environment(\.dismiss) private var dismiss
     // 라우터 주입
@@ -132,12 +130,15 @@ struct BusArrivalInfoView: View {
 
     private func formatArrivalTime(_ seconds: Int?) -> String {
         if busUrgencyStatus == .arrived {
-            return "잠시후"
+            return "잠시 후"
         }
         guard let seconds else { return "정보 없음" }
         let minutes = seconds / 60
         let remainingSeconds = seconds % 60
-        return "\(minutes)분 \(remainingSeconds)초 후"
+        if minutes >= 1 {
+            return "\(minutes)분 \(remainingSeconds)초 후"
+        }
+        return "\(remainingSeconds)초 후"
     }
 }
 

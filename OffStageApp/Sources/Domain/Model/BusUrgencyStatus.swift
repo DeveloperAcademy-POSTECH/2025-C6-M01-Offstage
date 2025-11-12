@@ -25,23 +25,27 @@ public enum BusUrgencyStatus: String {
         }
     }
 
-    public static func status(for _: Int?, remainingStops: Int?) -> BusUrgencyStatus {
+    public static func status(for estimatedTimeInSeconds: Int?, remainingStops: Int?) -> BusUrgencyStatus {
         guard let remainingStops, remainingStops >= 0 else {
             return .notApplicable
         }
 
-        if remainingStops >= 5 {
-            return .fiveOrMoreStops
-        } else if remainingStops >= 3 {
-            return .threeOrFourStops
-        } else if remainingStops == 2 {
-            return .twoStops
-        } else if remainingStops == 1 {
-            return .oneStop
-        } else if remainingStops == 0 {
-            return .arrived
-        }
+        var status: BusUrgencyStatus = .notApplicable
 
-        return .notApplicable // 모든 조건에 해당하지 않을 경우
+        if remainingStops >= 5 {
+            status = .fiveOrMoreStops
+        } else if remainingStops >= 3 {
+            status = .threeOrFourStops
+        } else if remainingStops == 2 {
+            status = .twoStops
+        } else if remainingStops == 1 {
+            status = .oneStop
+        } else if remainingStops == 0 {
+            status = .arrived
+        }
+        if let estimatedTime = estimatedTimeInSeconds, estimatedTime < 60 {
+            status = .arrived
+        }
+        return status
     }
 }
