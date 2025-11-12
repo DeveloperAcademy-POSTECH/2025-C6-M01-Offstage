@@ -64,7 +64,7 @@ class BusDetectStatusView: UIView {
     }
 
     private func updateStatus() {
-        label.text = detectStatus.text
+        label.text = "뷰 교체 예정"
     }
 
     func updateStatus(to status: BusDetectStatus) {

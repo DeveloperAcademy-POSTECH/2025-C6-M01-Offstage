@@ -334,7 +334,7 @@ extension BusDetectionViewController {
             // 내가 탈 버스가 감지되었는지
             if !finalPredictions.isEmpty {
                 // 상태 업데이트
-                self.detectingStatusView?.updateStatus(to: .mineDetected)
+                self.detectingStatusView?.updateStatus(to: .mineDetected(routeNum: self.routeNumbersToDetect.first!))
                 self.onDetectedRouteNumbersChanged?(tempDetected)
 
                 // 햅틱

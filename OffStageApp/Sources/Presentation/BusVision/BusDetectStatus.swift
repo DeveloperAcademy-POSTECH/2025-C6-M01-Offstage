@@ -1,20 +1,10 @@
 import Foundation
 
-enum BusDetectStatus: String {
+enum BusDetectStatus {
+    /// 인식중: 아무런 버스도 인식 안된 상태
     case unDetected
+    /// 내가 탈 버스가 아닌 다른 버스가 인식된 상태
     case notMine
-    case mineDetected
-}
-
-extension BusDetectStatus {
-    var text: String {
-        switch self {
-        case .unDetected:
-            "버스 인식 중"
-        case .notMine:
-            "다른 번호의 버스입니다."
-        case .mineDetected:
-            "hello, bus!"
-        }
-    }
+    /// 내가 탈 버스가 인식된 상태(내 버스의 노선번호를 가지고 있음)
+    case mineDetected(routeNum: String)
 }
