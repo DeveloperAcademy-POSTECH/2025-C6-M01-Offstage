@@ -4,7 +4,7 @@ import Foundation
 
 // 도착 정보 조회 시 발생할 수 있는 결과들을 나타내는 열거형입니다.
 enum BusArrivalUpdate {
-    case arrival(BusArrival)
+    case arrival(BusArrival, BusUrgencyStatus) // 긴급도 상태 포함
     case location(BusLocation)
     case error(Error)
     case empty
@@ -23,17 +23,23 @@ final class BusArrivalOperations {
         self.locationProvider = locationProvider
     }
 
-    // 초기 데이터를 제공하고 30초마다 주기적으로 업데이트하는 스트림을 생성합니다.
+    // 초기 데이터를 제공하고, 도착 예정 시간에 따라 동적으로 결정된 간격으로 주기적 업데이트를 제공하는 스트림을 생성합니다.
     func monitorArrivals(busStop: BusStop, busRoute: BusRoute) -> AsyncStream<BusArrivalUpdate> {
         AsyncStream { continuation in
+            var lastUrgencyStatus: BusUrgencyStatus = .notApplicable // 마지막 긴급도 상태를 저장
+
             let task = Task {
                 // 조회를 수행하고 결과를 전달하는 헬퍼 함수입니다.
                 func fetchAndYield() async {
                     do {
                         let arrivals = try await fetchArrivalsOnly(busStop: busStop, busRoute: busRoute)
                         if let firstArrival = arrivals.first {
-                            continuation.yield(.arrival(firstArrival))
+                            // 도착 정보를 기반으로 긴급도 상태를 계산합니다.
+                            let status = calculateBusUrgencyStatus(for: firstArrival)
+                            lastUrgencyStatus = status // 긴급도 상태 업데이트
+                            continuation.yield(.arrival(firstArrival, status))
                         } else {
+                            lastUrgencyStatus = .notApplicable // 도착 정보 없으므로 초기화
                             let locations = try await fetchLocations(busStop: busStop, busRoute: busRoute)
                             if let firstLocation = locations.first {
                                 continuation.yield(.location(firstLocation))
@@ -42,6 +48,7 @@ final class BusArrivalOperations {
                             }
                         }
                     } catch {
+                        lastUrgencyStatus = .notApplicable // 에러 발생 시 초기화
                         continuation.yield(.error(error))
                     }
                 }
@@ -51,9 +58,11 @@ final class BusArrivalOperations {
 
                 // 주기적인 새로고침을 예약합니다.
                 while !Task.isCancelled {
+                    // 마지막 긴급도 상태를 기준으로 다음 새로고침 간격을 계산합니다.
+                    let interval = lastUrgencyStatus.refreshIntervalSeconds * 1_000_000_000
+
                     do {
-                        // 다음 새로고침 전 30초 동안 대기합니다.
-                        try await Task.sleep(nanoseconds: 30 * 1_000_000_000)
+                        try await Task.sleep(nanoseconds: interval)
                     } catch {
                         // 대기 중 작업이 취소되면 루프를 종료합니다.
                         break
@@ -70,6 +79,14 @@ final class BusArrivalOperations {
                 task.cancel()
             }
         }
+    }
+
+    /// 버스 도착 정보에 따라 긴급도 상태를 계산합니다.
+    private func calculateBusUrgencyStatus(for arrivalInfo: BusArrival) -> BusUrgencyStatus {
+        BusUrgencyStatus.status(
+            for: arrivalInfo.estimatedArrivalTime,
+            remainingStops: arrivalInfo.remainingStopCount
+        )
     }
 
     private func fetchArrivalsOnly(busStop: BusStop, busRoute: BusRoute) async throws -> [BusArrival] {
