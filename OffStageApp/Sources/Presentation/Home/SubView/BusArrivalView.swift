@@ -89,11 +89,11 @@ struct BusArrivalInfoView: View {
                 Text(busRoute.routeNumber) // Use busRoute.routeNumber
                     .font(.title2)
                     .fontWeight(.bold)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
                     .foregroundColor(.white)
             }
-            .background(Capsule().fill(Color.gray.opacity(0.5)))
+            .padding(8)
+            .background(Color.gray.opacity(0.5))
+            .cornerRadius(12)
             .padding(.top, 5)
             .padding(.bottom, 8)
 
@@ -110,7 +110,10 @@ struct BusArrivalInfoView: View {
                 (Text("\(remainingStops)")
                     .foregroundColor(.white)
                     .fontWeight(.bold) +
-                    Text("번째전 정류장에 있습니다.")
+                    Text("번째전 ")
+                    .foregroundColor(.white)
+                    .fontWeight(.bold) +
+                    Text("정류장에 있습니다.")
                 )
                 .font(.title3)
                 .fontWeight(.bold)
