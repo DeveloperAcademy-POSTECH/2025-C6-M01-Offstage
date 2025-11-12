@@ -26,7 +26,7 @@ final class TempStokeBoxesView: UIView {
         newlayer.borderColor = UIColor.white.cgColor
         newlayer.borderWidth = 1
 
-        newlayer.cornerRadius = 0
+        newlayer.cornerRadius = 10
 
         layer.addSublayer(newlayer)
     }
