@@ -5,7 +5,7 @@ import Foundation
 
 @MainActor
 final class BusArrivalViewModel: ObservableObject {
-    // MARK: - Published Properties
+    // MARK: - Published 속성
 
     @Published var busArrivalInfo: BusArrival?
     @Published var busLocationInfo: BusLocation?
@@ -18,7 +18,13 @@ final class BusArrivalViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Properties
+    @Published var busUrgencyStatus: BusUrgencyStatus = .notApplicable { // 버스 긴급도 상태
+        didSet {
+            print("버스 긴급도 상태 변경: \(busUrgencyStatus.rawValue)")
+        }
+    }
+
+    // MARK: - 속성
 
     let busStop: BusStop
     let busRoute: BusRoute
@@ -26,7 +32,7 @@ final class BusArrivalViewModel: ObservableObject {
     private var arrivalMonitoringTask: Task<Void, Never>?
     private var countdownTimer: Timer?
 
-    // MARK: - Initialization
+    // MARK: - 초기화
 
     init(
         busStop: BusStop,
@@ -43,7 +49,7 @@ final class BusArrivalViewModel: ObservableObject {
         countdownTimer?.invalidate()
     }
 
-    // MARK: - Public Methods
+    // MARK: - 공개 메서드
 
     func startMonitoring() {
         // 자동 새로고침이 아닌 첫 로드 시에만 로더를 표시합니다.
@@ -69,7 +75,7 @@ final class BusArrivalViewModel: ObservableObject {
         stopCountdownTimer()
     }
 
-    // MARK: - Private Helper Methods
+    // MARK: - 비공개 헬퍼 메서드
 
     private func handleArrivalUpdate(_ update: BusArrivalUpdate) {
         isLoading = false
@@ -79,22 +85,26 @@ final class BusArrivalViewModel: ObservableObject {
         busLocationInfo = nil
 
         switch update {
-        case let .arrival(arrival):
+        case let .arrival(arrival, status):
             errorMessage = nil
             busArrivalInfo = arrival
+            busUrgencyStatus = status
             currentEstimatedArrivalTime = arrival.estimatedArrivalTime
             startCountdownTimer()
         case let .location(location):
             errorMessage = nil
             busLocationInfo = location
+            busUrgencyStatus = .notApplicable
             currentEstimatedArrivalTime = nil
             stopCountdownTimer()
         case .empty:
             errorMessage = "현재는 운행중인 노선이 없습니다."
+            busUrgencyStatus = .notApplicable
             currentEstimatedArrivalTime = nil
             stopCountdownTimer()
         case let .error(error):
             errorMessage = "도착 정보를 불러오는 데 실패했습니다: \(error.localizedDescription)"
+            busUrgencyStatus = .notApplicable
             currentEstimatedArrivalTime = nil
             stopCountdownTimer()
         }
