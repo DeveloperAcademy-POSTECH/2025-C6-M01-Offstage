@@ -32,6 +32,7 @@ struct SheetView: View {
                             .font(.largeTitle)
                             .foregroundColor(.gray.opacity(0.8))
                     }
+                    .accessibilityLabel("취소")
                 }
                 .padding()
                 .padding(.bottom, 20)

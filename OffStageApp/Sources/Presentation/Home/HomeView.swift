@@ -79,6 +79,9 @@ struct HomeView: View {
             )
         }
         .onChange(of: viewModel.isLoading) { _, isLoading in
+            // isLoading이 true로 바뀌는 시점에 VoiceOver로 로딩 상태를 안내한다.
+            // TODO:
+            // - 짧은 시간에 공지가 연속 게시되면 이전 멘트를 중단하고 새 멘트를 읽어 "문장이 씹히는" 현상이 발생함
             if isLoading {
                 UIAccessibility.post(notification: .announcement, argument: "근처 정류장 정보를 불러오고 있습니다.")
             }
