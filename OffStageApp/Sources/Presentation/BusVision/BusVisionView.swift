@@ -5,7 +5,7 @@ import UIKit
 struct BusVisionView: View {
     // properties
     var routeNumbers: [String]
-    @State var busDetectedState: BusDetectStatus = .unDetected
+    @StateObject var vm: BusVisionViewModel = .init()
 
     @EnvironmentObject var router: Router<AppRoute>
 
@@ -19,12 +19,12 @@ struct BusVisionView: View {
             // 뷰파인더 + 바운딩박스
             BusDetectionView(
                 routeNumbersToDetect: routeNumbers.map { $0.removeParenthesesContent() },
-                detectStatus: $busDetectedState
+                detectStatus: $vm.busDetectedState
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
             // 탐지결과
-            DetectingStatusSubView(status: busDetectedState)
+            DetectingStatusSubView(status: vm.stateToPresent)
                 .padding(.horizontal)
         }
     }
