@@ -21,26 +21,6 @@ struct HomeView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                ZStack {
-                    Text(L10n.K.appName)
-                        .font(.body)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .accessibilityAddTraits(.isHeader)
-                    HStack {
-                        Spacer()
-                        Button {
-                            // TODO: Navigate to settings
-                        } label: {
-                            Image(systemName: "gearshape")
-                                .font(.title2)
-                                .foregroundColor(.white)
-                        }
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.bottom, 30)
-
                 stopInfoView()
 
                 Text("몇 번 버스를\n탑승하시나요?")
