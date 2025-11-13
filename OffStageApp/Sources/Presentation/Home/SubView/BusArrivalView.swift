@@ -129,16 +129,15 @@ struct BusArrivalInfoView: View {
     }
 
     private func formatArrivalTime(_ seconds: Int?) -> String {
-        if busUrgencyStatus == .arrived {
-            return "잠시 후"
-        }
         guard let seconds else { return "정보 없음" }
         let minutes = seconds / 60
         let remainingSeconds = seconds % 60
         if minutes >= 1 {
             return "\(minutes)분 \(remainingSeconds)초 후"
         }
-        return "\(remainingSeconds)초 후"
+
+        return "잠시 후"
+        // return "\(remainingSeconds)초 후"
     }
 }
 

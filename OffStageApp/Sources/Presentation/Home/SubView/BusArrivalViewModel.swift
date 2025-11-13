@@ -143,7 +143,7 @@ final class BusArrivalViewModel: ObservableObject {
     }
 
     private func updateBusVisionButtonState() {
-        if busUrgencyStatus == .oneStop || busUrgencyStatus == .arrived {
+        if busUrgencyStatus == .arrived {
             isBusVisionButtonEnabled = true
         } else {
             isBusVisionButtonEnabled = false
