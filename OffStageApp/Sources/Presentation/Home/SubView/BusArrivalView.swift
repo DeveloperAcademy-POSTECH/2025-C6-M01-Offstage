@@ -1,11 +1,10 @@
 import BusAPI
 import SwiftUI
 
-// TODO: ; 30초마다 API 재호출
-
 struct BusArrivalView: View {
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var router: Router<AppRoute> // Inject router
+    // 라우터 주입
+    @EnvironmentObject var router: Router<AppRoute>
     @StateObject private var viewModel: BusArrivalViewModel
 
     init(busStop: BusStop, busRoute: BusRoute) {
@@ -27,7 +26,8 @@ struct BusArrivalView: View {
                 BusArrivalInfoView(
                     arrival: arrival,
                     busRoute: viewModel.busRoute,
-                    currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime
+                    currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime,
+                    busUrgencyStatus: viewModel.busUrgencyStatus
                 )
             } else if let location = viewModel.busLocationInfo {
                 BusLocationInfoView(location: location, busRoute: viewModel.busRoute)
@@ -36,7 +36,7 @@ struct BusArrivalView: View {
             Spacer()
             VStack(alignment: .center, spacing: 10) {
                 // Callout/Emphasized
-                Text("도착 예정 시간이 1분 미만일 때\n버스 인식을 시작할 수 있어요")
+                Text("버스가 직전 정류장에서 출발하면\n버스 인식을 시작할 수 있어요.")
                     .font(.callout)
                     .foregroundColor(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
@@ -62,31 +62,36 @@ struct BusArrivalView: View {
                     )
                     .cornerRadius(10)
                 }
-                .disabled(!viewModel.isBusVisionButtonEnabled) // Disable based on ViewModel state
-                .opacity(viewModel.isBusVisionButtonEnabled ? 1.0 : 0.5) // Visual feedback for disabled state
+                // ViewModel 상태에 따라 비활성화
+                .disabled(!viewModel.isBusVisionButtonEnabled)
+                // 비활성화 상태에 대한 시각적 피드백
+                .opacity(viewModel.isBusVisionButtonEnabled ? 1.0 : 0.5)
             }
         }.padding()
             .onAppear {
-                viewModel.fetchArrivalInfo()
+                viewModel.startMonitoring()
             }
             .onDisappear {
-                viewModel.stopArrivalTimer() // Stop timer when view disappears
+                // 뷰가 사라질 때 타이머와 새로고침을 중지합니다.
+                viewModel.stopMonitoring()
             }
     }
 }
 
-// Helper View for Bus Arrival Info
+// 버스 도착 정보 헬퍼 뷰
 struct BusArrivalInfoView: View {
     let arrival: BusArrival
     let busRoute: BusRoute
-    let currentEstimatedArrivalTime: Int? // New property
+    let currentEstimatedArrivalTime: Int?
+    let busUrgencyStatus: BusUrgencyStatus
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "bus.fill")
                     .foregroundColor(.white)
-                Text(busRoute.routeNumber) // Use busRoute.routeNumber
+                // busRoute.routeNumber 사용
+                Text(busRoute.routeNumber)
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
@@ -96,8 +101,8 @@ struct BusArrivalInfoView: View {
             .cornerRadius(12)
             .padding(.top, 5)
             .padding(.bottom, 8)
-
-            Text(formatArrivalTime(currentEstimatedArrivalTime)) // Use mutable time
+            // Use mutable time
+            Text(formatArrivalTime(currentEstimatedArrivalTime))
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
@@ -106,32 +111,38 @@ struct BusArrivalInfoView: View {
                 .font(.title3)
                 .foregroundColor(.white.opacity(0.8))
 
-            if let remainingStops = arrival.remainingStopCount {
-                (Text("\(remainingStops)")
-                    .foregroundColor(.white)
-                    .fontWeight(.bold) +
-                    Text("번째전 ")
-                    .foregroundColor(.white)
-                    .fontWeight(.bold) +
-                    Text("정류장에 있습니다.")
-                )
+            Text(formatRemainingStops(arrival.remainingStopCount ?? 0))
                 .font(.title3)
                 .fontWeight(.bold)
-                .foregroundColor(.white.opacity(0.8)
-                )
-            }
+                .foregroundColor(.white.opacity(0.8))
         }
     }
 
+    private func formatRemainingStops(_ remainingStops: Int) -> String {
+        var result = ""
+        if remainingStops > 1 {
+            result = "\(remainingStops)번째전"
+        } else {
+            result = "전"
+        }
+        return result + " 정류장에서 출발했습니다."
+    }
+
     private func formatArrivalTime(_ seconds: Int?) -> String {
+        if busUrgencyStatus == .arrived {
+            return "잠시 후"
+        }
         guard let seconds else { return "정보 없음" }
         let minutes = seconds / 60
         let remainingSeconds = seconds % 60
-        return "\(minutes)분 \(remainingSeconds)초 후"
+        if minutes >= 1 {
+            return "\(minutes)분 \(remainingSeconds)초 후"
+        }
+        return "\(remainingSeconds)초 후"
     }
 }
 
-// Helper View for Bus Location Info (Fallback)
+// 버스 위치 정보 Helper View (Fallback)
 struct BusLocationInfoView: View {
     let location: BusLocation
     let busRoute: BusRoute
