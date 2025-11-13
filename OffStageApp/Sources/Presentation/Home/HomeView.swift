@@ -21,25 +21,6 @@ struct HomeView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                ZStack {
-                    Text(L10n.K.appName)
-                        .font(.body)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    HStack {
-                        Spacer()
-                        Button {
-                            // TODO: Navigate to settings
-                        } label: {
-                            Image(systemName: "gearshape")
-                                .font(.title2)
-                                .foregroundColor(.white)
-                        }
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.bottom, 30)
-
                 stopInfoView()
 
                 Text("몇 번 버스를\n탑승하시나요?")
@@ -97,6 +78,14 @@ struct HomeView: View {
                 }
             )
         }
+        .onChange(of: viewModel.isLoading) { _, isLoading in
+            // isLoading이 true로 바뀌는 시점에 VoiceOver로 로딩 상태를 안내한다.
+            // TODO:
+            // - 짧은 시간에 공지가 연속 게시되면 이전 멘트를 중단하고 새 멘트를 읽어 "문장이 씹히는" 현상이 발생함
+            if isLoading {
+                UIAccessibility.post(notification: .announcement, argument: "근처 정류장 정보를 불러오고 있습니다.")
+            }
+        }
     }
 
     @ViewBuilder
@@ -106,6 +95,7 @@ struct HomeView: View {
                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 .frame(height: 60)
                 .padding(.horizontal)
+                .accessibilityLabel("주변 정류장 정보를 불러오고 있습니다.")
         } else if let stop = viewModel.nearestBusStop {
             HStack {
                 (Text("현재 주변 정류장은\n") +
@@ -185,13 +175,13 @@ struct HomeView: View {
         .accessibilityHint(
             {
                 if viewModel.isLoading {
-                    return "주변 정류장을 찾는 중입니다. 잠시만 기다려주세요."
+                    return "아직 주변 정류장을 찾는 중입니다. 잠시만 기다려주세요."
                 }
                 // 로딩이 아니고 정류장 데이터가 없는 경우
                 if viewModel.nearestBusStop == nil {
                     return "주변 정류장을 찾지 못했습니다. 위치 권한을 확인하거나 다시 시도해 주세요."
                 }
-                return "타야할 버스 번호를 말씀해주세요."
+                return "음성으로 타야할 버스를 검색하려면 두 번 탭해주세요."
             }()
         )
     }

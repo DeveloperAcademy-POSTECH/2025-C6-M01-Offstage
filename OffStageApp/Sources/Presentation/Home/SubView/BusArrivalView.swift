@@ -1,3 +1,4 @@
+import AVFoundation
 import BusAPI
 import SwiftUI
 
@@ -36,7 +37,7 @@ struct BusArrivalView: View {
             Spacer()
             VStack(alignment: .center, spacing: 10) {
                 // Callout/Emphasized
-                Text("버스가 직전 정류장에서 출발하면\n버스 인식을 시작할 수 있어요.")
+                Text("버스가 두번째 전 정류장에서 출발하면\n버스 인식을 시작할 수 있어요.")
                     .font(.callout)
                     .foregroundColor(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
@@ -75,6 +76,59 @@ struct BusArrivalView: View {
                 // 뷰가 사라질 때 타이머와 새로고침을 중지합니다.
                 viewModel.stopMonitoring()
             }
+            .onChange(of: viewModel.busArrivalInfo) { _, newArrivalInfo in
+                if let newArrivalInfo {
+                    let announcement = generateAnnouncementLabel(
+                        arrival: newArrivalInfo,
+                        busRoute: viewModel.busRoute,
+                        currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime,
+                        busUrgencyStatus: viewModel.busUrgencyStatus
+                    )
+                    /// TODO:
+                    /// - api 호출 주기 짧게 만든 후, 테스트 필요
+                    /// - 짧은 시간에 공지가 연속 게시되면 이전 멘트를 중단하고 새 멘트를 읽어 "문장이 씹히는" 현상이 발생함
+                    UIAccessibility.post(notification: .announcement, argument: announcement)
+                }
+            }
+    }
+
+    private func generateAnnouncementLabel(
+        arrival: BusArrival,
+        busRoute: BusRoute,
+        currentEstimatedArrivalTime: Int?,
+        busUrgencyStatus: BusUrgencyStatus
+    ) -> String {
+        let formattedArrivalTime = formatArrivalTime(currentEstimatedArrivalTime, busUrgencyStatus: busUrgencyStatus)
+        let formattedStops = formatRemainingStops(arrival.remainingStopCount ?? 0)
+
+        if busUrgencyStatus == .arrived {
+            return "\(busRoute.routeNumber)번, \(formattedArrivalTime) 도착, \(formattedStops)"
+        }
+
+        return "\(busRoute.routeNumber)번, \(formattedArrivalTime) 도착 예정, \(formattedStops)"
+    }
+
+    private func formatRemainingStops(_ remainingStops: Int) -> String {
+        var result = ""
+        if remainingStops > 1 {
+            result = "\(remainingStops)번째전"
+        } else {
+            result = "전"
+        }
+        return result + " 정류장에서 출발했습니다."
+    }
+
+    private func formatArrivalTime(_ seconds: Int?, busUrgencyStatus: BusUrgencyStatus) -> String {
+        if busUrgencyStatus == .arrived {
+            return "잠시 후"
+        }
+        guard let seconds else { return "정보 없음" }
+        let minutes = seconds / 60
+        let remainingSeconds = seconds % 60
+        if minutes >= 1 {
+            return "\(minutes)분 \(remainingSeconds)초 후"
+        }
+        return "\(remainingSeconds)초 후"
     }
 }
 
@@ -96,6 +150,7 @@ struct BusArrivalInfoView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.white)
             }
+            .accessibilityElement(children: .combine)
             .padding(8)
             .background(Color.gray.opacity(0.5))
             .cornerRadius(12)
@@ -116,6 +171,20 @@ struct BusArrivalInfoView: View {
                 .fontWeight(.bold)
                 .foregroundColor(.white.opacity(0.8))
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(generateArrivalLabel())
+        .accessibilityAddTraits(.updatesFrequently)
+    }
+
+    private func generateArrivalLabel() -> String {
+        let formattedArrivalTime = formatArrivalTime(currentEstimatedArrivalTime)
+        let formattedStops = formatRemainingStops(arrival.remainingStopCount ?? 0)
+
+        if busUrgencyStatus == .arrived {
+            return "\(busRoute.routeNumber)번, \(formattedArrivalTime) 도착, \(formattedStops)"
+        }
+
+        return "\(busRoute.routeNumber)번, \(formattedArrivalTime) 도착 예정, \(formattedStops)"
     }
 
     private func formatRemainingStops(_ remainingStops: Int) -> String {

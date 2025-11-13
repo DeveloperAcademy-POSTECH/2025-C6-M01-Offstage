@@ -25,7 +25,7 @@ class SheetViewModel: ObservableObject {
     func startListeningProcess() {
         currentSheetState = .listening
         Task {
-            if let recognizedText = await speakAndListenMock(text: "번호를 말씀해주세요.") {
+            if let recognizedText = await startSpeechRecognition() {
                 // 정규화 및 추론 전략을 수행하는 함수를 호출합니다.
                 self.processRecognizedText(recognizedText)
             } else {
@@ -53,24 +53,10 @@ class SheetViewModel: ObservableObject {
         }
     }
 
-    private func speakAndListenMock(text: String) async -> String? {
+    private func startSpeechRecognition() async -> String? {
         let audioSession = AVAudioSession.sharedInstance()
         try? audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
         try? audioSession.setActive(true)
-
-        let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: "ko-KR")
-        utterance.rate = 0.5
-        synthesizer.speak(utterance)
-
-        // TTS가 끝날 때까지 대기
-        while synthesizer.isSpeaking {
-            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1초씩 체크
-        }
-
-        // TTS 종료 후 안정화를 위한 짧은 딜레이 0.2초
-        try? await Task.sleep(nanoseconds: 200_000_000)
-
         // STT 시작
         sttManager.startListening()
 

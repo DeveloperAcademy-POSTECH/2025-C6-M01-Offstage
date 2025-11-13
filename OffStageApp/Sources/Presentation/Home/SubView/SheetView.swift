@@ -3,6 +3,8 @@ import SwiftUI
 
 // TODO: tts기반으로, busRoutes 목록 중 유사값 추측하는 모델 필요
 struct SheetView: View {
+    @AccessibilityFocusState private var isListeningFocused: Bool
+    @AccessibilityFocusState private var isConfirmationFocused: Bool
     @Environment(\.dismiss) private var dismiss
     @State private var step: Int = 0
     @StateObject private var viewModel: SheetViewModel
@@ -32,6 +34,7 @@ struct SheetView: View {
                             .font(.largeTitle)
                             .foregroundColor(.gray.opacity(0.8))
                     }
+                    .accessibilityLabel("취소")
                 }
                 .padding()
                 .padding(.bottom, 20)
@@ -80,6 +83,10 @@ struct SheetView: View {
                 .fontWeight(.bold)
                 .foregroundColor(.white)
                 .padding(.bottom, 30)
+                .accessibilityFocused($isListeningFocused)
+                .onAppear {
+                    isListeningFocused = true
+                }
 
             ZStack {
                 // Concentric circles
@@ -145,6 +152,10 @@ struct SheetView: View {
             .foregroundColor(.white)
             .multilineTextAlignment(.center)
             .padding(.bottom, 40)
+            .accessibilityFocused($isConfirmationFocused)
+            .onAppear {
+                isConfirmationFocused = true
+            }
 
             VStack(spacing: 20) {
                 Button(action: {

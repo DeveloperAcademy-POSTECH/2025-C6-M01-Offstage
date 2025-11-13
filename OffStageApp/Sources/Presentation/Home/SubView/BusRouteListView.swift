@@ -3,6 +3,7 @@ import SwiftUI
 
 struct BusRouteListView: View {
     @Environment(\.dismiss) private var dismiss
+    @AccessibilityFocusState private var isTitleFocused: Bool
     let busRoutes: [BusRoute] // List of bus routes to display
     let onRouteSelected: (BusRoute) -> Void // New closure to pass selected route back
 
@@ -13,6 +14,11 @@ struct BusRouteListView: View {
                 .fontWeight(.bold)
                 .foregroundColor(.white)
                 .padding(.bottom, 20)
+                .accessibilityAddTraits(.isHeader)
+                .accessibilityFocused($isTitleFocused)
+                .onAppear {
+                    isTitleFocused = true
+                }
 
             ScrollView {
                 VStack(spacing: 10) {
