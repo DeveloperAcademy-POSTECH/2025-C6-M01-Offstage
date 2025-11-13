@@ -154,10 +154,10 @@ struct SheetView: View {
                         onRouteSelected(matchingRoute)
                         print("Confirmed and returned matching route: \(matchingRoute.routeNumber)")
                     } else {
+                        // TODO: 일치하는 버스 노선이 없을 때 처리 필요
                         print("No matching bus route found for recognized number: \(recognizedBusNumber)")
-                        // Optionally, you could keep the sheet open or show an alert here.
+                        dismiss()
                     }
-                    dismiss()
                 }) {
                     Text("네, 맞아요.")
                         .font(.title2)
