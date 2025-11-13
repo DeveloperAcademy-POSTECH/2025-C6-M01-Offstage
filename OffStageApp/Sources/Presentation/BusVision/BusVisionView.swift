@@ -5,7 +5,7 @@ import UIKit
 struct BusVisionView: View {
     // properties
     var routeNumbers: [String]
-    @State var detectedRouteNumbers: [String] = []
+    @State var busDetectedState: BusDetectStatus = .unDetected
 
     @EnvironmentObject var router: Router<AppRoute>
 
@@ -15,43 +15,17 @@ struct BusVisionView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack(alignment: .top) {
             // 뷰파인더 + 바운딩박스
             BusDetectionView(
-                routeNumbersToDetect: routeNumbers.map { removeParenthesesContent($0) },
-                detectedRouteNumbers: $detectedRouteNumbers
+                routeNumbersToDetect: routeNumbers.map { $0.removeParenthesesContent() },
+                detectStatus: $busDetectedState
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
-            // 노선번호 로딩 & 결과
-            VStack {
-                if detectedRouteNumbers.isEmpty {
-                    ProgressView()
-                        .accessibilityLabel("버스 번호 인식 중")
-                        .accessibilityHint("버스가 인식되면 번호가 표시됩니다.")
-                } else {
-                    Text(detectedRouteNumbers.joined(separator: "& "))
-                        .font(.system(size: 120, weight: .black, design: .rounded))
-                        .foregroundStyle(Color.white)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .accessibilityHidden(UIAccessibility.isVoiceOverRunning)
-                }
-            }
-            .padding(.vertical)
-            .frame(maxWidth: .infinity, maxHeight: 150, alignment: .center)
-            .background {
-                Rectangle()
-                    .foregroundStyle(.black)
-            }
+            // 탐지결과
+            DetectingStatusSubView(status: busDetectedState)
+                .padding(.horizontal)
         }
-    }
-}
-
-extension BusVisionView {
-    private func removeParenthesesContent(_ text: String) -> String {
-        if let range = text.range(of: "\\(.*\\)", options: .regularExpression) {
-            return text.replacingCharacters(in: range, with: "").trimmingCharacters(in: .whitespaces)
-        }
-        return text
     }
 }

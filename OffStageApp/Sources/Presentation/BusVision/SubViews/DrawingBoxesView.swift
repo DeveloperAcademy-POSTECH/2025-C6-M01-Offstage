@@ -12,7 +12,6 @@ final class DrawingBoxesView: UIView {
         }
     }
 
-    // TODO: 색상 하드코딩 상수값 반영하기
     private func drawBox(with prediction: VNRecognizedObjectObservation) {
         let scale = CGAffineTransform.identity.scaledBy(x: bounds.width, y: bounds.height)
         let transform = CGAffineTransform(scaleX: 1, y: -1).translatedBy(x: 0, y: -1)
