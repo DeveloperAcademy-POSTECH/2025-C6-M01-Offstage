@@ -9,7 +9,58 @@ enum L10n {
         LocalizedStringKey(key)
     }
 
+    enum Bus {
+        enum Arrival {
+            /// "현재 운행중인 버스 위치:"
+            static let currentBusLocation = key("bus.arrival.currentBusLocation")
+            /// "도착 예정"
+            static let imminent = key("bus.arrival.imminent")
+            /// "도착 예정 정보 없음"
+            static let noInformation = key("bus.arrival.noInformation")
+
+            /// "현재는 운행중인 노선이 없습니다."
+            static let noOperatingRoutes = key("bus.arrival.noOperatingRoutes")
+
+            enum Error {
+                /// "도착 정보를 불러오는 데 실패했습니다: %@"
+                static let loadFailed = key("bus.arrival.error.loadFailed")
+            }
+        }
+    }
+
+    enum BusVision {
+        enum Detection {
+            /// "번이 맞나요?"
+            static let confirmBusNumber = key("busVision.detection.confirmBusNumber")
+            /// "타려는 버스 번호가\\n"
+            static let confirmBusNumberPrefix = key("busVision.detection.confirmBusNumberPrefix")
+
+            /// "버스 인식 중"
+            static let inProgress = key("busVision.detection.inProgress")
+            /// "아니요, 다시 인식할게요"
+            static let retry = key("busVision.detection.retry")
+            /// "아니요, 목록에서 고를게요"
+            static let selectFromList = key("busVision.detection.selectFromList")
+            /// "다른 번호의 버스입니다."
+            static let wrongBusNumber = key("busVision.detection.wrongBusNumber")
+        }
+
+        enum Debug {
+            /// "%@번 탐지중" (문맥: 버스비전: 디버그 탐지 상태)
+            static let detectingWithNumber = key("busVision.debug.detectingWithNumber")
+        }
+    }
+
     enum Common {
+        enum Confirmation {
+            /// "아니오"
+            static let no = key("common.confirmation.no")
+            /// "네, 맞아요."
+            static let yes = key("common.confirmation.yes")
+            /// "예"
+            static let yesShort = key("common.confirmation.yesShort")
+        }
+
         enum Ui {
             /// "취소" (문맥: 공용: 취소 버튼)
             static let buttonCancel = key("common.ui.button.cancel")
@@ -25,6 +76,12 @@ enum L10n {
 
             /// "저장" (문맥: 공용: 저장 버튼)
             static let buttonSave = key("common.ui.button.save")
+
+            /// " 입니다."
+            static let suffixIs = key("common.ui.suffix.is")
+
+            /// "알 수 없는 위치" (문맥: 공용: 위치 정보 미확인 시 표시)
+            static let unknownLocation = key("common.ui.unknownLocation")
         }
     }
 
@@ -44,31 +101,166 @@ enum L10n {
 
             /// "Debug" (문맥: 디버그: 화면 타이틀)
             static let title = key("debug.ui.title")
+
+            /// "API Flow" (문맥: 디버그: MVP 테스트 내비게이션 타이틀)
+            static let titleApiFlow = key("debug.ui.title.apiFlow")
+
+            /// "L10n Test" (문맥: 디버그: L10n 테스트 화면 타이틀)
+            static let titleL10nTest = key("debug.ui.title.l10nTest")
+
+            /// "Switch to English" (문맥: 디버그: 언어 전환 토글 레이블)
+            static let toggleSwitchToEnglish = key("debug.ui.toggle.switchToEnglish")
+        }
+
+        enum Mvp {
+            /// "예: 441" (문맥: 디버그: 노선 입력 예시)
+            static let placeholderRouteExample = key("debug.mvp.placeholder.routeExample")
+
+            /// "**%@** 정류장을 통과하는 버스 번호를 입력하세요." (문맥: 디버그: 노선 입력 안내)
+            static let promptEnterRouteForStop = key("debug.mvp.prompt.enterRouteForStop")
         }
     }
 
     enum Home {
-        enum Ui {
-            /// "나의 버스 추가하기" (문맥: 홈 화면: 즐겨찾기 비어있을 때 추가 버튼)
-            static let emptyButtonAdd = key("home.ui.empty.button.add")
+        enum Button {
+            /// "버스 찾기"
+            static let findBus = key("home.button.findBus")
+            /// "주변 정류장 찾기"
+            static let findNearbyStops = key("home.button.findNearbyStops")
+        }
 
-            /// "자주 이용하는 버스를 추가해 주세요." (문맥: 홈 화면: 즐겨찾기 비어있을 때 부제목)
-            static let emptySubtitle = key("home.ui.empty.subtitle")
+        enum Map {
+            /// "%@ 인근"
+            static let near = key("home.map.near")
+            /// "주변 탐색된 정류장이\\n없습니다."
+            static let noStopsFound = key("home.map.noStopsFound")
+            /// "주변에 정류장이 없습니다."
+            static let noStopsFoundSimple = key("home.map.noStopsFound.simple")
+        }
 
-            /// "저장된 내역이 없습니다." (문맥: 홈 화면: 즐겨찾기 비어있을 때 제목)
-            static let emptyTitle = key("home.ui.empty.title")
+        enum Sheet {
+            /// "버스가 두번째 전 정류장에서 출발하면\\n버스 인식을 시작할 수 있어요."
+            static let busDetectionGuide = key("home.sheet.busDetectionGuide")
+            /// "목록에 없어요."
+            static let notFound = key("home.sheet.notFound")
+            /// "노선 번호를 선택하세요."
+            static let selectBusRoute = key("home.sheet.selectBusRoute")
+            /// "버스 인식하기"
+            static let startBusDetection = key("home.sheet.startBusDetection")
+        }
 
-            /// "버스 노선, 정류장 검색" (문맥: 홈 화면: 검색창 플레이스홀더)
-            static let placeholderSearch = key("home.ui.placeholder.search")
+        enum Stt {
+            /// "몇 번 버스를\\n탑승하시나요?"
+            static let askBusNumber = key("home.stt.askBusNumber")
+            /// "몇번 버스를 탑승하시나요?"
+            static let askBusNumberSimple = key("home.stt.askBusNumberSimple")
+            /// "가장 가까운 정류장은 **%@** 입니다. 맞습니까?"
+            static let confirmNearestStop = key("home.stt.confirmNearestStop")
+            /// "현재 주변 정류장은\\n"
+            static let currentNearbyStopPrefix = key("home.stt.currentNearbyStopPrefix")
+            /// "번호를 듣는중이에요."
+            static let listening = key("home.stt.listening")
 
-            /// "홈" (문맥: 홈 화면: 내비게이션 타이틀)
-            static let title = key("home.ui.title")
+            /// "현재 위치를 기반으로 버스 정보를 검색합니다."
+            static let searchBasedOnLocation = key("home.stt.searchBasedOnLocation")
+        }
+
+        enum A11y {
+            enum Button {
+                enum Mic {
+                    /// "타야할 버스 번호 음성 입력 버튼"
+                    static let label = key("home.a11y.button.mic.label")
+
+                    enum Hint {
+                        /// "아직 주변 정류장을 찾는 중입니다. 잠시만 기다려주세요."
+                        static let loading = key("home.a11y.button.mic.hint.loading")
+                        /// "주변 정류장을 찾지 못했습니다. 위치 권한을 확인하거나 다시 시도해 주세요."
+                        static let noStop = key("home.a11y.button.mic.hint.noStop")
+                        /// "음성으로 타야할 버스를 검색하려면 두 번 탭해주세요."
+                        static let ready = key("home.a11y.button.mic.hint.ready")
+                    }
+                }
+            }
+
+            enum Announcement {
+                /// "주변 정류장 정보를 불러오고 있습니다."
+                static let loading = key("home.a11y.announcement.loading")
+                /// "근처 정류장 정보를 불러오고 있습니다."
+                static let loadingNearby = key("home.a11y.announcement.loadingNearby")
+            }
+        }
+
+        enum Ui {}
+    }
+
+    enum Permission {
+        enum Button {
+            /// "설정으로 이동"
+            static let goToSettings = key("permission.button.goToSettings")
+        }
+
+        enum Camera {
+            /// "버스 번호 인식을 위해 사용"
+            static let reason = key("permission.camera.reason")
+            /// "카메라 접근"
+            static let title = key("permission.camera.title")
+        }
+
+        enum Location {
+            /// "사용자 위치 기반 정류장 안내를 위해 사용"
+            static let reason = key("permission.location.reason")
+            /// "위치 정보 접근"
+            static let title = key("permission.location.title")
+        }
+
+        enum Mic {
+            /// "음성 검색 기능을 위해 사용"
+            static let reason = key("permission.mic.reason")
+            /// "마이크 접근"
+            static let title = key("permission.mic.title")
+        }
+
+        enum Prompt {
+            /// "버스온다를 사용하고 정보를\\n위치, 카메라 및 마이크 접근을 허용해 주세요."
+            static let all = key("permission.prompt.all")
+            /// "버스온다에 접근\\n권한이 필요합니다."
+            static let title = key("permission.prompt.title")
+        }
+
+        enum A11y {
+            enum Status {
+                /// "거절됨"
+                static let denied = key("permission.a11y.status.denied")
+                /// "승인됨"
+                static let granted = key("permission.a11y.status.granted")
+            }
         }
     }
 
-    enum K {
-        /// "버스온다" (문맥: 앱의 공식 이름)
-        static let appName = key("k.appName")
+    // Accessibility-only formats for BusArrival screens
+    enum BusArrival {
+        enum A11y {
+            enum Format {
+                /// "%@번"
+                static let routeNumber = key("busArrival.a11y.format.routeNumber")
+                /// "도착 예정"
+                static let arriving = key("busArrival.a11y.format.arriving")
+                /// "도착"
+                static let arrived = key("busArrival.a11y.format.arrived")
+                /// "%@번째전 정류장에서 출발했습니다."
+                static let stopsAway = key("busArrival.a11y.format.stopsAway")
+                /// "전 정류장에서 출발했습니다."
+                static let previousStop = key("busArrival.a11y.format.previousStop")
+                /// "잠시 후"
+                static let soon = key("busArrival.a11y.format.soon")
+                /// "정보 없음"
+                static let noInfo = key("busArrival.a11y.format.noInfo")
+                /// "%@분 %@초 후"
+                static let minutesSeconds = key("busArrival.a11y.format.minutesSeconds")
+                /// "%@초 후"
+                static let seconds = key("busArrival.a11y.format.seconds")
+            }
+        }
     }
 
     enum SttTtsTest {
@@ -199,6 +391,18 @@ enum L10n {
 
             /// "정류장 조회" (문맥: 테스트: 정류장 조회 섹션 타이틀)
             static let titleStopSection = key("test.ui.title.stopSection")
+
+            /// "Seoul API Tests" (문맥: 테스트: 서울 API 테스트 섹션 타이틀)
+            static let titleSeoulSection = key("test.ui.title.seoulSection")
+
+            /// "Test Profile" (문맥: 테스트: 프로필 선택 라벨)
+            static let pickerProfile = key("test.ui.picker.profile")
+
+            /// "Seoul" (문맥: 테스트: 프로필 이름)
+            static let profileSeoul = key("test.ui.profile.seoul")
+
+            /// "Pangyo" (문맥: 테스트: 프로필 이름)
+            static let profilePangyo = key("test.ui.profile.pangyo")
         }
     }
 }

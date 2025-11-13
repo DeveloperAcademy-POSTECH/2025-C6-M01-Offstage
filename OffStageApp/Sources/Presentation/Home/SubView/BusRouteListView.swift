@@ -9,7 +9,7 @@ struct BusRouteListView: View {
 
     var body: some View {
         VStack {
-            Text("노선 번호를 선택하세요.")
+            Text(L10n.Home.Sheet.selectBusRoute)
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
@@ -29,7 +29,7 @@ struct BusRouteListView: View {
                     Button(action: {
                         dismiss() // Dismiss the sheet after selection
                     }) {
-                        Text("목록에 없어요.")
+                        Text(L10n.Home.Sheet.notFound)
                             .font(.title2)
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity)

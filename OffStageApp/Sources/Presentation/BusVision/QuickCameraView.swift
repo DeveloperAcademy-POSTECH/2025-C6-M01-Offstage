@@ -25,7 +25,9 @@ struct QuickCameraView: View {
                 if isRouteNumEntered {
                     #if DEBUG_MODE
                         if busDetectedState == .unDetected {
-                            Text("\(routeNumbers.first!)번 탐지중")
+                            if let first = routeNumbers.first {
+                                Text(String(format: "busVision.debug.detectingWithNumber", arguments: [first]))
+                            }
                         }
                     #endif
                     // 탐지 결과

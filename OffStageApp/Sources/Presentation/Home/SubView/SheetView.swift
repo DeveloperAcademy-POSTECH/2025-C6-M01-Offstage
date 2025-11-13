@@ -34,7 +34,7 @@ struct SheetView: View {
                             .font(.largeTitle)
                             .foregroundColor(.gray.opacity(0.8))
                     }
-                    .accessibilityLabel("취소")
+                    .accessibilityLabel(L10n.Common.Ui.buttonCancel)
                 }
                 .padding()
                 .padding(.bottom, 20)
@@ -78,7 +78,7 @@ struct SheetView: View {
     @ViewBuilder
     private func listeningContent() -> some View {
         VStack {
-            Text("번호를 듣는중이에요.")
+            Text(L10n.Home.Stt.listening)
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
@@ -141,11 +141,11 @@ struct SheetView: View {
     @ViewBuilder
     private func confirmationContent(recognizedBusNumber: String) -> some View {
         VStack {
-            (Text("타려는 버스 번호가\n") +
+            (Text(L10n.BusVision.Detection.confirmBusNumberPrefix) +
                 Text(recognizedBusNumber)
                 .foregroundColor(Color(.primarynormal))
                 .fontWeight(.bold) +
-                Text("번이 맞나요?")
+                Text(L10n.BusVision.Detection.confirmBusNumber)
             )
             .font(.title)
             .fontWeight(.bold)
@@ -170,7 +170,7 @@ struct SheetView: View {
                         dismiss()
                     }
                 }) {
-                    Text("네, 맞아요.")
+                    Text(L10n.Common.Confirmation.yes)
                         .font(.title2)
                         .fontWeight(.bold)
                         .frame(maxWidth: .infinity)
@@ -186,7 +186,7 @@ struct SheetView: View {
                 Button(action: {
                     viewModel.startListeningProcess()
                 }) {
-                    Text("아니요, 다시 인식할게요")
+                    Text(L10n.BusVision.Detection.retry)
                         .font(.title2)
                         .fontWeight(.bold)
                         .frame(maxWidth: .infinity)
@@ -202,7 +202,7 @@ struct SheetView: View {
                 Button(action: {
                     viewModel.showBusRouteList(routes: busRoutes)
                 }) {
-                    Text("아니요, 목록에서 고를게요")
+                    Text(L10n.BusVision.Detection.selectFromList)
                         .font(.title2)
                         .fontWeight(.bold)
                         .frame(maxWidth: .infinity)

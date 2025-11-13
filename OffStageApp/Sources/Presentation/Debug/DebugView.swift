@@ -10,6 +10,10 @@
             NavigationView {
                 List {
                     NavigationLink(
+                        "L10n Test View",
+                        destination: L10nTestView()
+                    )
+                    NavigationLink(
                         L10n.Debug.Ui.linkBusVision,
                         destination: BusVisionView(routeNumbers: ["207", "306"])
                     )

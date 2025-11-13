@@ -5,7 +5,7 @@ struct FastBusVisionInputView: View {
     let onSubmit: () -> Void
 
     var body: some View {
-        Text("몇번 버스를 탑승하시나요?")
+        Text(L10n.Home.Stt.askBusNumberSimple)
             .font(.system(size: 21, weight: .semibold))
 
         TextField("탑승할 버스번호", text: $routeNumber)

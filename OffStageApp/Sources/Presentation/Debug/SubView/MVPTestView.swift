@@ -31,7 +31,7 @@ struct MVPTestView: View {
             .padding(.vertical, 24)
         }
         .background(Color(.systemGroupedBackground).ignoresSafeArea())
-        .navigationTitle("API Flow")
+        .navigationTitle(L10n.Debug.Ui.titleApiFlow)
         .navigationBarTitleDisplayMode(.inline)
         .overlay(
             ActivityIndicator(isAnimating: loadingBinding, style: .large)
@@ -49,7 +49,7 @@ struct MVPTestView: View {
 
     private var initialStepView: some View {
         VStack(spacing: 12) {
-            Text("현재 위치를 기반으로 버스 정보를 검색합니다.")
+            Text(L10n.Home.Stt.searchBasedOnLocation)
                 .font(.headline)
             Button {
                 Task {
@@ -58,7 +58,7 @@ struct MVPTestView: View {
                     }
                 }
             } label: {
-                Text("주변 정류장 찾기")
+                Text(L10n.Home.Button.findNearbyStops)
                     .font(.headline)
                     .frame(maxWidth: .infinity)
             }
@@ -71,13 +71,13 @@ struct MVPTestView: View {
     private func stopSelectionStepView(stops: [BusStop]) -> some View {
         VStack(spacing: 16) {
             if let closest = stops.first {
-                Text("가장 가까운 정류장은 **\(closest.name)** 입니다. 맞습니까?")
+                Text(String(format: String(localized: "home.stt.confirmNearestStop"), closest.name))
                     .font(.headline)
                 HStack(spacing: 12) {
                     Button {
                         step = .stopConfirmed(closest)
                     } label: {
-                        Text("예")
+                        Text(L10n.Common.Confirmation.yesShort)
                             .font(.headline)
                             .frame(maxWidth: .infinity)
                     }
@@ -88,7 +88,7 @@ struct MVPTestView: View {
                         // TODO: Show a list of other stops to choose from
                         step = .initial
                     } label: {
-                        Text("아니오")
+                        Text(L10n.Common.Confirmation.no)
                             .font(.headline)
                             .frame(maxWidth: .infinity)
                     }
@@ -96,8 +96,8 @@ struct MVPTestView: View {
                     .controlSize(.large)
                 }
             } else {
-                Text("주변에 정류장이 없습니다.")
-                Button("다시 시도") {
+                Text(L10n.Home.Map.noStopsFoundSimple)
+                Button(L10n.Common.Ui.buttonRetry) {
                     step = .initial
                 }
                 .buttonStyle(.bordered)
@@ -109,10 +109,10 @@ struct MVPTestView: View {
 
     private func routeInputStepView(stop: BusStop) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("**\(stop.name)** 정류장을 통과하는 버스 번호를 입력하세요.")
+            Text(String(format: String(localized: "debug.mvp.prompt.enterRouteForStop"), stop.name))
                 .font(.headline)
 
-            TextField("e.g., 441", text: $viewModel.routeQuery)
+            TextField(L10n.Debug.Mvp.placeholderRouteExample, text: $viewModel.routeQuery)
                 .textFieldStyle(.roundedBorder)
                 .keyboardType(.numberPad)
 
@@ -122,7 +122,7 @@ struct MVPTestView: View {
                     await viewModel.findBusFor(stop: stop, routeQuery: viewModel.routeQuery)
                 }
             } label: {
-                Text("버스 찾기")
+                Text(L10n.Home.Button.findBus)
                     .font(.headline)
                     .frame(maxWidth: .infinity)
             }
