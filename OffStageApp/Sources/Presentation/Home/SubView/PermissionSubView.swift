@@ -10,13 +10,13 @@ struct PermissionSubView: View {
             VStack(spacing: 24) {
                 // 헤더
                 VStack(spacing: 12) {
-                    Text("버스온다에 접근\n권한이 필요합니다.")
+                    Text(L10n.Permission.Prompt.title)
                         .font(.system(size: 32, weight: .bold))
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
                         .padding(.bottom)
 
-                    Text("버스온다를 사용하고 정보를\n위치, 카메라 및 마이크 접근을 허용해 주세요.")
+                    Text(L10n.Permission.Prompt.all)
                         .font(.system(size: 17))
                         .multilineTextAlignment(.center)
                         .foregroundColor(.gray)
@@ -32,12 +32,18 @@ struct PermissionSubView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 60, height: 60)
-                            .accessibilityLabel(deniedPermissions.contains(.location) ? "거절됨" : "승인됨")
+                            .accessibilityLabel(
+                                Text(
+                                    deniedPermissions.contains(.location)
+                                        ? L10n.Permission.A11y.Status.denied
+                                        : L10n.Permission.A11y.Status.granted
+                                )
+                            )
 
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("위치 정보 접근")
+                            Text(L10n.Permission.Location.title)
                                 .font(.system(size: 17))
-                            Text("사용자 위치 기반 정류장 안내를 위해 사용")
+                            Text(L10n.Permission.Location.reason)
                                 .font(.system(size: 16))
                                 .foregroundColor(.gray)
                         }
@@ -52,12 +58,18 @@ struct PermissionSubView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 60, height: 60)
-                            .accessibilityLabel(deniedPermissions.contains(.camera) ? "거절됨" : "승인됨")
+                            .accessibilityLabel(
+                                Text(
+                                    deniedPermissions.contains(.camera)
+                                        ? L10n.Permission.A11y.Status.denied
+                                        : L10n.Permission.A11y.Status.granted
+                                )
+                            )
 
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("카메라 접근")
+                            Text(L10n.Permission.Camera.title)
                                 .font(.system(size: 17))
-                            Text("버스 번호 인식을 위해 사용")
+                            Text(L10n.Permission.Camera.reason)
                                 .font(.system(size: 16))
                                 .foregroundColor(.gray)
                         }
@@ -72,12 +84,18 @@ struct PermissionSubView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 60, height: 60)
-                            .accessibilityLabel(deniedPermissions.contains(.microphone) ? "거절됨" : "승인됨")
+                            .accessibilityLabel(
+                                Text(
+                                    deniedPermissions.contains(.microphone)
+                                        ? L10n.Permission.A11y.Status.denied
+                                        : L10n.Permission.A11y.Status.granted
+                                )
+                            )
 
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("마이크 접근")
+                            Text(L10n.Permission.Mic.title)
                                 .font(.system(size: 17))
-                            Text("음성 검색 기능을 위해 사용")
+                            Text(L10n.Permission.Mic.reason)
                                 .font(.system(size: 16))
                                 .foregroundColor(.gray)
                         }
@@ -97,7 +115,7 @@ struct PermissionSubView: View {
                             UIApplication.shared.open(url)
                         }
                     } label: {
-                        Text("설정으로 이동")
+                        Text(L10n.Permission.Button.goToSettings)
                             .foregroundColor(.black)
                             .font(Font.custom("SF Pro", size: 20).weight(.semibold))
                             .frame(maxWidth: .infinity)

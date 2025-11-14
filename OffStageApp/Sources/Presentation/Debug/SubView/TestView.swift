@@ -15,9 +15,9 @@ struct TestView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 24) {
-                    Picker("Test Profile", selection: $selectedProfile) {
+                    Picker(L10n.Test.Ui.pickerProfile, selection: $selectedProfile) {
                         ForEach(TestProfile.allCases) { profile in
-                            Text(profile.rawValue).tag(profile)
+                            Text(localizedProfileName(profile)).tag(profile)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -32,13 +32,13 @@ struct TestView: View {
 //                    }
 
                     Section(
-                        header: Text("API Calls")
+                        header: Text(L10n.Test.Ui.labelApiCall)
                     ) {
                         actionSection
                     }
 
                     Section(
-                        header: Text("API Response")
+                        header: Text(L10n.Test.Ui.labelResponsePreview)
                     ) {
                         responseSection
                     }
@@ -138,7 +138,7 @@ struct TestView: View {
                 .font(.headline)
 
             if selectedProfile == .seoul {
-                actionGroup(title: "Seoul API Tests", actions: seoulAPIActions)
+                actionGroup(title: L10n.Test.Ui.titleSeoulSection, actions: seoulAPIActions)
             } else {
                 actionGroup(title: L10n.Test.Ui.titleStopSection, actions: stopActions)
                 actionGroup(title: L10n.Test.Ui.titleArrivalSection, actions: arrivalActions)
@@ -196,6 +196,15 @@ struct TestView: View {
             get: { viewModel.isLoading },
             set: { viewModel.isLoading = $0 }
         )
+    }
+
+    private func localizedProfileName(_ profile: TestProfile) -> LocalizedStringKey {
+        switch profile {
+        case .seoul:
+            L10n.Test.Ui.profileSeoul
+        case .nonSeoul:
+            L10n.Test.Ui.profilePangyo
+        }
     }
 
     private var stopActions: [APIAction] {

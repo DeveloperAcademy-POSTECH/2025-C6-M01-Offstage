@@ -37,7 +37,7 @@ struct BusArrivalView: View {
             Spacer()
             VStack(alignment: .center, spacing: 10) {
                 // Callout/Emphasized
-                Text("버스가 두번째 전 정류장에서 출발하면\n버스 인식을 시작할 수 있어요.")
+                Text(L10n.Home.Sheet.busDetectionGuide)
                     .font(.callout)
                     .foregroundColor(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
@@ -49,7 +49,7 @@ struct BusArrivalView: View {
                 }) {
                     HStack {
                         Image(systemName: "camera")
-                        Text("버스 인식하기")
+                        Text(L10n.Home.Sheet.startBusDetection)
                     }
                     .font(.title3)
                     .fontWeight(.semibold)
@@ -98,37 +98,48 @@ struct BusArrivalView: View {
         currentEstimatedArrivalTime: Int?,
         busUrgencyStatus: BusUrgencyStatus
     ) -> String {
+        let routeNum = String(
+            format: String(localized: "busArrival.a11y.format.routeNumber"),
+            busRoute.routeNumber
+        )
         let formattedArrivalTime = formatArrivalTime(currentEstimatedArrivalTime, busUrgencyStatus: busUrgencyStatus)
         let formattedStops = formatRemainingStops(arrival.remainingStopCount ?? 0)
 
-        if busUrgencyStatus == .arrived {
-            return "\(busRoute.routeNumber)번, \(formattedArrivalTime) 도착, \(formattedStops)"
-        }
+        let status = (busUrgencyStatus == .arrived)
+            ? String(localized: "busArrival.a11y.format.arrived")
+            : String(localized: "busArrival.a11y.format.arriving")
 
-        return "\(busRoute.routeNumber)번, \(formattedArrivalTime) 도착 예정, \(formattedStops)"
+        return "\(routeNum), \(formattedArrivalTime) \(status), \(formattedStops)"
     }
 
     private func formatRemainingStops(_ remainingStops: Int) -> String {
-        var result = ""
         if remainingStops > 1 {
-            result = "\(remainingStops)번째전"
+            String(
+                format: String(localized: "busArrival.a11y.format.stopsAway"),
+                String(remainingStops)
+            )
         } else {
-            result = "전"
+            String(localized: "busArrival.a11y.format.previousStop")
         }
-        return result + " 정류장에서 출발했습니다."
     }
 
     private func formatArrivalTime(_ seconds: Int?, busUrgencyStatus: BusUrgencyStatus) -> String {
         if busUrgencyStatus == .arrived {
-            return "잠시 후"
+            return String(localized: "busArrival.a11y.format.soon")
         }
-        guard let seconds else { return "정보 없음" }
+        guard let seconds else { return String(localized: "busArrival.a11y.format.noInfo") }
         let minutes = seconds / 60
         let remainingSeconds = seconds % 60
         if minutes >= 1 {
-            return "\(minutes)분 \(remainingSeconds)초 후"
+            return String(
+                format: String(localized: "busArrival.a11y.format.minutesSeconds"),
+                String(minutes), String(remainingSeconds)
+            )
         }
-        return "\(remainingSeconds)초 후"
+        return String(
+            format: String(localized: "busArrival.a11y.format.seconds"),
+            String(remainingSeconds)
+        )
     }
 }
 
@@ -162,7 +173,7 @@ struct BusArrivalInfoView: View {
                 .fontWeight(.bold)
                 .foregroundColor(.white)
 
-            Text("도착 예정")
+            Text(L10n.Bus.Arrival.imminent)
                 .font(.title3)
                 .foregroundColor(.white.opacity(0.8))
 
@@ -172,41 +183,49 @@ struct BusArrivalInfoView: View {
                 .foregroundColor(.white.opacity(0.8))
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(generateArrivalLabel())
+        .accessibilityLabel(Text(generateArrivalLabel()))
         .accessibilityAddTraits(.updatesFrequently)
     }
 
     private func generateArrivalLabel() -> String {
+        let routeNum = String(
+            format: String(localized: "busArrival.a11y.format.routeNumber"),
+            busRoute.routeNumber
+        )
         let formattedArrivalTime = formatArrivalTime(currentEstimatedArrivalTime)
         let formattedStops = formatRemainingStops(arrival.remainingStopCount ?? 0)
 
-        if busUrgencyStatus == .arrived {
-            return "\(busRoute.routeNumber)번, \(formattedArrivalTime) 도착, \(formattedStops)"
-        }
+        let status = (busUrgencyStatus == .arrived)
+            ? String(localized: "busArrival.a11y.format.arrived")
+            : String(localized: "busArrival.a11y.format.arriving")
 
-        return "\(busRoute.routeNumber)번, \(formattedArrivalTime) 도착 예정, \(formattedStops)"
+        return "\(routeNum), \(formattedArrivalTime) \(status), \(formattedStops)"
     }
 
     private func formatRemainingStops(_ remainingStops: Int) -> String {
-        var result = ""
         if remainingStops > 1 {
-            result = "\(remainingStops)번째전"
+            String(
+                format: String(localized: "busArrival.a11y.format.stopsAway"),
+                String(remainingStops)
+            )
         } else {
-            result = "전"
+            String(localized: "busArrival.a11y.format.previousStop")
         }
-        return result + " 정류장에서 출발했습니다."
     }
 
     private func formatArrivalTime(_ seconds: Int?) -> String {
-        guard let seconds else { return "정보 없음" }
+        guard let seconds else { return String(localized: "busArrival.a11y.format.noInfo") }
         let minutes = seconds / 60
         let remainingSeconds = seconds % 60
         if minutes >= 1 {
-            return "\(minutes)분 \(remainingSeconds)초 후"
+            return String(
+                format: String(localized: "busArrival.a11y.format.minutesSeconds"),
+                String(minutes), String(remainingSeconds)
+            )
         }
 
-        return "잠시 후"
-        // return "\(remainingSeconds)초 후"
+        return String(localized: "busArrival.a11y.format.soon")
+        // return String(format: String(localized: L10n.BusArrival.A11y.Format.seconds), String(remainingSeconds))
     }
 }
 
@@ -230,18 +249,22 @@ struct BusLocationInfoView: View {
             }
             .padding(.bottom, 10)
 
-            Text("도착 예정 정보 없음")
+            Text(L10n.Bus.Arrival.noInformation)
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
 
-            Text("현재 운행중인 버스 위치:")
+            Text(L10n.Bus.Arrival.currentBusLocation)
                 .font(.title3)
                 .foregroundColor(.white.opacity(0.8))
 
-            Text("\(location.nodeName ?? "알 수 없는 위치") 인근")
-                .font(.title3)
-                .foregroundColor(.white.opacity(0.8))
+            let locationName = location.nodeName ?? String(localized: "common.ui.unknownLocation")
+            Text(String(
+                format: String(localized: "home.map.near"),
+                locationName
+            ))
+            .font(.title3)
+            .foregroundColor(.white.opacity(0.8))
         }
     }
 }

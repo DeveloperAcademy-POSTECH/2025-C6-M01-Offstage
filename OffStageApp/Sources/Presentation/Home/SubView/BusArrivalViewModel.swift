@@ -103,12 +103,15 @@ final class BusArrivalViewModel: ObservableObject {
             currentEstimatedArrivalTime = nil
             stopCountdownTimer()
         case .empty:
-            errorMessage = "현재는 운행중인 노선이 없습니다."
+            errorMessage = String(localized: "bus.arrival.noOperatingRoutes")
             busUrgencyStatus = .notApplicable
             currentEstimatedArrivalTime = nil
             stopCountdownTimer()
         case let .error(error):
-            errorMessage = "도착 정보를 불러오는 데 실패했습니다: \(error.localizedDescription)"
+            errorMessage = String(
+                format: String(localized: "bus.arrival.error.loadFailed"),
+                error.localizedDescription
+            )
             busUrgencyStatus = .notApplicable
             currentEstimatedArrivalTime = nil
             stopCountdownTimer()

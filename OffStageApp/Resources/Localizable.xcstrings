@@ -1,52 +1,450 @@
 {
   "sourceLanguage" : "ko",
   "strings" : {
-    " 입니다." : {
-
-    },
-    "**%@** 정류장을 통과하는 버스 번호를 입력하세요." : {
-
-    },
-    "%@ 인근" : {
-
-    },
-    "%@번 탐지중" : {
-
-    },
-    "API Calls" : {
-
-    },
-    "API Response" : {
-
-    },
-    "common.a11y.action.delete" : {
-      "comment" : "A11y: 공용: 삭제 액션 이름 (2단계에서 추가했다면 생략)",
-      "extractionState" : "stale",
+    "bus.arrival.currentBusLocation" : {
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current bus location:"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "삭제"
+            "value" : "현재 운행중인 버스 위치:"
           }
         }
       }
     },
-    "common.a11y.button.home" : {
-      "comment" : "A11y: 홈으로 이동 버튼",
-      "extractionState" : "stale",
+    "bus.arrival.error.loadFailed" : {
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to load arrival info: %@"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "홈으로 이동"
+            "value" : "도착 정보를 불러오는 데 실패했습니다: %@"
+          }
+        }
+      }
+    },
+    "bus.arrival.imminent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arriving soon"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "도착 예정"
+          }
+        }
+      }
+    },
+    "bus.arrival.noInformation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No arrival information"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "도착 예정 정보 없음"
+          }
+        }
+      }
+    },
+    "bus.arrival.noOperatingRoutes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There are no routes currently in operation."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재는 운행중인 노선이 없습니다."
+          }
+        }
+      }
+    },
+    "busArrival.a11y.format.arrived" : {
+      "comment" : "버스 도착: 도착 완료 텍스트",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "arrived"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "도착"
+          }
+        }
+      }
+    },
+    "busArrival.a11y.format.arriving" : {
+      "comment" : "버스 도착: 도착 예정 텍스트",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "arriving"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "도착 예정"
+          }
+        }
+      }
+    },
+    "busArrival.a11y.format.minutesSeconds" : {
+      "comment" : "버스 도착 A11y: 분/초 후",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In %@ min %@ sec"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@분 %@초 후"
+          }
+        }
+      }
+    },
+    "busArrival.a11y.format.noInfo" : {
+      "comment" : "버스 도착 A11y: 정보 없음",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No information"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정보 없음"
+          }
+        }
+      }
+    },
+    "busArrival.a11y.format.previousStop" : {
+      "comment" : "버스 도착: 전 정류장",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "departed from the previous stop."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전 정류장에서 출발했습니다."
+          }
+        }
+      }
+    },
+    "busArrival.a11y.format.routeNumber" : {
+      "comment" : "버스 도착: 노선 번호 포맷",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bus %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@번"
+          }
+        }
+      }
+    },
+    "busArrival.a11y.format.seconds" : {
+      "comment" : "버스 도착 A11y: 초 후",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In %@ sec"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@초 후"
+          }
+        }
+      }
+    },
+    "busArrival.a11y.format.soon" : {
+      "comment" : "버스 도착 A11y: 잠시 후",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soon"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "잠시 후"
+          }
+        }
+      }
+    },
+    "busArrival.a11y.format.stopsAway" : {
+      "comment" : "버스 도착: N번째 전 정류장",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "departed from %@ stops before."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@번째전 정류장에서 출발했습니다."
+          }
+        }
+      }
+    },
+    "busVision.debug.detectingWithNumber" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detecting Bus %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@번 탐지중"
+          }
+        }
+      }
+    },
+    "busVision.detection.confirmBusNumber" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Is this correct?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "번이 맞나요?"
+          }
+        }
+      }
+    },
+    "busVision.detection.confirmBusNumberPrefix" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Is the bus number\nyou want to board\n"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "타려는 버스 번호가\n"
+          }
+        }
+      }
+    },
+    "busVision.detection.detectingBusNumber" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detecting Bus %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@번 탐지중"
+          }
+        }
+      }
+    },
+    "busVision.detection.inProgress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recognizing bus"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버스 인식 중"
+          }
+        }
+      }
+    },
+    "busVision.detection.retry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No, I'll recognize again"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아니요, 다시 인식할게요"
+          }
+        }
+      }
+    },
+    "busVision.detection.selectFromList" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No, I'll select from list"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아니요, 목록에서 고를게요"
+          }
+        }
+      }
+    },
+    "busVision.detection.wrongBusNumber" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This is a different bus number."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 번호의 버스입니다."
+          }
+        }
+      }
+    },
+    "common.confirmation.no" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아니오"
+          }
+        }
+      }
+    },
+    "common.confirmation.yes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yes, that's right."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "네, 맞아요."
+          }
+        }
+      }
+    },
+    "common.confirmation.yesShort" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yes"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "예"
           }
         }
       }
     },
     "common.ui.button.cancel" : {
       "comment" : "공용: 취소 버튼",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -57,8 +455,14 @@
     },
     "common.ui.button.next" : {
       "comment" : "공용: 다음 버튼",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -69,8 +473,14 @@
     },
     "common.ui.button.previous" : {
       "comment" : "공용: 이전 버튼",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -81,8 +491,14 @@
     },
     "common.ui.button.retry" : {
       "comment" : "공용: 재시도 버튼",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -93,8 +509,14 @@
     },
     "common.ui.button.save" : {
       "comment" : "공용: 저장 버튼",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -103,10 +525,84 @@
         }
       }
     },
+    "common.ui.suffix.is" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " 입니다."
+          }
+        }
+      }
+    },
+    "common.ui.unknownLocation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown location"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알 수 없는 위치"
+          }
+        }
+      }
+    },
+    "debug.mvp.placeholder.routeExample" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g., 441"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "예: 441"
+          }
+        }
+      }
+    },
+    "debug.mvp.prompt.enterRouteForStop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the bus number passing through **%@** stop."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**%@** 정류장을 통과하는 버스 번호를 입력하세요."
+          }
+        }
+      }
+    },
     "debug.ui.button.apiTest" : {
       "comment" : "디버그: Api 테스트 뷰 이동 버튼",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Api Test View"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -117,8 +613,14 @@
     },
     "debug.ui.button.clear" : {
       "comment" : "디버그: 로그 지우기 버튼",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -129,8 +631,14 @@
     },
     "debug.ui.button.sttTtsTest" : {
       "comment" : "디버그: STT/TTS 테스트 뷰 이동 버튼",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STT & TTS Test View"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -141,8 +649,14 @@
     },
     "debug.ui.link.busVision" : {
       "comment" : "디버그: 버스 비전 테스트 링크",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "207, 306"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -153,8 +667,14 @@
     },
     "debug.ui.title" : {
       "comment" : "디버그: 화면 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debug"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -163,10 +683,447 @@
         }
       }
     },
+    "debug.ui.title.apiFlow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API Flow"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API Flow"
+          }
+        }
+      }
+    },
+    "debug.ui.title.l10nTest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L10n Test"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L10n Test"
+          }
+        }
+      }
+    },
+    "debug.ui.toggle.switchToEnglish" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to English"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "영어로 전환"
+          }
+        }
+      }
+    },
+    "home.a11y.announcement.loading" : {
+      "comment" : "홈 화면: 로딩 시작 음성 안내",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading nearby stop information."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주변 정류장 정보를 불러오고 있습니다."
+          }
+        }
+      }
+    },
+    "home.a11y.announcement.loadingNearby" : {
+      "comment" : "홈 화면: 근처 정류장 로딩 음성 안내",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading nearby stop information."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "근처 정류장 정보를 불러오고 있습니다."
+          }
+        }
+      }
+    },
+    "home.a11y.button.mic.hint.loading" : {
+      "comment" : "홈 화면: 마이크 버튼 힌트(로딩 중)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Still searching for nearby stops. Please wait a moment."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 주변 정류장을 찾는 중입니다. 잠시만 기다려주세요."
+          }
+        }
+      }
+    },
+    "home.a11y.button.mic.hint.noStop" : {
+      "comment" : "홈 화면: 마이크 버튼 힌트(정류장 없음)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No nearby stops found. Please check location permission or try again."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주변 정류장을 찾지 못했습니다. 위치 권한을 확인하거나 다시 시도해 주세요."
+          }
+        }
+      }
+    },
+    "home.a11y.button.mic.hint.ready" : {
+      "comment" : "홈 화면: 마이크 버튼 힌트(준비됨)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to search for the bus you need to take by voice."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음성으로 타야할 버스를 검색하려면 두 번 탭해주세요."
+          }
+        }
+      }
+    },
+    "home.a11y.button.mic.label" : {
+      "comment" : "홈 화면: 마이크 버튼 접근성 레이블",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voice input button for bus number"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "타야할 버스 번호 음성 입력 버튼"
+          }
+        }
+      }
+    },
+    "home.button.findBus" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find Bus"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버스 찾기"
+          }
+        }
+      }
+    },
+    "home.button.findNearbyStops" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find Nearby Stops"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주변 정류장 찾기"
+          }
+        }
+      }
+    },
+    "home.map.near" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Near %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 인근"
+          }
+        }
+      }
+    },
+    "home.map.noStopsFound" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No stops found\nin the vicinity."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주변 탐색된 정류장이\n없습니다."
+          }
+        }
+      }
+    },
+    "home.map.noStopsFound.simple" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No nearby stops."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주변에 정류장이 없습니다."
+          }
+        }
+      }
+    },
+    "home.sheet.busDetectionGuide" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can start bus detection\nwhen the bus leaves two stops before."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버스가 두번째 전 정류장에서 출발하면\n버스 인식을 시작할 수 있어요."
+          }
+        }
+      }
+    },
+    "home.sheet.notFound" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not in list."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "목록에 없어요."
+          }
+        }
+      }
+    },
+    "home.sheet.selectBusRoute" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a route number."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노선 번호를 선택하세요."
+          }
+        }
+      }
+    },
+    "home.sheet.startBusDetection" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detect Bus"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버스 인식하기"
+          }
+        }
+      }
+    },
+    "home.stt.askBusNumber" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Which bus number\nare you taking?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "몇 번 버스를\n탑승하시나요?"
+          }
+        }
+      }
+    },
+    "home.stt.askBusNumberSimple" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Which bus number are you taking?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "몇번 버스를 탑승하시나요?"
+          }
+        }
+      }
+    },
+    "home.stt.confirmNearestStop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The nearest stop is **%@**. Is this correct?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가장 가까운 정류장은 **%@** 입니다. 맞습니까?"
+          }
+        }
+      }
+    },
+    "home.stt.currentNearbyStopPrefix" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nearby stops are\n"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 주변 정류장은\n"
+          }
+        }
+      }
+    },
+    "home.stt.listening" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listening for the number."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "번호를 듣는중이에요."
+          }
+        }
+      }
+    },
+    "home.stt.promptForBusNumber" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the bus number passing through **%@** stop."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**%@** 정류장을 통과하는 버스 번호를 입력하세요."
+          }
+        }
+      }
+    },
+    "home.stt.searchBasedOnLocation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Searching for bus information based on current location."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 위치를 기반으로 버스 정보를 검색합니다."
+          }
+        }
+      }
+    },
     "home.ui.empty.button.add" : {
       "comment" : "홈 화면: 즐겨찾기 비어있을 때 추가 버튼",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add My Bus"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -177,8 +1134,14 @@
     },
     "home.ui.empty.subtitle" : {
       "comment" : "홈 화면: 즐겨찾기 비어있을 때 부제목",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please add your frequently used buses."
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -189,8 +1152,14 @@
     },
     "home.ui.empty.title" : {
       "comment" : "홈 화면: 즐겨찾기 비어있을 때 제목",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No saved history."
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -201,8 +1170,14 @@
     },
     "home.ui.placeholder.search" : {
       "comment" : "홈 화면: 검색창 플레이스홀더",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search bus routes, stops"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -213,8 +1188,14 @@
     },
     "home.ui.title" : {
       "comment" : "홈 화면: 내비게이션 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -225,8 +1206,14 @@
     },
     "k.appName" : {
       "comment" : "앱의 공식 이름",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BusONda"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -235,10 +1222,205 @@
         }
       }
     },
+    "permission.a11y.status.denied" : {
+      "comment" : "권한: 거절됨 상태",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Denied"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "거절됨"
+          }
+        }
+      }
+    },
+    "permission.a11y.status.granted" : {
+      "comment" : "권한: 승인됨 상태",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Granted"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "승인됨"
+          }
+        }
+      }
+    },
+    "permission.button.goToSettings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go to Settings"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정으로 이동"
+          }
+        }
+      }
+    },
+    "permission.camera.reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Used for bus number recognition"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버스 번호 인식을 위해 사용"
+          }
+        }
+      }
+    },
+    "permission.camera.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera Access"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "카메라 접근"
+          }
+        }
+      }
+    },
+    "permission.location.reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Used for location-based stop guidance"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용자 위치 기반 정류장 안내를 위해 사용"
+          }
+        }
+      }
+    },
+    "permission.location.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Location Access"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위치 정보 접근"
+          }
+        }
+      }
+    },
+    "permission.mic.reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Used for voice search feature"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음성 검색 기능을 위해 사용"
+          }
+        }
+      }
+    },
+    "permission.mic.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone Access"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마이크 접근"
+          }
+        }
+      }
+    },
+    "permission.prompt.all" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To use BusONda,\nplease allow access to location, camera, and microphone."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버스온다를 사용하고 정보를\n위치, 카메라 및 마이크 접근을 허용해 주세요."
+          }
+        }
+      }
+    },
+    "permission.prompt.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BusONda needs\naccess permissions."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버스온다에 접근\n권한이 필요합니다."
+          }
+        }
+      }
+    },
     "quickCamera.ui.title" : {
       "comment" : "빠른 카메라 화면: 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Camera"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -249,8 +1431,14 @@
     },
     "sttTtsTest.ui.button.dismissKeyboard" : {
       "comment" : "STT/TTS 테스트: 키보드 내리기 버튼",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dismiss Keyboard"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -261,8 +1449,14 @@
     },
     "sttTtsTest.ui.button.read" : {
       "comment" : "STT/TTS 테스트: TTS 읽기 버튼",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -273,8 +1467,14 @@
     },
     "sttTtsTest.ui.button.startListening" : {
       "comment" : "STT/TTS 테스트: STT 인식 시작 버튼",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🎙️ Start Listening"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -285,8 +1485,14 @@
     },
     "sttTtsTest.ui.button.stop" : {
       "comment" : "STT/TTS 테스트: TTS 정지 버튼",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -297,8 +1503,14 @@
     },
     "sttTtsTest.ui.button.stopListening" : {
       "comment" : "STT/TTS 테스트: STT 인식 중지 버튼",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🛑 Stop Listening"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -309,8 +1521,14 @@
     },
     "sttTtsTest.ui.placeholder.stt" : {
       "comment" : "STT/TTS 테스트: STT 결과 플레이스홀더",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recognized text will appear here."
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -321,8 +1539,14 @@
     },
     "sttTtsTest.ui.placeholder.tts" : {
       "comment" : "STT/TTS 테스트: TTS 입력 플레이스홀더",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter text"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -333,8 +1557,14 @@
     },
     "sttTtsTest.ui.title.navigation" : {
       "comment" : "STT/TTS 테스트: 내비게이션 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STT&TTS Test Page"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -345,8 +1575,14 @@
     },
     "sttTtsTest.ui.title.stt" : {
       "comment" : "STT/TTS 테스트: STT 섹션 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speech-to-Text Test"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -357,8 +1593,14 @@
     },
     "sttTtsTest.ui.title.tts" : {
       "comment" : "STT/TTS 테스트: TTS 섹션 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Text to Read"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -367,34 +1609,27 @@
         }
       }
     },
-    "test.a11y.header.busInfo" : {
-      "comment" : "A11y: TestView의 '버스 정보' 섹션 헤더",
+    "Switch to English" : {
       "extractionState" : "stale",
       "localizations" : {
-        "ko" : {
+        "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "버스 정보"
-          }
-        }
-      }
-    },
-    "test.a11y.header.deviceInfo" : {
-      "comment" : "A11y: TestView의 '기기 정보' 섹션 헤더",
-      "extractionState" : "stale",
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "기기 정보"
+            "value" : "Switch to English"
           }
         }
       }
     },
     "test.ui.button.arrivals.subtitle" : {
       "comment" : "테스트: 정류장 도착 정보 버튼 서브타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All arrival information based on stop"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -405,8 +1640,14 @@
     },
     "test.ui.button.arrivals.title" : {
       "comment" : "테스트: 정류장 도착 정보 버튼 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop Arrival Info"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -417,8 +1658,14 @@
     },
     "test.ui.button.arrivalsForRoute.subtitle" : {
       "comment" : "테스트: 특정 노선 도착 정보 버튼 서브타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search arrivals by stop + route"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -429,8 +1676,14 @@
     },
     "test.ui.button.arrivalsForRoute.title" : {
       "comment" : "테스트: 특정 노선 도착 정보 버튼 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Specific Route Arrival"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -441,8 +1694,14 @@
     },
     "test.ui.button.routeBusLocations.subtitle" : {
       "comment" : "테스트: 차량 실시간 위치 버튼 서브타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Track vehicle locations for selected route"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -453,8 +1712,14 @@
     },
     "test.ui.button.routeBusLocations.title" : {
       "comment" : "테스트: 차량 실시간 위치 버튼 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Real-time Vehicle Location"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -465,8 +1730,14 @@
     },
     "test.ui.button.routeInfo.subtitle" : {
       "comment" : "테스트: 노선 기본 정보 버튼 서브타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check route details like first/last bus times"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -477,8 +1748,14 @@
     },
     "test.ui.button.routeInfo.title" : {
       "comment" : "테스트: 노선 기본 정보 버튼 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Route Basic Info"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -489,8 +1766,14 @@
     },
     "test.ui.button.routeStops.subtitle" : {
       "comment" : "테스트: 노선 경유 정류장 버튼 서브타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check stop sequence on route"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -501,8 +1784,14 @@
     },
     "test.ui.button.routeStops.title" : {
       "comment" : "테스트: 노선 경유 정류장 버튼 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Route Stops"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -513,8 +1802,14 @@
     },
     "test.ui.button.searchRoute.subtitle" : {
       "comment" : "테스트: 노선 번호 검색 버튼 서브타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find route by route number keyword"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -525,8 +1820,14 @@
     },
     "test.ui.button.searchRoute.title" : {
       "comment" : "테스트: 노선 번호 검색 버튼 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Route Number Search"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -537,8 +1838,14 @@
     },
     "test.ui.button.searchStop.subtitle" : {
       "comment" : "테스트: 정류장 키워드 검색 버튼 서브타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search by city code and stop name"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -549,8 +1856,14 @@
     },
     "test.ui.button.searchStop.title" : {
       "comment" : "테스트: 정류장 키워드 검색 버튼 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop Keyword Search"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -561,8 +1874,14 @@
     },
     "test.ui.button.stopRoutes.subtitle" : {
       "comment" : "테스트: 정류장을 지나는 노선 버튼 서브타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "List of routes passing through selected stop"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -573,8 +1892,14 @@
     },
     "test.ui.button.stopRoutes.title" : {
       "comment" : "테스트: 정류장을 지나는 노선 버튼 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Routes Through Stop"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -585,8 +1910,14 @@
     },
     "test.ui.button.stopsByGps.subtitle" : {
       "comment" : "테스트: 현위치 주변 정류장 버튼 서브타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Radius search based on current coordinates"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -597,8 +1928,14 @@
     },
     "test.ui.button.stopsByGps.title" : {
       "comment" : "테스트: 현위치 주변 정류장 버튼 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nearby Stops (Current Location)"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -609,8 +1946,14 @@
     },
     "test.ui.label.apiCall" : {
       "comment" : "테스트: API 호출 섹션 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Test API Calls"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -621,8 +1964,14 @@
     },
     "test.ui.label.cityCode" : {
       "comment" : "테스트: cityCode 레이블",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cityCode"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -633,8 +1982,14 @@
     },
     "test.ui.label.coordinates" : {
       "comment" : "테스트: 위도/경도 레이블",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Latitude/Longitude"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -645,8 +2000,14 @@
     },
     "test.ui.label.nodeId" : {
       "comment" : "테스트: nodeId 레이블",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nodeId"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -657,8 +2018,14 @@
     },
     "test.ui.label.rawResponse" : {
       "comment" : "테스트: 원본 응답 레이블",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raw Response (JSON)"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -669,8 +2036,14 @@
     },
     "test.ui.label.responsePreview" : {
       "comment" : "테스트: 응답 미리보기 레이블",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Response Preview"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -681,8 +2054,14 @@
     },
     "test.ui.label.route" : {
       "comment" : "테스트: 노선 레이블",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Route ID/Route Number"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -693,8 +2072,14 @@
     },
     "test.ui.label.searchTerm" : {
       "comment" : "테스트: 검색어 레이블",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search Term"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -703,10 +2088,33 @@
         }
       }
     },
+    "test.ui.picker.profile" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Test Profile"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "테스트 프로필"
+          }
+        }
+      }
+    },
     "test.ui.placeholder.noSearchTerm" : {
       "comment" : "테스트: 검색어 없음 플레이스홀더",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No search term"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -715,10 +2123,50 @@
         }
       }
     },
+    "test.ui.profile.pangyo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pangyo"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "판교"
+          }
+        }
+      }
+    },
+    "test.ui.profile.seoul" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seoul"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서울"
+          }
+        }
+      }
+    },
     "test.ui.title.arrivalSection" : {
       "comment" : "테스트: 도착 정보 섹션 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arrival Information"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -729,8 +2177,14 @@
     },
     "test.ui.title.navigation" : {
       "comment" : "테스트: 내비게이션 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bus API Test"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -741,8 +2195,14 @@
     },
     "test.ui.title.routeSection" : {
       "comment" : "테스트: 노선 정보 섹션 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Route Information"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -751,10 +2211,33 @@
         }
       }
     },
+    "test.ui.title.seoulSection" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seoul API Tests"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seoul API Tests"
+          }
+        }
+      }
+    },
     "test.ui.title.stopSection" : {
       "comment" : "테스트: 정류장 조회 섹션 타이틀",
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop Search"
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
@@ -764,112 +2247,26 @@
       }
     },
     "가장 가까운 정류장은 **%@** 입니다. 맞습니까?" : {
-
-    },
-    "네, 맞아요." : {
-
-    },
-    "노선 번호를 선택하세요." : {
-
-    },
-    "다른 번호의 버스입니다." : {
-
-    },
-    "도착 예정" : {
-
-    },
-    "도착 예정 정보 없음" : {
-
-    },
-    "마이크 접근" : {
-
-    },
-    "몇 번 버스를\n탑승하시나요?" : {
-
-    },
-    "몇번 버스를 탑승하시나요?" : {
-
-    },
-    "목록에 없어요." : {
-
-    },
-    "버스 번호 인식을 위해 사용" : {
-
-    },
-    "버스 인식 중" : {
-
-    },
-    "버스 인식하기" : {
-
-    },
-    "버스 찾기" : {
-
-    },
-    "버스가 직전 정류장에서 출발하면\n버스 인식을 시작할 수 있어요." : {
-
-    },
-    "버스온다를 사용하고 정보를\n위치, 카메라 및 마이크 접근을 허용해 주세요." : {
-
-    },
-    "버스온다에 접근\n권한이 필요합니다." : {
-
-    },
-    "번이 맞나요?" : {
-
-    },
-    "번호를 듣는중이에요." : {
-
-    },
-    "사용자 위치 기반 정류장 안내를 위해 사용" : {
-
-    },
-    "설정으로 이동" : {
-
-    },
-    "아니오" : {
-
-    },
-    "아니요, 다시 인식할게요" : {
-
-    },
-    "아니요, 목록에서 고를게요" : {
-
-    },
-    "예" : {
-
-    },
-    "위치 정보 접근" : {
-
-    },
-    "음성 검색 기능을 위해 사용" : {
-
-    },
-    "재시도" : {
-
-    },
-    "주변 정류장 찾기" : {
-
-    },
-    "주변 탐색된 정류장이\n없습니다." : {
-
-    },
-    "주변에 정류장이 없습니다." : {
-
-    },
-    "카메라 접근" : {
-
-    },
-    "타려는 버스 번호가\n" : {
-
-    },
-    "현재 운행중인 버스 위치:" : {
-
-    },
-    "현재 위치를 기반으로 버스 정보를 검색합니다." : {
-
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The nearest stop is **%@**. Is this correct?"
+          }
+        }
+      }
     },
     "현재 주변 정류장은\n" : {
-
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nearby stops are\n"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

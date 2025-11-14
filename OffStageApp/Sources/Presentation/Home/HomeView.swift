@@ -23,7 +23,7 @@ struct HomeView: View {
             VStack(spacing: 0) {
                 stopInfoView()
 
-                Text("몇 번 버스를\n탑승하시나요?")
+                Text(L10n.Home.Stt.askBusNumber)
                     .font(.title)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
@@ -83,7 +83,10 @@ struct HomeView: View {
             // TODO:
             // - 짧은 시간에 공지가 연속 게시되면 이전 멘트를 중단하고 새 멘트를 읽어 "문장이 씹히는" 현상이 발생함
             if isLoading {
-                UIAccessibility.post(notification: .announcement, argument: "근처 정류장 정보를 불러오고 있습니다.")
+                UIAccessibility.post(
+                    notification: .announcement,
+                    argument: String(localized: "home.a11y.announcement.loadingNearby")
+                )
             }
         }
     }
@@ -95,14 +98,14 @@ struct HomeView: View {
                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 .frame(height: 60)
                 .padding(.horizontal)
-                .accessibilityLabel("주변 정류장 정보를 불러오고 있습니다.")
+                .accessibilityLabel(Text(L10n.Home.A11y.Announcement.loading))
         } else if let stop = viewModel.nearestBusStop {
             HStack {
-                (Text("현재 주변 정류장은\n") +
+                (Text(L10n.Home.Stt.currentNearbyStopPrefix) +
                     Text(stop.name)
                     .foregroundColor(Color(.primarynormal))
                     .fontWeight(.bold) +
-                    Text(" 입니다.")
+                    Text(L10n.Common.Ui.suffixIs)
                 )
                 .font(.title3)
                 .fontWeight(.semibold)
@@ -120,7 +123,7 @@ struct HomeView: View {
         } else {
             VStack(spacing: 10) {
                 HStack {
-                    Text("주변 탐색된 정류장이\n없습니다.")
+                    Text(L10n.Home.Map.noStopsFound)
                         .font(.headline)
                         .multilineTextAlignment(.leading)
                         .foregroundColor(.white)
@@ -132,7 +135,7 @@ struct HomeView: View {
                 Button {
                     viewModel.fetchNearestStop()
                 } label: {
-                    Text("재시도")
+                    Text(L10n.Common.Ui.buttonRetry)
                         .font(.headline)
                         .foregroundColor(.white)
                         .padding(.vertical, 8)
@@ -171,18 +174,18 @@ struct HomeView: View {
         }
         .disabled(isMicDisabled)
         .opacity(isMicDisabled ? 0.4 : 1.0)
-        .accessibilityLabel("타야할 버스 번호 음성 입력 버튼")
-        .accessibilityHint(
-            {
+        .accessibilityLabel(Text(L10n.Home.A11y.Button.Mic.label))
+        .accessibilityHint({
+            let hintKey: LocalizedStringKey = {
                 if viewModel.isLoading {
-                    return "아직 주변 정류장을 찾는 중입니다. 잠시만 기다려주세요."
+                    return L10n.Home.A11y.Button.Mic.Hint.loading
                 }
-                // 로딩이 아니고 정류장 데이터가 없는 경우
                 if viewModel.nearestBusStop == nil {
-                    return "주변 정류장을 찾지 못했습니다. 위치 권한을 확인하거나 다시 시도해 주세요."
+                    return L10n.Home.A11y.Button.Mic.Hint.noStop
                 }
-                return "음성으로 타야할 버스를 검색하려면 두 번 탭해주세요."
+                return L10n.Home.A11y.Button.Mic.Hint.ready
             }()
-        )
+            return Text(hintKey)
+        }())
     }
 }

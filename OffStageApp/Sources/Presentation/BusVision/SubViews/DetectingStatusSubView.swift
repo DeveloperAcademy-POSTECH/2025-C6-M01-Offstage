@@ -8,7 +8,7 @@ struct DetectingStatusSubView: View {
         VStack {
             switch status {
             case .unDetected:
-                Text("버스 인식 중")
+                Text(L10n.BusVision.Detection.inProgress)
                     .font(.title)
                     .fontWeight(.bold)
 
@@ -16,7 +16,7 @@ struct DetectingStatusSubView: View {
                     .frame(height: 20)
 
             case .notMine:
-                Text("다른 번호의 버스입니다.")
+                Text(L10n.BusVision.Detection.wrongBusNumber)
                     .font(.title)
                     .fontWeight(.bold)
 
