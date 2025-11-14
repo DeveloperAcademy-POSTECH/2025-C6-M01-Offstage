@@ -5,13 +5,14 @@ import UIKit
 struct BusVisionView: View {
     // properties
     var routeNumbers: [String]
-    @StateObject var vm: BusVisionViewModel = .init()
+    @StateObject var vm: BusVisionViewModel
 
     @EnvironmentObject var router: Router<AppRoute>
 
     // init
     init(routeNumbers: [String]) {
         self.routeNumbers = routeNumbers
+        _vm = StateObject(wrappedValue: BusVisionViewModel(busInfo: routeNumbers.first!))
     }
 
     var body: some View {
@@ -23,9 +24,28 @@ struct BusVisionView: View {
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
-            // 탐지결과
-            DetectingStatusSubView(status: vm.stateToPresent)
-                .padding(.horizontal)
+            VStack {
+                // 탐지결과
+                DetectingStatusSubView(status: vm.stateToPresent)
+                    .padding(.horizontal)
+
+                // 버스 도착 & 지나감 알람
+                if vm.alertManager.showSoonArrivalAlert {
+                    SoonArrivalAlertView(
+                        isArrivingAlert: true,
+                        routeNo: routeNumbers.first!
+                    )
+                    .offset(y: -10)
+                }
+
+                if vm.alertManager.showBusPassedAlert {
+                    SoonArrivalAlertView(
+                        isArrivingAlert: false,
+                        routeNo: routeNumbers.first!
+                    )
+                    .offset(y: -10)
+                }
+            }
         }
     }
 }

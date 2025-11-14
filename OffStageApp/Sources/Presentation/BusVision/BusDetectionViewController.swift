@@ -313,12 +313,12 @@ extension BusDetectionViewController {
             if !finalPredictions.isEmpty {
                 // 내버스
                 self.onDetectedStatusChanged?(.mineDetected(routeNum: self.routeNumbersToDetect.first!))
-                
+
                 #if DEBUG_MODE
                     // 박스 그리기
                     self.drawingBoxesView?.drawBox(with: finalPredictions)
                 #endif
-                
+
             } else if self.isBusDetected {
                 // 버스는 감지됐지만 내 버스가 아님
                 self.onDetectedStatusChanged?(.notMine)

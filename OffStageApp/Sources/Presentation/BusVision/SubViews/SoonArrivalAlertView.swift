@@ -30,6 +30,7 @@ struct SoonArrivalAlertView: View {
             RoundedRectangle(cornerRadius: 8)
                 .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.12).opacity(0.9))
         )
+        .padding(.horizontal)
     }
 }
 
