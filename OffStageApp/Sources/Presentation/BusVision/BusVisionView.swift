@@ -1,3 +1,4 @@
+import BusAPI
 import SwiftUI
 import UIKit
 
@@ -5,14 +6,22 @@ import UIKit
 struct BusVisionView: View {
     // properties
     var routeNumbers: [String]
+    var busStop: BusStop
+    var busRoute: BusRoute
     @StateObject var vm: BusVisionViewModel
 
     @EnvironmentObject var router: Router<AppRoute>
 
     // init
-    init(routeNumbers: [String]) {
+    init(routeNumbers: [String], busStop: BusStop, busRoute: BusRoute) {
         self.routeNumbers = routeNumbers
-        _vm = StateObject(wrappedValue: BusVisionViewModel(busInfo: routeNumbers.first!))
+        self.busStop = busStop
+        self.busRoute = busRoute
+        _vm = StateObject(wrappedValue: BusVisionViewModel(
+            busInfo: routeNumbers.first!,
+            busStop: busStop,
+            busRoute: busRoute
+        ))
     }
 
     var body: some View {

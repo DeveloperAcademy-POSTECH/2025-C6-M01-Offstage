@@ -3,7 +3,7 @@ import SwiftUI
 
 enum AppRoute: Routable {
     case home
-    case busVision(routeToDetect: [String])
+    case busVision(routeToDetect: [String], busStop: BusStop, busRoute: BusRoute)
     case sttTest
     case quickCamera
     case busArrival(busStop: BusStop, busRoute: BusRoute) // New route
@@ -15,8 +15,8 @@ enum AppRoute: Routable {
         case .home:
             HomeView()
 
-        case let .busVision(routeToDetect):
-            BusVisionView(routeNumbers: routeToDetect)
+        case let .busVision(routeToDetect, busStop, busRoute):
+            BusVisionView(routeNumbers: routeToDetect, busStop: busStop, busRoute: busRoute)
 
         case .sttTest:
             STTandTTSTestView()
