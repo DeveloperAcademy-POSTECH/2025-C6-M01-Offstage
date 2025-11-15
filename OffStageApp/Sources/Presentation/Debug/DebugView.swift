@@ -9,8 +9,8 @@
 
         // 테스트용 버스 정류장 및 노선 정보
         private let testBusStop = BusStop(
-            nodeId: "GGB206000532",
-            name: "판교역.낙생육교.현대백화점",
+            nodeId: "GGB206000635",
+            name: "판교역동편",
             number: "7489",
             cityCode: 31020,
             direction: nil,
@@ -19,11 +19,11 @@
         )
 
         private let testBusRoute = BusRoute(
-            routeId: "GGB204000040",
-            routeNumber: "340",
-            routeType: "일반버스",
-            startStopName: "판교대장로동측",
-            endStopName: "영원무역",
+            routeId: "GGB228000179",
+            routeNumber: "101",
+            routeType: "",
+            startStopName: "",
+            endStopName: "",
             startTime: nil,
             endTime: nil
         )
@@ -38,7 +38,6 @@
                     NavigationLink(
                         L10n.Debug.Ui.linkBusVision,
                         destination: BusVisionView(
-                            routeNumbers: ["340"],
                             busStop: testBusStop,
                             busRoute: testBusRoute
                         )

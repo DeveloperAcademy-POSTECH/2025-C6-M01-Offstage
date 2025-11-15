@@ -14,8 +14,6 @@ class BusVisionArrivalAlertManager: ObservableObject {
     @Published var showBusPassedAlert: Bool = false
 
     private var timer: Timer?
-
-    private let targetBusInfo: String
     private let busStop: BusStop
     private let busRoute: BusRoute
     private let busArrivalOperations: BusArrivalOperations
@@ -28,8 +26,7 @@ class BusVisionArrivalAlertManager: ObservableObject {
 
     // MARK: - Init
 
-    init(busInfo: String, busStop: BusStop, busRoute: BusRoute) {
-        targetBusInfo = busInfo
+    init(busStop: BusStop, busRoute: BusRoute) {
         self.busStop = busStop
         self.busRoute = busRoute
         busArrivalOperations = BusArrivalOperations()

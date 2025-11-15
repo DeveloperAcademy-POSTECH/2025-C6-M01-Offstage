@@ -653,14 +653,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "207, 306"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "207, 306"
+            "value" : "판교역동편 : 310"
           }
         }
       }

@@ -25,11 +25,12 @@ class BusVisionViewModel: ObservableObject {
 
     // MARK: - init
 
-    init(busInfo: String, busStop: BusStop, busRoute: BusRoute) {
-        busNumberToDetect = busInfo
+    init(busStop: BusStop, busRoute: BusRoute) {
         self.busStop = busStop
         self.busRoute = busRoute
-        alertManager = .init(busInfo: busInfo, busStop: busStop, busRoute: busRoute)
+        // busRoute.routeNumber에서 괄호 내용 제거
+        busNumberToDetect = busRoute.routeNumber.removeParenthesesContent()
+        alertManager = .init(busStop: busStop, busRoute: busRoute)
         ttsManager.speakNow(of: "버스 인식을 위해 카메라를 버스 진입 방향으로 비춰주세요")
         // combine 등록
         observeBusDetectStatus()

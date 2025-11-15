@@ -46,7 +46,6 @@ struct BusArrivalView: View {
                 // Bus Vision Button
                 Button(action: {
                     router.push(.busVision(
-                        routeToDetect: [viewModel.busRoute.routeNumber],
                         busStop: viewModel.busStop,
                         busRoute: viewModel.busRoute
                     ))

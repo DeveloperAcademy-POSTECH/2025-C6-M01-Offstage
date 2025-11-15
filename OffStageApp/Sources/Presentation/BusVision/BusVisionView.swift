@@ -5,7 +5,6 @@ import UIKit
 /// router와 연결되는 메인 버스 비전 뷰
 struct BusVisionView: View {
     // properties
-    var routeNumbers: [String]
     var busStop: BusStop
     var busRoute: BusRoute
     @StateObject var vm: BusVisionViewModel
@@ -13,12 +12,10 @@ struct BusVisionView: View {
     @EnvironmentObject var router: Router<AppRoute>
 
     // init
-    init(routeNumbers: [String], busStop: BusStop, busRoute: BusRoute) {
-        self.routeNumbers = routeNumbers
+    init(busStop: BusStop, busRoute: BusRoute) {
         self.busStop = busStop
         self.busRoute = busRoute
         _vm = StateObject(wrappedValue: BusVisionViewModel(
-            busInfo: routeNumbers.first!,
             busStop: busStop,
             busRoute: busRoute
         ))
@@ -28,7 +25,7 @@ struct BusVisionView: View {
         ZStack(alignment: .top) {
             // 뷰파인더 + 바운딩박스
             BusDetectionView(
-                routeNumbersToDetect: routeNumbers.map { $0.removeParenthesesContent() },
+                routeNumbersToDetect: [vm.busNumberToDetect],
                 detectStatus: $vm.busDetectedState
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -42,7 +39,7 @@ struct BusVisionView: View {
                 if vm.alertManager.showSoonArrivalAlert {
                     SoonArrivalAlertView(
                         isArrivingAlert: true,
-                        routeNo: routeNumbers.first!
+                        routeNo: busRoute.routeNumber
                     )
                     .offset(y: -10)
                 }
@@ -50,7 +47,7 @@ struct BusVisionView: View {
                 if vm.alertManager.showBusPassedAlert {
                     SoonArrivalAlertView(
                         isArrivingAlert: false,
-                        routeNo: routeNumbers.first!
+                        routeNo: busRoute.routeNumber
                     )
                     .offset(y: -10)
                 }
