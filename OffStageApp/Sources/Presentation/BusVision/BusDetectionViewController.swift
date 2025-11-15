@@ -250,7 +250,7 @@ extension BusDetectionViewController {
             (request.results as? [VNRecognizedObjectObservation])
         else {
             isBusDetected = false
-            self.onDetectedStatusChanged?(.unDetected)
+            onDetectedStatusChanged?(.unDetected)
             return
         }
 
@@ -311,19 +311,14 @@ extension BusDetectionViewController {
         ocrGroup.notify(queue: .main) {
             // 내가 탈 버스가 감지되었는지
             if !finalPredictions.isEmpty {
-                // 상태 업데이트
+                // 내버스
                 self.onDetectedStatusChanged?(.mineDetected(routeNum: self.routeNumbersToDetect.first!))
-
-                // 햅틱
-                self.hapticManager.playHaptic(intensity: 1.0, sharpness: 0.0, duration: 0.2)
 
                 #if DEBUG_MODE
                     // 박스 그리기
                     self.drawingBoxesView?.drawBox(with: finalPredictions)
                 #endif
 
-                // TTS
-                self.ttsManager.speakNow(of: self.routeNumbersToDetect.first!)
             } else if self.isBusDetected {
                 // 버스는 감지됐지만 내 버스가 아님
                 self.onDetectedStatusChanged?(.notMine)
