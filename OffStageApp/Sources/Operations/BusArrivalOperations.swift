@@ -89,7 +89,8 @@ final class BusArrivalOperations {
         )
     }
 
-    private func fetchArrivalsOnly(busStop: BusStop, busRoute: BusRoute) async throws -> [BusArrival] {
+    /// BusVisionArrivalAlertManager에서 사용할 수 있도록 public 메서드 제공
+    func fetchArrivalsOnly(busStop: BusStop, busRoute: BusRoute) async throws -> [BusArrival] {
         let cityCode = try await detectCityCode(from: CLLocationCoordinate2D(
             latitude: busStop.latitude,
             longitude: busStop.longitude

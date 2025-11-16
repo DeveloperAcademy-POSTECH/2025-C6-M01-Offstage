@@ -1,10 +1,32 @@
 
 #if DEBUG_MODE
+    import BusAPI
     import SwiftUI
 
     struct DebugView: View {
         @EnvironmentObject var router: Router<AppRoute>
         @Environment(\.dismiss) private var dismiss
+
+        // 테스트용 버스 정류장 및 노선 정보
+        private let testBusStop = BusStop(
+            nodeId: "GGB206000635",
+            name: "판교역동편",
+            number: "7489",
+            cityCode: 31020,
+            direction: nil,
+            latitude: 37.3918667,
+            longitude: 127.1118833
+        )
+
+        private let testBusRoute = BusRoute(
+            routeId: "GGB228000179",
+            routeNumber: "101",
+            routeType: "",
+            startStopName: "",
+            endStopName: "",
+            startTime: nil,
+            endTime: nil
+        )
 
         var body: some View {
             NavigationView {
@@ -15,7 +37,10 @@
                     )
                     NavigationLink(
                         L10n.Debug.Ui.linkBusVision,
-                        destination: BusVisionView(routeNumbers: ["207", "306"])
+                        destination: BusVisionView(
+                            busStop: testBusStop,
+                            busRoute: testBusRoute
+                        )
                     )
                     NavigationLink(
                         "빠른버스",

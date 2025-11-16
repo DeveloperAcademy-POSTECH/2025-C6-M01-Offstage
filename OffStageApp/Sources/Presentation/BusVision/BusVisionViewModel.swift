@@ -1,3 +1,4 @@
+import BusAPI
 import Combine
 import Foundation
 
@@ -5,6 +6,8 @@ class BusVisionViewModel: ObservableObject {
     // MARK: - Properties
 
     let busNumberToDetect: String
+    let busStop: BusStop
+    let busRoute: BusRoute
 
     /// VC에서 감지된 raw 감지된 status값
     @Published var busDetectedState: BusDetectStatus = .unDetected
@@ -22,9 +25,12 @@ class BusVisionViewModel: ObservableObject {
 
     // MARK: - init
 
-    init(busInfo: String) {
-        busNumberToDetect = busInfo
-        alertManager = .init(busInfo: busInfo)
+    init(busStop: BusStop, busRoute: BusRoute) {
+        self.busStop = busStop
+        self.busRoute = busRoute
+        // busRoute.routeNumber에서 괄호 내용 제거
+        busNumberToDetect = busRoute.routeNumber.removeParenthesesContent()
+        alertManager = .init(busStop: busStop, busRoute: busRoute)
         ttsManager.speakNow(of: "버스 인식을 위해 카메라를 버스 진입 방향으로 비춰주세요")
         // combine 등록
         observeBusDetectStatus()

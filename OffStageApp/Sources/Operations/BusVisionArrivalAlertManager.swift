@@ -1,3 +1,4 @@
+import BusAPI
 import Combine
 import Foundation
 
@@ -13,8 +14,9 @@ class BusVisionArrivalAlertManager: ObservableObject {
     @Published var showBusPassedAlert: Bool = false
 
     private var timer: Timer?
-
-    private let targetBusInfo: String
+    private let busStop: BusStop
+    private let busRoute: BusRoute
+    private let busArrivalOperations: BusArrivalOperations
     private var previousArrivalTime: Int = 0
 
     /// 지나감 대기 중인 버스의 시작 시간 추적
@@ -22,12 +24,12 @@ class BusVisionArrivalAlertManager: ObservableObject {
     /// 지나감 대기 플래그
     private var isWaitingForPassing: Bool = false
 
-    private var fetchCount = 0 // TODO: API 호출 로직 넣으면서 삭제하기
-
     // MARK: - Init
 
-    init(busInfo: String) {
-        targetBusInfo = busInfo
+    init(busStop: BusStop, busRoute: BusRoute) {
+        self.busStop = busStop
+        self.busRoute = busRoute
+        busArrivalOperations = BusArrivalOperations()
         startTracking()
     }
 
@@ -38,8 +40,8 @@ class BusVisionArrivalAlertManager: ObservableObject {
     // MARK: - Public Methods
 
     func startTracking() {
-        // 10초마다 API 호출
-        timer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { [weak self] _ in
+        // 5초마다 API 호출
+        timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
             self?.fetchBusArrivalTime()
         }
         // 즉시 한 번 호출
@@ -54,23 +56,33 @@ class BusVisionArrivalAlertManager: ObservableObject {
     // MARK: - Private Methods
 
     private func fetchBusArrivalTime() {
-        // 임시 API 호출 (실제로는 네트워크 요청)
         Task {
-            let newArrivalTime = await callBusAPI(busInfo: targetBusInfo)
-            fetchCount += 1
+            do {
+                let arrivals = try await busArrivalOperations.fetchArrivalsOnly(
+                    busStop: busStop,
+                    busRoute: busRoute
+                )
 
-            await MainActor.run {
-                self.processArrivalTime(newArrivalTime)
+                let newArrivalTime: Int
+                if let firstArrival = arrivals.first,
+                   let estimatedTime = firstArrival.estimatedArrivalTime
+                {
+                    newArrivalTime = estimatedTime
+                    print("🚌 버스 도착 정보 조회 성공: \(estimatedTime)초 후 도착, 남은 정류장: \(firstArrival.remainingStopCount ?? 0)개")
+                } else {
+                    // 도착 정보가 없으면 -1로 설정
+                    newArrivalTime = -1
+                    print("⚠️ 버스 도착 정보 없음")
+                }
+
+                await MainActor.run {
+                    self.processArrivalTime(newArrivalTime)
+                }
+            } catch {
+                print("❌ 버스 도착 정보 조회 실패: \(error.localizedDescription)")
+                // 에러 시 상태를 유지하고 다음 폴링을 기다림
             }
         }
-    }
-
-    // TODO: 실제 API 호출 로직 구현
-    private func callBusAPI(busInfo _: String) async -> Int {
-        // 임시로 줄어들었다가 늘어나는 시간 반환
-        let dummyTime = 70 - ((fetchCount % 8) * 10)
-        print("dummyTime: \(dummyTime)")
-        return dummyTime
     }
 
     private func processArrivalTime(_ newTime: Int) {
@@ -103,8 +115,8 @@ class BusVisionArrivalAlertManager: ObservableObject {
 
     /// 곧도착 알림 완료 상태 처리
     private func handleSoonNotifiedState(_ oldTime: Int, _ newTime: Int) {
-        // 0초가 됐다가 다시 시간이 증가하는 경우 감지
-        if newTime > oldTime {
+        // 도착 정보가 없어진 경우 (버스가 출발/지나간 것으로 판단)
+        if newTime == -1 || (newTime > oldTime && oldTime >= 0) {
             // 버스가 지나갔다고 판단, 30초 카운트다운 시작
             startPassedCountdown()
             currentState = .waitingForArrival

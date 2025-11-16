@@ -45,7 +45,10 @@ struct BusArrivalView: View {
 
                 // Bus Vision Button
                 Button(action: {
-                    router.push(.busVision(routeToDetect: [viewModel.busRoute.routeNumber]))
+                    router.push(.busVision(
+                        busStop: viewModel.busStop,
+                        busRoute: viewModel.busRoute
+                    ))
                 }) {
                     HStack {
                         Image(systemName: "camera")
