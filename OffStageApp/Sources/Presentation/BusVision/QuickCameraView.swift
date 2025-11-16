@@ -25,10 +25,7 @@ struct QuickCameraView: View {
                 if isRouteNumEntered {
                     #if DEBUG_MODE
                         if busDetectedState == .unDetected {
-                            Text(String(
-                                format: "busVision.debug.detectingWithNumber",
-                                arguments: [routeNumber]
-                            ))
+                            Text(String(format: String(localized: "busVision.debug.detectingWithNumber"), routeNumber))
                         }
                     #endif
                     // 탐지 결과
