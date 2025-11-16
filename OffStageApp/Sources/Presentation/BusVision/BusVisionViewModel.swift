@@ -6,8 +6,6 @@ class BusVisionViewModel: ObservableObject {
     // MARK: - Properties
 
     let busNumberToDetect: String
-    let busStop: BusStop
-    let busRoute: BusRoute
 
     /// VC에서 감지된 raw 감지된 status값
     @Published var busDetectedState: BusDetectStatus = .unDetected
@@ -26,8 +24,6 @@ class BusVisionViewModel: ObservableObject {
     // MARK: - init
 
     init(busStop: BusStop, busRoute: BusRoute) {
-        self.busStop = busStop
-        self.busRoute = busRoute
         // busRoute.routeNumber에서 괄호 내용 제거
         busNumberToDetect = busRoute.routeNumber.removeParenthesesContent()
         alertManager = .init(busStop: busStop, busRoute: busRoute)

@@ -301,7 +301,7 @@ extension BusDetectionViewController {
                     // 배열 접근 동기화
                     DispatchQueue.main.async {
                         finalPredictions.append(prediction)
-                        
+
                         // TODO: for prediction in predictions for문 탈출
                     }
                 } else {
