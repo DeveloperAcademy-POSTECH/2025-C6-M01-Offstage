@@ -56,14 +56,7 @@ class OCRManager {
     }
 
     /// 텍스트에 어떤 노선번호가 있는지 확인하는 함수
-    static func isTextContains(text: String, routeNumbers: [String]) -> [String]? {
-        var numsContains: [String] = []
-
-        for routeNo in routeNumbers {
-            if text.contains(routeNo), !numsContains.contains(routeNo) {
-                numsContains.append(routeNo)
-            }
-        }
-        return numsContains.isEmpty ? nil : numsContains
+    static func isTextContains(text: String, routeNumber: String) -> Bool {
+        text.contains(routeNumber)
     }
 }

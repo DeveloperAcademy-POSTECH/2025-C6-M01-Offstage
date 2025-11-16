@@ -3,7 +3,7 @@ import SwiftUI
 struct QuickCameraView: View {
     // properties
     /// 탐지할 노선번호
-    @State var routeNumbers: [String] = []
+    @State var routeNumber: String = ""
     @State var busDetectedState: BusDetectStatus = .unDetected
     /// 비전 타입
     @State var isRouteNumEntered: Bool = false
@@ -16,7 +16,7 @@ struct QuickCameraView: View {
         ZStack(alignment: .bottom) {
             // 뷰파인더 + 바운딩박스
             BusDetectionView(
-                routeNumbersToDetect: routeNumbers.map { $0.removeParenthesesContent() },
+                routeNumberToDetect: routeNumber,
                 detectStatus: $busDetectedState
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -25,9 +25,10 @@ struct QuickCameraView: View {
                 if isRouteNumEntered {
                     #if DEBUG_MODE
                         if busDetectedState == .unDetected {
-                            if let first = routeNumbers.first {
-                                Text(String(format: "busVision.debug.detectingWithNumber", arguments: [first]))
-                            }
+                            Text(String(
+                                format: "busVision.debug.detectingWithNumber",
+                                arguments: [routeNumber]
+                            ))
                         }
                     #endif
                     // 탐지 결과
@@ -36,7 +37,7 @@ struct QuickCameraView: View {
                 } else {
                     FastBusVisionInputView(routeNumber: $routeNumInputText) {
                         isRouteNumEntered = true
-                        routeNumbers = [routeNumInputText]
+                        routeNumber = routeNumInputText
                     }
                 }
             }

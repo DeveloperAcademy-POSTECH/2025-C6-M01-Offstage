@@ -25,7 +25,7 @@ struct BusVisionView: View {
         ZStack(alignment: .top) {
             // 뷰파인더 + 바운딩박스
             BusDetectionView(
-                routeNumbersToDetect: [vm.busNumberToDetect],
+                routeNumberToDetect: vm.busNumberToDetect,
                 detectStatus: $vm.busDetectedState
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

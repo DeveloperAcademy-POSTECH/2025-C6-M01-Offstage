@@ -8,7 +8,7 @@ final class BusDetectionViewController: UIViewController {
 
     // input properties
     /// 인식할 노선번호
-    var routeNumbersToDetect: [String] = []
+    var routeNumberToDetect: String = ""
     /// 감지된 상태가 변경될 때 SwiftUI에서 처리하기 위한 클로저
     var onDetectedStatusChanged: ((BusDetectStatus) -> Void)?
 
@@ -280,7 +280,10 @@ extension BusDetectionViewController {
             ocrGroup.enter()
 
             // 자른 이미지 OCR 처리하기
-            OCRManager.recognizeText(from: currentPixelBuffer, in: areaOfInterest) { ocrText in
+            OCRManager.recognizeText(
+                from: currentPixelBuffer,
+                in: areaOfInterest
+            ) { ocrText in
                 defer {
                     ocrGroup.leave()
                 }
@@ -291,18 +294,18 @@ extension BusDetectionViewController {
                 }
                 print("--BUS OCR--\n\(ocrText)\n------")
 
-                guard let routeContained = OCRManager.isTextContains(
+                if OCRManager.isTextContains(
                     text: ocrText,
-                    routeNumbers: self.routeNumbersToDetect
-                ) else {
+                    routeNumber: self.routeNumberToDetect
+                ) {
+                    // 배열 접근 동기화
+                    DispatchQueue.main.async {
+                        finalPredictions.append(prediction)
+                        
+                        // TODO: for prediction in predictions for문 탈출
+                    }
+                } else {
                     return
-                }
-
-                // 배열 접근 동기화
-                DispatchQueue.main.async {
-                    finalPredictions.append(prediction)
-
-                    // TODO: for prediction in predictions for문 탈출
                 }
             }
         }
@@ -312,7 +315,9 @@ extension BusDetectionViewController {
             // 내가 탈 버스가 감지되었는지
             if !finalPredictions.isEmpty {
                 // 내버스
-                self.onDetectedStatusChanged?(.mineDetected(routeNum: self.routeNumbersToDetect.first!))
+                self.onDetectedStatusChanged?(
+                    .mineDetected(routeNum: self.routeNumberToDetect)
+                )
 
                 #if DEBUG_MODE
                     // 박스 그리기
@@ -329,10 +334,14 @@ extension BusDetectionViewController {
 
             #if DEBUG_MODE
                 // 디버깅모드용 흰색박스
-                self.tempStrokeBoxesView?.drawBox(with: predictions.filter { prediction in
-                    prediction.confidence >= 0.8 &&
-                        !finalPredictions.contains(where: { $0.uuid == prediction.uuid })
-                })
+                self.tempStrokeBoxesView?.drawBox(
+                    with: predictions.filter { prediction in
+                        prediction.confidence >= 0.8
+                            && !finalPredictions.contains(where: {
+                                $0.uuid == prediction.uuid
+                            })
+                    }
+                )
             #endif
         }
     }
