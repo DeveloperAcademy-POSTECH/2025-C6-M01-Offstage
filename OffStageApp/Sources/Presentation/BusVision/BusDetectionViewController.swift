@@ -27,8 +27,6 @@ final class BusDetectionViewController: UIViewController {
     // for view logic
     private var currentPixelBuffer: CVPixelBuffer?
     private var frameCount: UInt = 0
-    private var isBusDetected: Bool = false
-    private var detectStatus: BusDetectStatus = .unDetected
 
     // MARK: Life Cycle
 
@@ -249,7 +247,6 @@ extension BusDetectionViewController {
         guard let predictions =
             (request.results as? [VNRecognizedObjectObservation])
         else {
-            isBusDetected = false
             onDetectedStatusChanged?(.unDetected)
             return
         }
@@ -262,15 +259,17 @@ extension BusDetectionViewController {
             }
         #endif
 
-        var finalPredictions: [VNRecognizedObjectObservation] = []
-        isBusDetected = false
+        let highConfidencePredictions = predictions.filter { $0.confidence >= 0.8 }
+        guard !highConfidencePredictions.isEmpty else {
+            onDetectedStatusChanged?(.unDetected)
+            return
+        }
 
         let ocrGroup = DispatchGroup()
+        let ocrResultQueue = DispatchQueue(label: "com.busvision.ocrResults")
+        var ocrResults: [OCRResult] = []
 
-        for prediction in predictions {
-            if prediction.confidence < 0.8 { continue }
-            isBusDetected = true
-
+        for prediction in highConfidencePredictions {
             // 이미지 영역 정하기
             guard let areaOfInterest = cropBusArea(prediction: prediction) else {
                 print("이미지 자르기 실패")
@@ -294,18 +293,18 @@ extension BusDetectionViewController {
                 }
                 print("--BUS OCR--\n\(ocrText)\n------")
 
-                if OCRManager.isTextContains(
+                let isMyBus = OCRManager.isTextContains(
                     text: ocrText,
                     routeNumber: self.routeNumberToDetect
-                ) {
-                    // 배열 접근 동기화
-                    DispatchQueue.main.async {
-                        finalPredictions.append(prediction)
+                )
 
-                        // TODO: for prediction in predictions for문 탈출
-                    }
-                } else {
-                    return
+                ocrResultQueue.sync {
+                    ocrResults.append(
+                        OCRResult(
+                            prediction: prediction,
+                            isMyBus: isMyBus
+                        )
+                    )
                 }
             }
         }
@@ -313,7 +312,7 @@ extension BusDetectionViewController {
         // 한 프레임의 prediction이 끝나면 한 번에 처리
         ocrGroup.notify(queue: .main) {
             // 내가 탈 버스가 감지되었는지
-            if !finalPredictions.isEmpty {
+            if let myBusResult = ocrResults.first(where: { $0.isMyBus }) {
                 // 내버스
                 self.onDetectedStatusChanged?(
                     .mineDetected(routeNum: self.routeNumberToDetect)
@@ -321,28 +320,34 @@ extension BusDetectionViewController {
 
                 #if DEBUG_MODE
                     // 박스 그리기
-                    self.drawingBoxesView?.drawBox(with: finalPredictions)
+                    self.drawingBoxesView?.drawBox(with: [myBusResult.prediction])
                 #endif
 
-            } else if self.isBusDetected {
+            } else if !ocrResults.isEmpty {
                 // 버스는 감지됐지만 내 버스가 아님
                 self.onDetectedStatusChanged?(.notMine)
             } else {
-                // 버스가 아예 없음
+                // 버스가 아예 없음 || OCR 실패 (버스 감지했지만 OCR 안됨)
                 self.onDetectedStatusChanged?(.unDetected)
             }
 
             #if DEBUG_MODE
+                let myBusPredictions = ocrResults.filter(\.isMyBus).map(\.prediction)
                 // 디버깅모드용 흰색박스
                 self.tempStrokeBoxesView?.drawBox(
-                    with: predictions.filter { prediction in
-                        prediction.confidence >= 0.8
-                            && !finalPredictions.contains(where: {
-                                $0.uuid == prediction.uuid
-                            })
+                    with: highConfidencePredictions.filter { prediction in
+                        !myBusPredictions.contains(where: {
+                            $0.uuid == prediction.uuid
+                        })
                     }
                 )
             #endif
         }
     }
+}
+
+/// OCR 결과를 담을 구조체
+struct OCRResult {
+    let prediction: VNRecognizedObjectObservation
+    let isMyBus: Bool
 }
