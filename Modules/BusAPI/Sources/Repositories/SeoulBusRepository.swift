@@ -98,12 +98,7 @@ public final class SeoulBusRepository: BusRepository {
         return body.msgBody.itemList.map { dto in
             BusRoute(
                 routeId: dto.busRouteId,
-                routeNumber: dto.busRouteNm,
-                routeType: "", // Not provided by this API
-                startStopName: "",
-                endStopName: "",
-                startTime: "",
-                endTime: ""
+                routeNumber: dto.busRouteNm
             )
         }
     }
@@ -189,12 +184,7 @@ public final class SeoulBusRepository: BusRepository {
     private func adaptToBusRoute(from dto: SeoulRouteInfoDTO) -> BusRoute {
         BusRoute(
             routeId: dto.busRouteId,
-            routeNumber: dto.busRouteNm,
-            routeType: dto.routeType,
-            startStopName: dto.stStationNm,
-            endStopName: dto.edStationNm,
-            startTime: nil,
-            endTime: nil
+            routeNumber: dto.busRouteNm
         )
     }
 

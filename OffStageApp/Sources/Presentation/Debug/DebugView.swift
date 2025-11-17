@@ -20,12 +20,7 @@
 
         private let testBusRoute = BusRoute(
             routeId: "GGB228000179",
-            routeNumber: "101",
-            routeType: "",
-            startStopName: "",
-            endStopName: "",
-            startTime: nil,
-            endTime: nil
+            routeNumber: "101"
         )
 
         var body: some View {
