@@ -14,21 +14,19 @@ final class BusDetectionViewController: UIViewController {
 
     // APIs
     private var captureSession: AVCaptureSession?
-    private var request: VNCoreMLRequest?
+    private var busDetectionRequest: VNCoreMLRequest?
     private var hapticManager = HapticManager.shared
     private var ttsManager: TTSManager = .init()
 
     // subviews
     #if DEBUG_MODE
-        private var drawingBoxesView: DrawingBoxesView?
-        private var tempStrokeBoxesView: TempStokeBoxesView?
+        var drawingBoxesView: DrawingBoxesView?
+        var tempStrokeBoxesView: TempStokeBoxesView?
     #endif
 
     // for view logic
-    private var currentPixelBuffer: CVPixelBuffer?
+    var currentPixelBuffer: CVPixelBuffer?
     private var frameCount: UInt = 0
-    private var isBusDetected: Bool = false
-    private var detectStatus: BusDetectStatus = .unDetected
 
     // MARK: Life Cycle
 
@@ -177,7 +175,7 @@ extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelega
 
         // 여기서 실제 처리 (1초에 3번만 실행됨)
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer),
-              let request
+              let busDetectionRequest
         else {
             return
         }
@@ -186,7 +184,7 @@ extension BusDetectionViewController: AVCaptureVideoDataOutputSampleBufferDelega
 
         // 비전 노선탐지
         let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer)
-        try? handler.perform([request])
+        try? handler.perform([busDetectionRequest])
     }
 }
 
@@ -203,11 +201,11 @@ extension BusDetectionViewController {
             return
         }
 
-        request = VNCoreMLRequest(
+        busDetectionRequest = VNCoreMLRequest(
             model: visionModel,
             completionHandler: visionRequestDidComplete
         )
-        request?.imageCropAndScaleOption = .scaleFit
+        busDetectionRequest?.imageCropAndScaleOption = .scaleFit
     }
 
     private func loadMLModel(configuration: MLModelConfiguration) throws
@@ -245,104 +243,7 @@ extension BusDetectionViewController {
     }
 
     /// AI 모델 결과 처리
-    private func visionRequestDidComplete(request: VNRequest, error _: Error?) {
-        guard let predictions =
-            (request.results as? [VNRecognizedObjectObservation])
-        else {
-            isBusDetected = false
-            onDetectedStatusChanged?(.unDetected)
-            return
-        }
-
-        #if DEBUG_MODE
-            // 박스 초기화
-            DispatchQueue.main.async {
-                self.drawingBoxesView?.drawBox(with: [])
-                self.tempStrokeBoxesView?.drawBox(with: [])
-            }
-        #endif
-
-        var finalPredictions: [VNRecognizedObjectObservation] = []
-        isBusDetected = false
-
-        let ocrGroup = DispatchGroup()
-
-        for prediction in predictions {
-            if prediction.confidence < 0.8 { continue }
-            isBusDetected = true
-
-            // 이미지 영역 정하기
-            guard let areaOfInterest = cropBusArea(prediction: prediction) else {
-                print("이미지 자르기 실패")
-                continue
-            }
-
-            ocrGroup.enter()
-
-            // 자른 이미지 OCR 처리하기
-            OCRManager.recognizeText(
-                from: currentPixelBuffer,
-                in: areaOfInterest
-            ) { ocrText in
-                defer {
-                    ocrGroup.leave()
-                }
-
-                guard let ocrText else {
-                    print("OCR 처리 실패")
-                    return
-                }
-                print("--BUS OCR--\n\(ocrText)\n------")
-
-                if OCRManager.isTextContains(
-                    text: ocrText,
-                    routeNumber: self.routeNumberToDetect
-                ) {
-                    // 배열 접근 동기화
-                    DispatchQueue.main.async {
-                        finalPredictions.append(prediction)
-
-                        // TODO: for prediction in predictions for문 탈출
-                    }
-                } else {
-                    return
-                }
-            }
-        }
-
-        // 한 프레임의 prediction이 끝나면 한 번에 처리
-        ocrGroup.notify(queue: .main) {
-            // 내가 탈 버스가 감지되었는지
-            if !finalPredictions.isEmpty {
-                // 내버스
-                self.onDetectedStatusChanged?(
-                    .mineDetected(routeNum: self.routeNumberToDetect)
-                )
-
-                #if DEBUG_MODE
-                    // 박스 그리기
-                    self.drawingBoxesView?.drawBox(with: finalPredictions)
-                #endif
-
-            } else if self.isBusDetected {
-                // 버스는 감지됐지만 내 버스가 아님
-                self.onDetectedStatusChanged?(.notMine)
-            } else {
-                // 버스가 아예 없음
-                self.onDetectedStatusChanged?(.unDetected)
-            }
-
-            #if DEBUG_MODE
-                // 디버깅모드용 흰색박스
-                self.tempStrokeBoxesView?.drawBox(
-                    with: predictions.filter { prediction in
-                        prediction.confidence >= 0.8
-                            && !finalPredictions.contains(where: {
-                                $0.uuid == prediction.uuid
-                            })
-                    }
-                )
-            #endif
-        }
+    func visionRequestDidComplete(request: VNRequest, error: Error?) {
+        handleVisionResults(request, error: error)
     }
 }

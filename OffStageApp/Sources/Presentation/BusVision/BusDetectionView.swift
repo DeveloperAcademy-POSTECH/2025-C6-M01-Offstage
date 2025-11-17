@@ -15,7 +15,9 @@ struct BusDetectionView: UIViewControllerRepresentable {
         let vc = BusDetectionViewController()
         vc.routeNumberToDetect = routeNumberToDetect
         vc.onDetectedStatusChanged = { status in
-            detectStatus = status
+            DispatchQueue.main.async {
+                detectStatus = status
+            }
         }
         return vc
     }
