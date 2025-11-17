@@ -166,12 +166,10 @@ public final class SeoulBusRepository: BusRepository {
             let arrival = BusArrival(
                 routeId: dto.busRouteId,
                 routeNumber: dto.rtNm,
-                routeType: "",
                 nodeId: nodeId,
                 nodeName: nodeName ?? "",
                 remainingStopCount: parsed.remainingStops,
-                estimatedArrivalTime: parsed.seconds,
-                vehicleType: nil
+                estimatedArrivalTime: parsed.seconds
             )
             results.append(arrival)
         }
