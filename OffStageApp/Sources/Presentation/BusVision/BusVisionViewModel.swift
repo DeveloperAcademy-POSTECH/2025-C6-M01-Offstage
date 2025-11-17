@@ -20,6 +20,8 @@ class BusVisionViewModel: ObservableObject {
     private var hapticManager = HapticManager.shared
     private var ttsManager: TTSManager = .init()
     private var cancellables = Set<AnyCancellable>()
+    private var detectingHapticTimer: Timer?
+    private var shouldPlayDetectingHaptic: Bool = true
 
     // MARK: - init
 
@@ -31,10 +33,14 @@ class BusVisionViewModel: ObservableObject {
         // combine 등록
         observeBusDetectStatus()
         setupAlertObservers()
+
+        // 감지중 햅틱 피드백 시작
+        startDetectingFeedback()
     }
 
     deinit {
         alertManager.stopTracking()
+        stopDetectingFeedback()
     }
 }
 
@@ -49,6 +55,7 @@ extension BusVisionViewModel {
                     self?.myBusFeedback(routeNo)
                     self?.stateToPresent = status
                     self?.lastMineDetectedTime = Date()
+                    self?.shouldPlayDetectingHaptic = false
 
                 default:
                     // mineDetected 후 1초 이내면 상태 변경 무시
@@ -58,6 +65,7 @@ extension BusVisionViewModel {
                         return
                     }
                     self?.stateToPresent = status
+                    self?.shouldPlayDetectingHaptic = true
                 }
             }
             .store(in: &cancellables)
@@ -69,6 +77,19 @@ extension BusVisionViewModel {
 
         // TTS
         ttsManager.speakNow(of: "\(detectedRouteNo)번 버스가 인식됐어요.")
+    }
+
+    private func startDetectingFeedback() {
+        detectingHapticTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true, block: { [weak self] _ in
+            guard let self, shouldPlayDetectingHaptic else { return }
+            print("기다리는중 피드백")
+            hapticManager.playHapticsFile(named: "Waiting")
+        })
+    }
+
+    private func stopDetectingFeedback() {
+        detectingHapticTimer?.invalidate()
+        detectingHapticTimer = nil
     }
 }
 

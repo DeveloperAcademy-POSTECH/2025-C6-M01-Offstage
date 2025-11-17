@@ -1,0 +1,64 @@
+{
+    "Version": 1.0,
+    "Metadata":
+        {
+            "Project" : "BusONda",
+            "Created" : "17 Nov 2025",
+            "Description" : "버스 인식이 작동중임을 알려주는 약한 햅틱"
+        },
+    "Pattern":
+    [
+        {
+            "Event":
+            {
+                "Time": 0.0,
+                "EventType": "HapticContinuous",
+                "EventDuration": 0.1,
+                "EventParameters":
+                [
+                    { "ParameterID": "HapticIntensity", "ParameterValue": 0.4 },
+                    { "ParameterID": "HapticSharpness", "ParameterValue": 0.0 }
+                ]
+            }
+        },
+        {
+            "Event":
+            {
+                "Time": 0.2,
+                "EventType": "HapticContinuous",
+                "EventDuration": 0.1,
+                "EventParameters":
+                [
+                    { "ParameterID": "HapticIntensity", "ParameterValue": 0.4 },
+                    { "ParameterID": "HapticSharpness", "ParameterValue": 0.0 }
+                ]
+            }
+        },
+        {
+            "Event":
+            {
+                "Time": 0.4,
+                "EventType": "HapticContinuous",
+                "EventDuration": 0.1,
+                "EventParameters":
+                [
+                    { "ParameterID": "HapticIntensity", "ParameterValue": 0.4 },
+                    { "ParameterID": "HapticSharpness", "ParameterValue": 0.0 }
+                ]
+            }
+        },
+        {
+            "Event":
+            {
+                "Time": 0.6,
+                "EventType": "HapticContinuous",
+                "EventDuration": 0.1,
+                "EventParameters":
+                [
+                    { "ParameterID": "HapticIntensity", "ParameterValue": 0.4 },
+                    { "ParameterID": "HapticSharpness", "ParameterValue": 0.0 }
+                ]
+            }
+        },
+    ]
+}
