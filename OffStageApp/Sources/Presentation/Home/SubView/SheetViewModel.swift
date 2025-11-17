@@ -17,6 +17,7 @@ class SheetViewModel: ObservableObject {
     private let synthesizer = AVSpeechSynthesizer()
     private let sttManager = STTManager()
     private let busRouteMatcher: BusRouteMatcher
+    private var audioPlayer: AVAudioPlayer?
 
     init(busRoutes: [BusRoute]) { // init 수정
         busRouteMatcher = .init(busRoutes: busRoutes)
@@ -57,6 +58,7 @@ class SheetViewModel: ObservableObject {
         let audioSession = AVAudioSession.sharedInstance()
         try? audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
         try? audioSession.setActive(true)
+        playSound(named: "onsound")
         // STT 시작
         sttManager.startListening()
 
@@ -65,6 +67,7 @@ class SheetViewModel: ObservableObject {
 
         // STT 중지
         sttManager.stopListening()
+        playSound(named: "offsound")
 
         let recognizedText = sttManager.transcript
         return recognizedText.isEmpty ? nil : recognizedText
@@ -76,5 +79,19 @@ class SheetViewModel: ObservableObject {
         }
         // ✅ 추가: STT도 함께 중지
         sttManager.stopListening()
+    }
+
+    private func playSound(named: String) {
+        guard let url = Bundle.main.url(forResource: named, withExtension: "mp3") else {
+            print("⚠️ Sound file not found: \(named)")
+            return
+        }
+
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.play()
+        } catch {
+            print("⚠️ Error playing sound: \(error)")
+        }
     }
 }
