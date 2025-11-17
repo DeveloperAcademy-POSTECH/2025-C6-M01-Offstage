@@ -405,14 +405,14 @@ final class TestViewModel: ObservableObject {
         guard let first = routes.first else {
             return "노선 정보를 찾을 수 없습니다."
         }
-        return "총 \(routes.count)개의 노선 정보를 받았습니다. 첫 번째 노선: \(first.routeNumber) (\(first.startStopName) → \(first.endStopName))"
+        return "총 \(routes.count)개의 노선 정보를 받았습니다. 첫 번째 노선: \(first.routeNumber)"
     }
 
     private func describeRoute(_ route: BusRoute?) -> String {
         guard let route else {
             return "노선 정보를 찾을 수 없습니다."
         }
-        return "\(route.routeNumber) (\(route.startStopName) → \(route.endStopName))"
+        return "\(route.routeNumber)"
     }
 
     private func describeStations(_ stations: [BusRouteStation]) -> String {

@@ -13,19 +13,13 @@
             name: "판교역동편",
             number: "7489",
             cityCode: 31020,
-            direction: nil,
             latitude: 37.3918667,
             longitude: 127.1118833
         )
 
         private let testBusRoute = BusRoute(
             routeId: "GGB228000179",
-            routeNumber: "101",
-            routeType: "",
-            startStopName: "",
-            endStopName: "",
-            startTime: nil,
-            endTime: nil
+            routeNumber: "101"
         )
 
         var body: some View {
