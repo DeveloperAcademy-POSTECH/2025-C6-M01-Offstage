@@ -52,6 +52,23 @@ struct BusVisionView: View {
                     .offset(y: -10)
                 }
             }
+
+            Button {
+                router.popToRoot()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 48, weight: .medium))
+                    .foregroundStyle(Color.white)
+                    .padding()
+                    .background(
+                        Circle()
+                            .fill(Color(.backgroundheavy))
+                            .stroke(Color(.primarynormal), lineWidth: 7)
+                            .frame(width: 96, height: 96)
+                    )
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            .padding(.bottom)
         }
     }
 }

@@ -106,8 +106,8 @@ class BusVisionArrivalAlertManager: ObservableObject {
 
     /// 버스 곧 도착 감지 대기 중 상태 처리
     private func handleWaitingState(_ time: Int) {
-        if time < 60, time > 0 {
-            // 60초 미만이면 곧도착 알림
+        if time <= 90, time > 0 {
+            // 90초 미만이면 곧도착 알림
             showSoonArrivalNotification()
             currentState = .arrivalAlertSent
         }
@@ -130,7 +130,7 @@ class BusVisionArrivalAlertManager: ObservableObject {
         }
 
         let elapsed = Date().timeIntervalSince(startTime)
-        if elapsed >= 30.0 {
+        if elapsed >= 0.0 {
             // 30초 경과, 버스 지나감 알림
             showBusPassedNotification()
 
