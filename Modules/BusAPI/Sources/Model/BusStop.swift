@@ -7,7 +7,6 @@ public struct BusStop: Decodable, Hashable, Identifiable {
     public let name: String
     public let number: String?
     public let cityCode: Int?
-    public let direction: String?
     public let latitude: Double
     public let longitude: Double
 
@@ -19,9 +18,6 @@ public struct BusStop: Decodable, Hashable, Identifiable {
         case numberUpper = "nodeNo"
         case cityCodeLower = "citycode"
         case cityCodeUpper = "cityCode"
-        case directionLegacy = "updowncd"
-        case directionModern = "updownCd"
-        case directionName = "direction"
         case latitudeLower = "gpslati"
         case latitudeUpper = "gpsLati"
         case latitudeY = "gpsY"
@@ -35,7 +31,6 @@ public struct BusStop: Decodable, Hashable, Identifiable {
         name: String,
         number: String?,
         cityCode: Int?,
-        direction: String?,
         latitude: Double,
         longitude: Double
     ) {
@@ -43,7 +38,6 @@ public struct BusStop: Decodable, Hashable, Identifiable {
         self.name = name
         self.number = number
         self.cityCode = cityCode
-        self.direction = direction
         self.latitude = latitude
         self.longitude = longitude
     }
@@ -54,10 +48,6 @@ public struct BusStop: Decodable, Hashable, Identifiable {
         name = try container.decodeFlexibleString(forKey: .nameLower, fallbackKeys: [.nameUpper])
         number = container.decodeOptionalFlexibleString(forKey: .numberLower, fallbackKeys: [.numberUpper])
         cityCode = container.decodeOptionalFlexibleInt(forKey: .cityCodeLower, fallbackKeys: [.cityCodeUpper])
-        direction = container.decodeOptionalFlexibleString(
-            forKey: .directionLegacy,
-            fallbackKeys: [.directionModern, .directionName]
-        )
 
         guard let decodedLatitude = container.decodeOptionalFlexibleDouble(
             forKey: .latitudeLower,

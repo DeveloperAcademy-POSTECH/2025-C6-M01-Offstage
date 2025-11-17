@@ -139,7 +139,6 @@ public final class SeoulBusRepository: BusRepository {
             name: dto.stationNm,
             number: dto.arsId,
             cityCode: 1000,
-            direction: nil,
             latitude: lat,
             longitude: lon
         )
@@ -152,7 +151,6 @@ public final class SeoulBusRepository: BusRepository {
             name: dto.stNm,
             number: dto.arsId,
             cityCode: 1000,
-            direction: nil,
             latitude: lat,
             longitude: lon
         )
