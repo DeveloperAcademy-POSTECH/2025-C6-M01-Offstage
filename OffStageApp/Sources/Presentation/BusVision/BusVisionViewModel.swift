@@ -36,6 +36,7 @@ class BusVisionViewModel: ObservableObject {
 
         // 감지중 햅틱 피드백 시작
         startDetectingFeedback()
+        ttsManager.speakNow(of: "버스를 찾고 있어요")
     }
 
     deinit {
