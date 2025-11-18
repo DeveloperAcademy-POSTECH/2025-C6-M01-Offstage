@@ -28,18 +28,13 @@ public final class SeoulBusRepository: BusRepository {
         let response = try await provider.request(.getBusPosByRtid(busRouteId: routeId))
         let body = try decoder.decode(SeoulBusLocationResponse.self, from: response.data)
         return body.msgBody.itemList.compactMap { dto in
-            guard let lat = Double(dto.posY ?? "0"),
-                  let lon = Double(dto.posX ?? "0")
-            else { return nil }
-
+            guard let lat = Double(dto.posY), let lon = Double(dto.posX) else { return nil }
             return BusLocation(
                 routeId: routeId,
-                routeNumber: "", // Not provided
-                routeType: dto.busType == "1" ? "저상버스" : "일반버스",
-                vehicleNumber: dto.plainNo ?? "",
-                nodeId: dto.lastStnId ?? "",
-                nodeName: "", // Not provided
-                nodeOrder: 0, // Not provided
+                routeNumber: dto.busRouteNm,
+                vehicleNumber: dto.plainNo,
+                nodeId: dto.arsId,
+                nodeName: dto.stationNm,
                 latitude: lat,
                 longitude: lon
             )
@@ -51,8 +46,7 @@ public final class SeoulBusRepository: BusRepository {
         let body = try decoder.decode(SeoulRouteStationResponse.self, from: response.data)
 
         return body.msgBody.itemList.compactMap { dto in
-            guard let stationOrder = Int(dto.nodeOrd),
-                  let lat = Double(dto.gpsY),
+            guard let lat = Double(dto.gpsY),
                   let lon = Double(dto.gpsX)
             else {
                 logger.warning("Failed to parse SeoulRouteStationDTO: \(dto)")
@@ -60,10 +54,7 @@ public final class SeoulBusRepository: BusRepository {
             }
             return BusRouteStation(
                 stationId: dto.arsId,
-                internalId: dto.station,
                 stationName: dto.nodeNm,
-                stationOrder: stationOrder,
-                turnYn: nil, // Not available in this DTO
                 latitude: lat,
                 longitude: lon
             )
@@ -71,18 +62,14 @@ public final class SeoulBusRepository: BusRepository {
     }
 
     public func searchStops(cityCode _: String?, nodeName: String?, nodeNumber: String?) async throws -> [BusStop] {
-        if let name = nodeName, !name.isEmpty {
-            let response = try await provider.request(.getStationByName(name: name))
-            let body = try decoder.decode(SeoulKeywordStopResponse.self, from: response.data)
-            return body.msgBody.itemList.compactMap { adaptToBusStop(from: $0) }
+        let searchTerm = nodeName ?? nodeNumber
+        guard let searchTerm, !searchTerm.isEmpty else {
+            return []
         }
 
-        if let number = nodeNumber, !number.isEmpty {
-            let response = try await provider.request(.getStationByName(name: number))
-            let body = try decoder.decode(SeoulKeywordStopResponse.self, from: response.data)
-            return body.msgBody.itemList.compactMap { adaptToBusStop(from: $0) }
-        }
-        return []
+        let response = try await provider.request(.getStationByName(name: searchTerm))
+        let body = try decoder.decode(SeoulKeywordStopResponse.self, from: response.data)
+        return body.msgBody.itemList.compactMap { adaptToBusStop(from: $0) }
     }
 
     public func fetchStopsNearby(latitude: Double, longitude: Double, cityCode _: String?) async throws -> [BusStop] {
@@ -106,13 +93,23 @@ public final class SeoulBusRepository: BusRepository {
     public func fetchRouteInfo(cityCode _: String, routeId: String) async throws -> BusRoute? {
         let response = try await provider.request(.getRouteInfo(routeId: routeId))
         let body = try decoder.decode(SeoulRouteInfoResponse.self, from: response.data)
-        return body.msgBody.itemList.first.map { adaptToBusRoute(from: $0) }
+        return body.msgBody.itemList.first.map { dto in
+            BusRoute(
+                routeId: dto.busRouteId,
+                routeNumber: dto.busRouteNm
+            )
+        }
     }
 
     public func searchRoutes(cityCode _: String, routeNumber: String) async throws -> [BusRoute] {
         let response = try await provider.request(.getRouteInfo(routeId: routeNumber))
         let body = try decoder.decode(SeoulRouteInfoResponse.self, from: response.data)
-        return body.msgBody.itemList.map { adaptToBusRoute(from: $0) }
+        return body.msgBody.itemList.map { dto in
+            BusRoute(
+                routeId: dto.busRouteId,
+                routeNumber: dto.busRouteNm
+            )
+        }
     }
 
     public func fetchStopArrivals(cityCode _: String, nodeId: String) async throws -> [BusArrival] {
@@ -120,7 +117,7 @@ public final class SeoulBusRepository: BusRepository {
         let body = try decoder.decode(SeoulArrivalResponse.self, from: response.data)
 
         let arrivals = body.msgBody.itemList.flatMap { dto in
-            adaptToBusArrival(from: dto, nodeId: nodeId, nodeName: nil)
+            adaptToBusArrival(from: dto)
         }
         return arrivals
     }
@@ -156,7 +153,7 @@ public final class SeoulBusRepository: BusRepository {
         )
     }
 
-    private func adaptToBusArrival(from dto: SeoulArrivalDTO, nodeId: String, nodeName: String?) -> [BusArrival] {
+    private func adaptToBusArrival(from dto: SeoulArrivalDTO) -> [BusArrival] {
         var results: [BusArrival] = []
 
         let candidates = [dto.arrmsg1, dto.arrmsg2]
@@ -166,8 +163,8 @@ public final class SeoulBusRepository: BusRepository {
             let arrival = BusArrival(
                 routeId: dto.busRouteId,
                 routeNumber: dto.rtNm,
-                nodeId: nodeId,
-                nodeName: nodeName ?? "",
+                nodeId: dto.arsId,
+                nodeName: dto.stNm,
                 remainingStopCount: parsed.remainingStops,
                 estimatedArrivalTime: parsed.seconds
             )
@@ -175,27 +172,5 @@ public final class SeoulBusRepository: BusRepository {
         }
 
         return results
-    }
-
-    private func adaptToBusRoute(from dto: SeoulRouteInfoDTO) -> BusRoute {
-        BusRoute(
-            routeId: dto.busRouteId,
-            routeNumber: dto.busRouteNm
-        )
-    }
-
-    private func adaptToBusLocation(from dto: SeoulBusLocationDTO, routeId: String) -> BusLocation? {
-        guard let lat = Double(dto.posY ?? "0"), let lon = Double(dto.posX ?? "0") else { return nil }
-        return BusLocation(
-            routeId: routeId,
-            routeNumber: "", // Not provided
-            routeType: dto.busType == "1" ? "저상버스" : "일반버스",
-            vehicleNumber: dto.plainNo ?? "",
-            nodeId: dto.lastStnId ?? "",
-            nodeName: "", // Not provided
-            nodeOrder: 0, // Not provided
-            latitude: lat,
-            longitude: lon
-        )
     }
 }

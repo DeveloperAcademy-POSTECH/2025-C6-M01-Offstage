@@ -5,11 +5,10 @@ public struct BusLocation: Decodable, Hashable, Identifiable {
 
     public let routeId: String
     public let routeNumber: String
-    public let routeType: String
+    /// 차량 번호 (예: 서울74사2576)
     public let vehicleNumber: String
     public let nodeId: String
     public let nodeName: String
-    public let nodeOrder: Int
     public let latitude: Double
     public let longitude: Double
 
@@ -20,16 +19,12 @@ public struct BusLocation: Decodable, Hashable, Identifiable {
         case routeNumberNameUpper = "routeNm"
         case routeNumberLower = "routeno"
         case routeNumberUpper = "routeNo"
-        case routeTypeLower = "routetp"
-        case routeTypeUpper = "routeTp"
         case vehicleLower = "vehicleno"
         case vehicleUpper = "vehicleNo"
         case vehiclePlain = "plainNo"
         case nodeIdLower = "nodeid"
         case nodeNameLower = "nodenm"
         case nodeNameUpper = "nodeNm"
-        case nodeOrderLower = "nodeord"
-        case nodeOrderUpper = "nodeOrd"
         case latitudeLower = "gpslati"
         case latitudeUpper = "gpsLati"
         case latitudeY = "gpsY"
@@ -41,21 +36,17 @@ public struct BusLocation: Decodable, Hashable, Identifiable {
     public init(
         routeId: String,
         routeNumber: String,
-        routeType: String,
         vehicleNumber: String,
         nodeId: String,
         nodeName: String,
-        nodeOrder: Int,
         latitude: Double,
         longitude: Double
     ) {
         self.routeId = routeId
         self.routeNumber = routeNumber
-        self.routeType = routeType
         self.vehicleNumber = vehicleNumber
         self.nodeId = nodeId
         self.nodeName = nodeName
-        self.nodeOrder = nodeOrder
         self.latitude = latitude
         self.longitude = longitude
     }
@@ -76,15 +67,12 @@ public struct BusLocation: Decodable, Hashable, Identifiable {
             ) ?? ""
         }
 
-        routeType = container
-            .decodeOptionalFlexibleString(forKey: .routeTypeLower, fallbackKeys: [.routeTypeUpper]) ?? ""
         vehicleNumber = container.decodeOptionalFlexibleString(
             forKey: .vehicleLower,
             fallbackKeys: [.vehicleUpper, .vehiclePlain]
         ) ?? ""
         nodeId = container.decodeOptionalFlexibleString(forKey: .nodeIdLower) ?? ""
         nodeName = container.decodeOptionalFlexibleString(forKey: .nodeNameLower, fallbackKeys: [.nodeNameUpper]) ?? ""
-        nodeOrder = container.decodeOptionalFlexibleInt(forKey: .nodeOrderLower, fallbackKeys: [.nodeOrderUpper]) ?? 0
 
         let decodedLatitude = container.decodeOptionalFlexibleDouble(
             forKey: .latitudeLower,

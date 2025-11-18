@@ -419,7 +419,7 @@ final class TestViewModel: ObservableObject {
         guard let first = stations.first else {
             return "경유 정류장 정보를 찾을 수 없습니다."
         }
-        return "총 \(stations.count)개의 경유 정류장을 받았습니다. 첫 번째: #\(first.stationOrder) \(first.stationName)"
+        return "총 \(stations.count)개의 경유 정류장을 받았습니다. 첫 번째: \(first.stationName)"
     }
 
     private func describeArrivals(_ arrivals: [BusArrival]) -> String {
