@@ -37,11 +37,11 @@ struct OffStageApp: App {
 
     init() {
         #if DEBUG_MODE
-            _router = StateObject(wrappedValue: Router(root: .home))
+            _router = StateObject(wrappedValue: Router(root: .permissionGuide))
         #else
             let hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
             // TODO: 온보딩 뷰 제작 후 .onboarding 으로 변경
-            _router = StateObject(wrappedValue: Router(root: hasLaunchedBefore ? .home : .home))
+            _router = StateObject(wrappedValue: Router(root: hasLaunchedBefore ? .home : .permissionGuide))
         #endif
     }
 

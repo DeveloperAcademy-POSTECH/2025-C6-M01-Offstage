@@ -15,9 +15,13 @@ struct SheetView: View {
     init(
         nearestBusStop: BusStop?,
         busRoutes: [BusRoute], // New parameter
-        onRouteSelected: @escaping (BusRoute) -> Void
+        onRouteSelected: @escaping (BusRoute) -> Void,
+        onTextRecognized: @escaping (String) -> Void
     ) {
-        _viewModel = StateObject(wrappedValue: SheetViewModel(busRoutes: busRoutes))
+        _viewModel = StateObject(wrappedValue: SheetViewModel(
+            busRoutes: busRoutes,
+            onTextRecognized: onTextRecognized
+        ))
         nearestBusStopFromHome = nearestBusStop
         self.busRoutes = busRoutes // Initialize
         self.onRouteSelected = onRouteSelected

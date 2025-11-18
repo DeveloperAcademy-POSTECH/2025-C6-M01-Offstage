@@ -18,9 +18,11 @@ class SheetViewModel: ObservableObject {
     private let sttManager = STTManager()
     private let busRouteMatcher: BusRouteMatcher
     private var audioPlayer: AVAudioPlayer?
+    private var onTextRecognized: ((String) -> Void)?
 
-    init(busRoutes: [BusRoute]) { // init 수정
+    init(busRoutes: [BusRoute], onTextRecognized: @escaping (String) -> Void) { // 수정
         busRouteMatcher = .init(busRoutes: busRoutes)
+        self.onTextRecognized = onTextRecognized // 추가
     }
 
     func startListeningProcess() {
@@ -28,7 +30,7 @@ class SheetViewModel: ObservableObject {
         Task {
             if let recognizedText = await startSpeechRecognition() {
                 // 정규화 및 추론 전략을 수행하는 함수를 호출합니다.
-                self.processRecognizedText(recognizedText)
+                onTextRecognized?(recognizedText)
             } else {
                 // Handle case where nothing is recognized
             }
