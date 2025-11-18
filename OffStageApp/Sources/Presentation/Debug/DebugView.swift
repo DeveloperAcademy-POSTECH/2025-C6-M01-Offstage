@@ -52,6 +52,10 @@
                         L10n.Debug.Ui.buttonSttTtsTest,
                         destination: STTandTTSTestView()
                     )
+                    NavigationLink(
+                        "기울기테스트",
+                        destination: TiltDebugView()
+                    )
                 }
                 .navigationTitle(L10n.Debug.Ui.title)
                 .navigationBarTitleDisplayMode(.inline)
