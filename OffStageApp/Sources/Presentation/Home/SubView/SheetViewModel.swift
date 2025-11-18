@@ -30,7 +30,8 @@ class SheetViewModel: ObservableObject {
         Task {
             if let recognizedText = await startSpeechRecognition() {
                 // 정규화 및 추론 전략을 수행하는 함수를 호출합니다.
-                onTextRecognized?(recognizedText)
+                let processedText = recognizedText.normalizeBusNumber()
+                onTextRecognized?(processedText)
             } else {
                 // Handle case where nothing is recognized
             }
