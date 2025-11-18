@@ -37,20 +37,22 @@ struct HomeView: View {
             .padding(.top)
         }
         .onAppear {
-            Task {
-                await permissionManager.checkAllPermissionsGranted()
-                if permissionManager.isGranted(.location) {
-                    viewModel.fetchNearestStop()
-                }
-            }
-
             if !hasRequestedPermissions {
+                // 첫 실행: 권한 요청만 수행 (requestAll이 알아서 거부 체크함)
                 Task {
                     await permissionManager.requestAll()
                     if permissionManager.isGranted(.location) {
                         viewModel.fetchNearestStop()
                     }
                     UserDefaults.standard.set(true, forKey: "hasRequestedPermissions")
+                }
+            } else {
+                // 두 번째 실행 이후: 현재 권한 상태만 확인
+                Task {
+                    await permissionManager.checkAllPermissionsGranted()
+                    if permissionManager.isGranted(.location) {
+                        viewModel.fetchNearestStop()
+                    }
                 }
             }
         }
@@ -75,8 +77,20 @@ struct HomeView: View {
                     } else {
                         print("Error: Nearest bus stop not available for navigation.")
                     }
+                },
+                onTextRecognized: { recognizedText in // 추가
+                    print("STT 완료: \(recognizedText)")
+                    isSheetPresented = false // Sheet dismiss
+                    router.push(.busRouteSearch(recognizedText: recognizedText)) // BusRouteSearchView로 이동
                 }
             )
+        }
+        .sheet(isPresented: $permissionManager.showPermissionDeniedSheet) {
+            PermissionSubView(
+                deniedPermissions: permissionManager.deniedPermissions,
+                grantedPermissions: permissionManager.grantedPermissions()
+            )
+            .interactiveDismissDisabled(true)
         }
         .onChange(of: viewModel.isLoading) { _, isLoading in
             // isLoading이 true로 바뀌는 시점에 VoiceOver로 로딩 상태를 안내한다.
