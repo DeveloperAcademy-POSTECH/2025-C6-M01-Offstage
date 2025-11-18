@@ -21,16 +21,53 @@ struct HomeView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                stopInfoView()
-
-                Text(L10n.Home.Stt.askBusNumber)
-                    .font(.title)
+                Text(L10n.K.appName)
+                    .font(.body)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
-                    .padding(.vertical, 90)
+                    .padding(.bottom, 35)
 
-                micButton
+                stopInfoView()
+
+                HStack {
+                    Text("탑승할 버스 검색")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .multilineTextAlignment(.leading)
+                        .foregroundColor(.white)
+                        .padding(.top, 30)
+                        .padding(.bottom, 20)
+
+                    Spacer()
+                }
+                .padding(.horizontal)
+
+                ZStack {
+                    Button {
+                        router.push(.busRouteSearch(recognizedText: ""))
+                    } label: {
+                        HStack {
+                            Text(L10n.Home.Stt.askBusNumber)
+                                .font(.body)
+                                .foregroundColor(.white)
+
+                            Spacer()
+                        }
+                    }
+                    .padding(.leading, 25)
+                    .padding(.vertical, 20)
+
+                    HStack {
+                        Spacer()
+
+                        micButton
+                    }
+                    .padding(.trailing, 10)
+                }
+                .background(Color(red: 0.0784, green: 0.0823, blue: 0.1059))
+                .cornerRadius(99)
+                .padding(.horizontal)
 
                 Spacer()
             }
@@ -173,17 +210,12 @@ struct HomeView: View {
             isSheetPresented = true
         } label: {
             Image(systemName: "mic")
-                .font(.system(size: 45, weight: .semibold))
+                .font(.system(size: 22, weight: .semibold))
                 .foregroundColor(.white)
-                .frame(width: 90, height: 90)
+                .frame(width: 45, height: 45)
                 .background(
                     Circle()
-                        .fill(Color.black)
-                )
-                .overlay(
-                    Circle()
-                        .stroke(Color(.primarynormal), lineWidth: 6)
-                        .scaleEffect(1.2)
+                        .fill(Color(red: 0.1098, green: 0.1176, blue: 0.1490))
                 )
         }
         .disabled(isMicDisabled)
