@@ -18,6 +18,7 @@ public struct BusArrival: Decodable, Hashable, Identifiable {
         case nodeIdLower = "nodeid"
         case nodeNameLower = "nodenm"
         case nodeNameUpper = "nodeNm"
+        case nodeNameSeoul = "stationNm"
         case remainingStopsLower = "arrprevstationcnt"
         case remainingStopsUpper = "arrPrevStationCnt"
         case estimatedArrivalLower = "arrtime"

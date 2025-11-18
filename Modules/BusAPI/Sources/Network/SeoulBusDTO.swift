@@ -34,6 +34,8 @@ struct SeoulArrivalMsgBody: Decodable { let itemList: [SeoulArrivalDTO] }
 struct SeoulArrivalDTO: Decodable {
     let busRouteId: String // 노선ID (-> routeId)
     let rtNm: String // 노선명 (-> routeName)
+    let stNm: String // 정류소명 (-> nodeName)
+    let arsId: String // 정류소ID (-> nodeId)
     let arrmsg1: String // 첫번째 도착 메시지 (e.g., "3분후[2번째 전]")
     let arrmsg2: String // 두번째 도착 메시지
 }
@@ -82,9 +84,11 @@ struct SeoulBusLocationResponse: Decodable { let msgBody: SeoulBusLocationMsgBod
 struct SeoulBusLocationMsgBody: Decodable { let itemList: [SeoulBusLocationDTO] }
 
 struct SeoulBusLocationDTO: Decodable {
-    let busType: String? // 1: 저상, 0: 일반
-    let lastStnId: String?
-    let plainNo: String?
-    let posX: String?
-    let posY: String?
+    let busRouteId: String
+    let busRouteNm: String
+    let arsId: String
+    let stationNm: String
+    let plainNo: String
+    let posX: String
+    let posY: String
 }
