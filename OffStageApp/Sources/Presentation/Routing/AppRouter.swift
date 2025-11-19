@@ -4,7 +4,7 @@ import SwiftUI
 enum AppRoute: Routable {
     case home
     case permissionGuide
-    case busRouteSearch(recognizedText: String)
+    case busRouteSearch(busStop: BusStop, recognizedText: String)
     case busVision(busStop: BusStop, busRoute: BusRoute)
     case sttTest
     case quickCamera
@@ -20,8 +20,8 @@ enum AppRoute: Routable {
         case .permissionGuide:
             PermissionGuideView()
 
-        case let .busRouteSearch(recognizedText):
-            BusRouteSearchView(recognizedText: recognizedText)
+        case let .busRouteSearch(busStop, recognizedText):
+            BusRouteSearchView(busStop: busStop, recognizedText: recognizedText)
 
         case let .busVision(busStop, busRoute):
             BusVisionView(busStop: busStop, busRoute: busRoute)

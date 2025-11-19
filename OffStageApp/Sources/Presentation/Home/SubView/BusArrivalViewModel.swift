@@ -8,26 +8,11 @@ import Foundation
 final class BusArrivalViewModel: ObservableObject {
     // MARK: - Published 속성
 
-    @Published var busArrivalInfo: BusArrival?
+    @Published var routeWithArrival: BusRouteWithArrival?
     @Published var busLocationInfo: BusLocation?
     @Published var isLoading = false
     @Published var errorMessage: String?
-    @Published var isBusVisionButtonEnabled = false {
-        didSet {
-            if isBusVisionButtonEnabled {
-                HapticManager.shared.playHaptic(intensity: 1.0, sharpness: 0.2, duration: 0.3)
-            }
-        }
-    }
-
     @Published var currentEstimatedArrivalTime: Int?
-
-    @Published var busUrgencyStatus: BusUrgencyStatus = .notApplicable { // 버스 긴급도 상태
-        didSet {
-            print("버스 긴급도 상태 변경: \(busUrgencyStatus.rawValue)")
-            updateBusVisionButtonState()
-        }
-    }
 
     // MARK: - 속성
 
@@ -42,11 +27,17 @@ final class BusArrivalViewModel: ObservableObject {
     init(
         busStop: BusStop,
         busRoute: BusRoute,
+        initialArrival: BusArrival? = nil,
         busArrivalOperations: BusArrivalOperations = BusArrivalOperations()
     ) {
         self.busStop = busStop
         self.busRoute = busRoute
         self.busArrivalOperations = busArrivalOperations
+
+        if let arrival = initialArrival {
+            routeWithArrival = BusRouteWithArrival(route: busRoute, arrival: arrival)
+            currentEstimatedArrivalTime = arrival.estimatedArrivalTime
+        }
     }
 
     deinit {
@@ -86,25 +77,22 @@ final class BusArrivalViewModel: ObservableObject {
         isLoading = false
 
         // 이전 상태를 초기화합니다.
-        busArrivalInfo = nil
+        routeWithArrival = nil
         busLocationInfo = nil
 
         switch update {
-        case let .arrival(arrival, status):
+        case let .arrival(arrival):
             errorMessage = nil
-            busArrivalInfo = arrival
-            busUrgencyStatus = status
+            routeWithArrival = BusRouteWithArrival(route: busRoute, arrival: arrival)
             currentEstimatedArrivalTime = arrival.estimatedArrivalTime
             startCountdownTimer()
         case let .location(location):
             errorMessage = nil
             busLocationInfo = location
-            busUrgencyStatus = .notApplicable
             currentEstimatedArrivalTime = nil
             stopCountdownTimer()
         case .empty:
             errorMessage = String(localized: "bus.arrival.noOperatingRoutes")
-            busUrgencyStatus = .notApplicable
             currentEstimatedArrivalTime = nil
             stopCountdownTimer()
         case let .error(error):
@@ -112,7 +100,6 @@ final class BusArrivalViewModel: ObservableObject {
                 format: String(localized: "bus.arrival.error.loadFailed"),
                 error.localizedDescription
             )
-            busUrgencyStatus = .notApplicable
             currentEstimatedArrivalTime = nil
             stopCountdownTimer()
         }
@@ -142,14 +129,6 @@ final class BusArrivalViewModel: ObservableObject {
         } else {
             stopCountdownTimer()
             startMonitoring() // 타이머가 0이 되면 데이터를 새로고침합니다.
-        }
-    }
-
-    private func updateBusVisionButtonState() {
-        if busUrgencyStatus == .arrived {
-            isBusVisionButtonEnabled = true
-        } else {
-            isBusVisionButtonEnabled = false
         }
     }
 }

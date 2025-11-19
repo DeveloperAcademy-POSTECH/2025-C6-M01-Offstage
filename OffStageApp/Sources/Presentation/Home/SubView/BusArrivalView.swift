@@ -2,9 +2,16 @@ import AVFoundation
 import BusAPI
 import SwiftUI
 
+enum BusArrivalViewState {
+    case loading
+    case error(String)
+    case arrival(BusRouteWithArrival, currentEstimatedTime: Int?)
+    case location(BusLocation)
+    case empty
+}
+
 struct BusArrivalView: View {
     @Environment(\.dismiss) private var dismiss
-    // 라우터 주입
     @EnvironmentObject var router: Router<AppRoute>
     @StateObject private var viewModel: BusArrivalViewModel
 
@@ -12,26 +19,52 @@ struct BusArrivalView: View {
         _viewModel = StateObject(wrappedValue: BusArrivalViewModel(busStop: busStop, busRoute: busRoute))
     }
 
+    init(busStop: BusStop, routeWithArrival: BusRouteWithArrival) {
+        _viewModel = StateObject(wrappedValue: BusArrivalViewModel(
+            busStop: busStop,
+            busRoute: routeWithArrival.route,
+            initialArrival: routeWithArrival.arrival
+        ))
+    }
+
+    private var currentViewState: BusArrivalViewState {
+        if viewModel.isLoading {
+            .loading
+        } else if let errorMessage = viewModel.errorMessage {
+            .error(errorMessage)
+        } else if let routeWithArrival = viewModel.routeWithArrival {
+            .arrival(routeWithArrival, currentEstimatedTime: viewModel.currentEstimatedArrivalTime)
+        } else if let location = viewModel.busLocationInfo {
+            .location(location)
+        } else {
+            .empty
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            if viewModel.isLoading {
+            switch currentViewState {
+            case .loading:
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     .frame(maxWidth: .infinity, alignment: .center)
-            } else if let errorMessage = viewModel.errorMessage {
-                Text(errorMessage)
+            case let .error(message):
+                Text(message)
                     .font(.title2)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity, alignment: .center)
-            } else if let arrival = viewModel.busArrivalInfo {
+            case let .arrival(routeWithArrival, currentEstimatedTime):
                 BusArrivalInfoView(
-                    arrival: arrival,
-                    busRoute: viewModel.busRoute,
-                    currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime,
-                    busUrgencyStatus: viewModel.busUrgencyStatus
+                    routeWithArrival: routeWithArrival,
+                    currentEstimatedArrivalTime: currentEstimatedTime
                 )
-            } else if let location = viewModel.busLocationInfo {
+            case let .location(location):
                 BusLocationInfoView(location: location, busRoute: viewModel.busRoute)
+            case .empty:
+                Text("버스 정보를 찾을 수 없습니다")
+                    .font(.title2)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
 
             Spacer()
@@ -43,7 +76,6 @@ struct BusArrivalView: View {
                     .multilineTextAlignment(.center)
                     .padding(.bottom, 5)
 
-                // Bus Vision Button
                 Button(action: {
                     router.push(.busVision(
                         busStop: viewModel.busStop,
@@ -66,10 +98,6 @@ struct BusArrivalView: View {
                     )
                     .cornerRadius(99)
                 }
-                // ViewModel 상태에 따라 비활성화
-                .disabled(!viewModel.isBusVisionButtonEnabled)
-                // 비활성화 상태에 대한 시각적 피드백
-                .opacity(viewModel.isBusVisionButtonEnabled ? 1.0 : 0.5)
             }
         }.padding()
             .onAppear {
@@ -79,13 +107,12 @@ struct BusArrivalView: View {
                 // 뷰가 사라질 때 타이머와 새로고침을 중지합니다.
                 viewModel.stopMonitoring()
             }
-            .onChange(of: viewModel.busArrivalInfo) { _, newArrivalInfo in
-                if let newArrivalInfo {
-                    let announcement = generateAnnouncementLabel(
-                        arrival: newArrivalInfo,
+            .onChange(of: viewModel.routeWithArrival) { _, newRouteWithArrival in
+                if let arrival = newRouteWithArrival?.arrival {
+                    let announcement = BusArrivalFormatter.generateArrivalLabel(
+                        arrival: arrival,
                         busRoute: viewModel.busRoute,
-                        currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime,
-                        busUrgencyStatus: viewModel.busUrgencyStatus
+                        currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime
                     )
                     /// TODO:
                     /// - api 호출 주기 짧게 만든 후, 테스트 필요
@@ -94,72 +121,19 @@ struct BusArrivalView: View {
                 }
             }
     }
-
-    private func generateAnnouncementLabel(
-        arrival: BusArrival,
-        busRoute: BusRoute,
-        currentEstimatedArrivalTime: Int?,
-        busUrgencyStatus: BusUrgencyStatus
-    ) -> String {
-        let routeNum = String(
-            format: String(localized: "busArrival.a11y.format.routeNumber"),
-            busRoute.routeNumber
-        )
-        let formattedArrivalTime = formatArrivalTime(currentEstimatedArrivalTime, busUrgencyStatus: busUrgencyStatus)
-        let formattedStops = formatRemainingStops(arrival.remainingStopCount ?? 0)
-
-        let status = (busUrgencyStatus == .arrived)
-            ? String(localized: "busArrival.a11y.format.arrived")
-            : String(localized: "busArrival.a11y.format.arriving")
-
-        return "\(routeNum), \(formattedArrivalTime) \(status), \(formattedStops)"
-    }
-
-    private func formatRemainingStops(_ remainingStops: Int) -> String {
-        if remainingStops > 1 {
-            String(
-                format: String(localized: "busArrival.a11y.format.stopsAway"),
-                String(remainingStops)
-            )
-        } else {
-            String(localized: "busArrival.a11y.format.previousStop")
-        }
-    }
-
-    private func formatArrivalTime(_ seconds: Int?, busUrgencyStatus: BusUrgencyStatus) -> String {
-        if busUrgencyStatus == .arrived {
-            return String(localized: "busArrival.a11y.format.soon")
-        }
-        guard let seconds else { return String(localized: "busArrival.a11y.format.noInfo") }
-        let minutes = seconds / 60
-        let remainingSeconds = seconds % 60
-        if minutes >= 1 {
-            return String(
-                format: String(localized: "busArrival.a11y.format.minutesSeconds"),
-                String(minutes), String(remainingSeconds)
-            )
-        }
-        return String(
-            format: String(localized: "busArrival.a11y.format.seconds"),
-            String(remainingSeconds)
-        )
-    }
 }
 
 // 버스 도착 정보 헬퍼 뷰
 struct BusArrivalInfoView: View {
-    let arrival: BusArrival
-    let busRoute: BusRoute
+    let routeWithArrival: BusRouteWithArrival
     let currentEstimatedArrivalTime: Int?
-    let busUrgencyStatus: BusUrgencyStatus
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "bus.fill")
                     .foregroundColor(.white)
-                // busRoute.routeNumber 사용
-                Text(busRoute.routeNumber)
+                Text(routeWithArrival.route.routeNumber)
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
@@ -170,8 +144,8 @@ struct BusArrivalInfoView: View {
             .cornerRadius(12)
             .padding(.top, 5)
             .padding(.bottom, 8)
-            // Use mutable time
-            Text(formatArrivalTime(currentEstimatedArrivalTime))
+
+            Text(BusArrivalFormatter.formatArrivalTime(currentEstimatedArrivalTime))
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
@@ -180,10 +154,12 @@ struct BusArrivalInfoView: View {
                 .font(.title3)
                 .foregroundColor(.white.opacity(0.8))
 
-            Text(formatRemainingStops(arrival.remainingStopCount ?? 0))
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundColor(.white.opacity(0.8))
+            if let arrival = routeWithArrival.arrival {
+                Text(BusArrivalFormatter.formatRemainingStops(arrival.remainingStopCount ?? 0))
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white.opacity(0.8))
+            }
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(generateArrivalLabel()))
@@ -191,44 +167,14 @@ struct BusArrivalInfoView: View {
     }
 
     private func generateArrivalLabel() -> String {
-        let routeNum = String(
-            format: String(localized: "busArrival.a11y.format.routeNumber"),
-            busRoute.routeNumber
+        guard let arrival = routeWithArrival.arrival else {
+            return "\(routeWithArrival.route.routeNumber)번 버스 도착 정보 없음"
+        }
+        return BusArrivalFormatter.generateArrivalLabel(
+            arrival: arrival,
+            busRoute: routeWithArrival.route,
+            currentEstimatedArrivalTime: currentEstimatedArrivalTime
         )
-        let formattedArrivalTime = formatArrivalTime(currentEstimatedArrivalTime)
-        let formattedStops = formatRemainingStops(arrival.remainingStopCount ?? 0)
-
-        let status = (busUrgencyStatus == .arrived)
-            ? String(localized: "busArrival.a11y.format.arrived")
-            : String(localized: "busArrival.a11y.format.arriving")
-
-        return "\(routeNum), \(formattedArrivalTime) \(status), \(formattedStops)"
-    }
-
-    private func formatRemainingStops(_ remainingStops: Int) -> String {
-        if remainingStops > 1 {
-            String(
-                format: String(localized: "busArrival.a11y.format.stopsAway"),
-                String(remainingStops)
-            )
-        } else {
-            String(localized: "busArrival.a11y.format.previousStop")
-        }
-    }
-
-    private func formatArrivalTime(_ seconds: Int?) -> String {
-        guard let seconds else { return String(localized: "busArrival.a11y.format.noInfo") }
-        let minutes = seconds / 60
-        let remainingSeconds = seconds % 60
-        if minutes >= 1 {
-            return String(
-                format: String(localized: "busArrival.a11y.format.minutesSeconds"),
-                String(minutes), String(remainingSeconds)
-            )
-        }
-
-        return String(localized: "busArrival.a11y.format.soon")
-        // return String(format: String(localized: L10n.BusArrival.A11y.Format.seconds), String(remainingSeconds))
     }
 }
 
