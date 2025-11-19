@@ -61,10 +61,10 @@ struct BusArrivalView: View {
                     .frame(maxWidth: .infinity)
                     .background(Color.black)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 10)
+                        RoundedRectangle(cornerRadius: 99)
                             .stroke(Color(.primarynormal), lineWidth: 2)
                     )
-                    .cornerRadius(10)
+                    .cornerRadius(99)
                 }
                 // ViewModel 상태에 따라 비활성화
                 .disabled(!viewModel.isBusVisionButtonEnabled)
