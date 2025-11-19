@@ -9,6 +9,8 @@ struct HomeView: View {
 
     @StateObject private var permissionManager = PermissionManager()
     @State private var isSheetPresented = false
+    @State private var busNumberInput: String = ""
+    @State private var isBusStopSelectionPresented = false
 
     private var hasRequestedPermissions: Bool {
         UserDefaults.standard.bool(forKey: "hasRequestedPermissions")
@@ -44,19 +46,21 @@ struct HomeView: View {
                 .padding(.horizontal)
 
                 ZStack {
-                    Button {
-                        router.push(.busRouteSearch(recognizedText: ""))
-                    } label: {
-                        HStack {
-                            Text(L10n.Home.Stt.askBusNumber)
-                                .font(.body)
-                                .foregroundColor(.white)
-
-                            Spacer()
-                        }
-                    }
+                    TextField(
+                        "",
+                        text: $busNumberInput,
+                        prompt: Text(L10n.Home.Stt.askBusNumber).foregroundColor(.white.opacity(0.6))
+                    )
+                    .font(.body)
+                    .foregroundColor(.white)
                     .padding(.leading, 25)
                     .padding(.vertical, 20)
+                    .onSubmit {
+                        if !busNumberInput.isEmpty {
+                            router.push(.busRouteSearch(recognizedText: busNumberInput))
+                            busNumberInput = ""
+                        }
+                    }
 
                     HStack {
                         Spacer()
@@ -129,6 +133,19 @@ struct HomeView: View {
             )
             .interactiveDismissDisabled(true)
         }
+        .sheet(isPresented: $isBusStopSelectionPresented) { // 추가
+            BusStopSelectionView(
+                currentBusStop: viewModel.nearestBusStop,
+                onBusStopSelected: { selectedStop in
+                    viewModel.nearestBusStop = selectedStop
+                    isBusStopSelectionPresented = false
+                },
+                onRefresh: {
+                    isBusStopSelectionPresented = false // Sheet 닫기
+                    viewModel.fetchNearestStop() // GPS 갱신 및 정류장 재검색
+                }
+            )
+        }
         .onChange(of: viewModel.isLoading) { _, isLoading in
             // isLoading이 true로 바뀌는 시점에 VoiceOver로 로딩 상태를 안내한다.
             // TODO:
@@ -151,26 +168,50 @@ struct HomeView: View {
                 .padding(.horizontal)
                 .accessibilityLabel(Text(L10n.Home.A11y.Announcement.loading))
         } else if let stop = viewModel.nearestBusStop {
-            HStack {
-                (Text(L10n.Home.Stt.currentNearbyStopPrefix) +
-                    Text(stop.name)
-                    .foregroundColor(Color(.primarynormal))
-                    .fontWeight(.bold) +
-                    Text(L10n.Common.Ui.suffixIs)
-                )
-                .font(.title3)
-                .fontWeight(.semibold)
-                .multilineTextAlignment(.leading)
-                .foregroundColor(.white)
-                .lineSpacing(8)
+            ZStack {
+                HStack {
+                    (Text(L10n.Home.Stt.currentNearbyStopPrefix) +
+                        Text(stop.name)
+                        .foregroundColor(Color(.primarynormal))
+                        .fontWeight(.bold) +
+                        Text(L10n.Common.Ui.suffixIs)
+                    )
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .multilineTextAlignment(.leading)
+                    .foregroundColor(.white)
+                    .lineSpacing(8)
 
-                Spacer()
+                    Spacer()
+                }
+
+                HStack {
+                    Spacer()
+
+                    Button {
+                        isBusStopSelectionPresented = true
+                    } label: {
+                        Text("변경")
+                            .font(.body)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                    }
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 20)
+                    .background(Color(red: 0.1098, green: 0.1176, blue: 0.1490))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 99)
+                            .stroke(.white.opacity(0.4), lineWidth: 2)
+                    )
+                    .cornerRadius(99)
+                }
             }
             .padding()
             .frame(maxWidth: .infinity, minHeight: 60)
-            .background(Color(red: 0x19 / 255, green: 0x1A / 255, blue: 0x1F / 255))
+            .background(Color(red: 0.0784, green: 0.0823, blue: 0.1059))
             .cornerRadius(12)
             .padding(.horizontal)
+
         } else {
             VStack(spacing: 10) {
                 HStack {
