@@ -405,4 +405,9 @@ enum L10n {
             static let profilePangyo = key("test.ui.profile.pangyo")
         }
     }
+
+    enum K {
+        /// "버스온다"
+        static let appName = key("k.appName")
+    }
 }
