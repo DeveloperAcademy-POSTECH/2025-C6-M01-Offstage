@@ -10,6 +10,7 @@ struct HomeView: View {
     @StateObject private var permissionManager = PermissionManager()
     @State private var isSheetPresented = false
     @State private var busNumberInput: String = ""
+    @State private var isBusStopSelectionPresented = false
 
     private var hasRequestedPermissions: Bool {
         UserDefaults.standard.bool(forKey: "hasRequestedPermissions")
@@ -132,6 +133,15 @@ struct HomeView: View {
             )
             .interactiveDismissDisabled(true)
         }
+        .sheet(isPresented: $isBusStopSelectionPresented) { // 추가
+            BusStopSelectionView(
+                currentBusStop: viewModel.nearestBusStop,
+                onBusStopSelected: { selectedStop in
+                    viewModel.nearestBusStop = selectedStop
+                    isBusStopSelectionPresented = false
+                }
+            )
+        }
         .onChange(of: viewModel.isLoading) { _, isLoading in
             // isLoading이 true로 바뀌는 시점에 VoiceOver로 로딩 상태를 안내한다.
             // TODO:
@@ -174,7 +184,9 @@ struct HomeView: View {
                 HStack {
                     Spacer()
 
-                    Button {} label: {
+                    Button {
+                        isBusStopSelectionPresented = true
+                    } label: {
                         ZStack {
                             Circle()
                                 .stroke(style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
