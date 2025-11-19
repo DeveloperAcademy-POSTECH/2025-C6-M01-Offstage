@@ -1,5 +1,5 @@
-import SwiftUI
 import BusAPI
+import SwiftUI
 
 struct BusStopSelectionView: View {
     let currentBusStop: BusStop?
