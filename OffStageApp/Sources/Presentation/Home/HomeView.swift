@@ -187,21 +187,24 @@ struct HomeView: View {
                     Button {
                         isBusStopSelectionPresented = true
                     } label: {
-                        ZStack {
-                            Circle()
-                                .stroke(style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
-                                .frame(width: 24, height: 24)
-                                .foregroundColor(.white)
-                                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 0)
-
-                            Image(systemName: "pencil")
-                        }
+                        Text("변경")
+                            .font(.body)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
                     }
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 20)
+                    .background(Color(red: 0.1098, green: 0.1176, blue: 0.1490))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 99)
+                            .stroke(.white, lineWidth: 2)
+                    )
+                    .cornerRadius(99)
                 }
             }
             .padding()
             .frame(maxWidth: .infinity, minHeight: 60)
-            .background(Color(red: 0x19 / 255, green: 0x1A / 255, blue: 0x1F / 255))
+            .background(Color(red: 0.0784, green: 0.0823, blue: 0.1059))
             .cornerRadius(12)
             .padding(.horizontal)
 
