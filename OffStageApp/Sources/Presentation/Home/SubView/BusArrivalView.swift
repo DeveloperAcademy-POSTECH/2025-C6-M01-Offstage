@@ -101,47 +101,11 @@ struct BusArrivalView: View {
         currentEstimatedArrivalTime: Int?,
         busUrgencyStatus: BusUrgencyStatus
     ) -> String {
-        let routeNum = String(
-            format: String(localized: "busArrival.a11y.format.routeNumber"),
-            busRoute.routeNumber
-        )
-        let formattedArrivalTime = formatArrivalTime(currentEstimatedArrivalTime, busUrgencyStatus: busUrgencyStatus)
-        let formattedStops = formatRemainingStops(arrival.remainingStopCount ?? 0)
-
-        let status = (busUrgencyStatus == .arrived)
-            ? String(localized: "busArrival.a11y.format.arrived")
-            : String(localized: "busArrival.a11y.format.arriving")
-
-        return "\(routeNum), \(formattedArrivalTime) \(status), \(formattedStops)"
-    }
-
-    private func formatRemainingStops(_ remainingStops: Int) -> String {
-        if remainingStops > 1 {
-            String(
-                format: String(localized: "busArrival.a11y.format.stopsAway"),
-                String(remainingStops)
-            )
-        } else {
-            String(localized: "busArrival.a11y.format.previousStop")
-        }
-    }
-
-    private func formatArrivalTime(_ seconds: Int?, busUrgencyStatus: BusUrgencyStatus) -> String {
-        if busUrgencyStatus == .arrived {
-            return String(localized: "busArrival.a11y.format.soon")
-        }
-        guard let seconds else { return String(localized: "busArrival.a11y.format.noInfo") }
-        let minutes = seconds / 60
-        let remainingSeconds = seconds % 60
-        if minutes >= 1 {
-            return String(
-                format: String(localized: "busArrival.a11y.format.minutesSeconds"),
-                String(minutes), String(remainingSeconds)
-            )
-        }
-        return String(
-            format: String(localized: "busArrival.a11y.format.seconds"),
-            String(remainingSeconds)
+        BusArrivalFormatter.generateArrivalLabel(
+            arrival: arrival,
+            busRoute: busRoute,
+            currentEstimatedArrivalTime: currentEstimatedArrivalTime,
+            busUrgencyStatus: busUrgencyStatus
         )
     }
 }
@@ -171,7 +135,7 @@ struct BusArrivalInfoView: View {
             .padding(.top, 5)
             .padding(.bottom, 8)
             // Use mutable time
-            Text(formatArrivalTime(currentEstimatedArrivalTime))
+            Text(BusArrivalFormatter.formatArrivalTime(currentEstimatedArrivalTime))
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
@@ -180,7 +144,7 @@ struct BusArrivalInfoView: View {
                 .font(.title3)
                 .foregroundColor(.white.opacity(0.8))
 
-            Text(formatRemainingStops(arrival.remainingStopCount ?? 0))
+            Text(BusArrivalFormatter.formatRemainingStops(arrival.remainingStopCount ?? 0))
                 .font(.title3)
                 .fontWeight(.bold)
                 .foregroundColor(.white.opacity(0.8))
@@ -191,44 +155,12 @@ struct BusArrivalInfoView: View {
     }
 
     private func generateArrivalLabel() -> String {
-        let routeNum = String(
-            format: String(localized: "busArrival.a11y.format.routeNumber"),
-            busRoute.routeNumber
+        BusArrivalFormatter.generateArrivalLabel(
+            arrival: arrival,
+            busRoute: busRoute,
+            currentEstimatedArrivalTime: currentEstimatedArrivalTime,
+            busUrgencyStatus: busUrgencyStatus
         )
-        let formattedArrivalTime = formatArrivalTime(currentEstimatedArrivalTime)
-        let formattedStops = formatRemainingStops(arrival.remainingStopCount ?? 0)
-
-        let status = (busUrgencyStatus == .arrived)
-            ? String(localized: "busArrival.a11y.format.arrived")
-            : String(localized: "busArrival.a11y.format.arriving")
-
-        return "\(routeNum), \(formattedArrivalTime) \(status), \(formattedStops)"
-    }
-
-    private func formatRemainingStops(_ remainingStops: Int) -> String {
-        if remainingStops > 1 {
-            String(
-                format: String(localized: "busArrival.a11y.format.stopsAway"),
-                String(remainingStops)
-            )
-        } else {
-            String(localized: "busArrival.a11y.format.previousStop")
-        }
-    }
-
-    private func formatArrivalTime(_ seconds: Int?) -> String {
-        guard let seconds else { return String(localized: "busArrival.a11y.format.noInfo") }
-        let minutes = seconds / 60
-        let remainingSeconds = seconds % 60
-        if minutes >= 1 {
-            return String(
-                format: String(localized: "busArrival.a11y.format.minutesSeconds"),
-                String(minutes), String(remainingSeconds)
-            )
-        }
-
-        return String(localized: "busArrival.a11y.format.soon")
-        // return String(format: String(localized: L10n.BusArrival.A11y.Format.seconds), String(remainingSeconds))
     }
 }
 

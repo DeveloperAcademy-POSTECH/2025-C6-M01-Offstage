@@ -3,7 +3,7 @@ import SwiftUI
 
 enum LoadingState {
     case loading
-    case loaded([BusRoute])
+    case loaded([BusRouteWithArrival])
     case empty
     case error(String)
 }
@@ -104,7 +104,7 @@ struct BusRouteSearchView: View {
     }
 
     @ViewBuilder
-    private func busRouteListContent(routes: [BusRoute]) -> some View {
+    private func busRouteListContent(routes: [BusRouteWithArrival]) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("버스 도착 정보")
                 .font(.title2)
@@ -120,8 +120,8 @@ struct BusRouteSearchView: View {
 
             ScrollView {
                 VStack(spacing: 0) {
-                    ForEach(routes, id: \.id) { route in
-                        busRouteRow(route: route)
+                    ForEach(routes, id: \.id) { routeWithArrival in
+                        busRouteRow(routeWithArrival: routeWithArrival)
                         Divider()
                             .background(Color.gray.opacity(0.3))
                     }
@@ -131,10 +131,10 @@ struct BusRouteSearchView: View {
     }
 
     @ViewBuilder
-    private func busRouteRow(route: BusRoute) -> some View {
+    private func busRouteRow(routeWithArrival: BusRouteWithArrival) -> some View {
         Button(action: {
-            print("Selected bus route: \(route.routeNumber)")
-            dismiss()
+            print("Selected bus route: \(routeWithArrival.route.routeNumber)")
+            router.push(.busArrival(busStop: viewModel.busStop, busRoute: routeWithArrival.route))
         }) {
             HStack(alignment: .top, spacing: 16) {
                 Image(systemName: "bus.fill")
@@ -142,14 +142,23 @@ struct BusRouteSearchView: View {
                     .foregroundColor(.white)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(route.routeNumber)
+                    Text(routeWithArrival.route.routeNumber)
                         .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
 
-                    Text("도착 정보 로딩 중...")
+                    if let arrival = routeWithArrival.arrival {
+                        Text(BusArrivalFormatter.formatSimpleArrivalInfo(
+                            remainingStops: arrival.remainingStopCount,
+                            arrivalTime: arrival.estimatedArrivalTime
+                        ))
                         .font(.body)
-                        .foregroundColor(.yellow)
+                        .foregroundColor(Color(.primarynormal))
+                    } else {
+                        Text("도착 예정 정보 없음")
+                            .font(.body)
+                            .foregroundColor(.gray)
+                    }
                 }
 
                 Spacer()

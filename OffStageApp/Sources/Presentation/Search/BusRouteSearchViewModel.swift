@@ -2,14 +2,26 @@ import BusAPI
 import CoreLocation
 import Foundation
 
+struct BusRouteWithArrival: Identifiable {
+    let id: String
+    let route: BusRoute
+    let arrival: BusArrival?
+
+    init(route: BusRoute, arrival: BusArrival?) {
+        id = route.id
+        self.route = route
+        self.arrival = arrival
+    }
+}
+
 @MainActor
 final class BusRouteSearchViewModel: ObservableObject {
-    @Published var busRoutes: [BusRoute] = []
+    @Published var busRoutes: [BusRouteWithArrival] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
 
     private let busRepository = MainBusRepository()
-    private let busStop: BusStop
+    let busStop: BusStop
     let recognizedText: String
 
     init(busStop: BusStop, recognizedText: String) {
@@ -26,11 +38,23 @@ final class BusRouteSearchViewModel: ObservableObject {
                     latitude: busStop.latitude,
                     longitude: busStop.longitude
                 ))
+
                 let routes = try await busRepository.fetchRoutesPassingThroughStop(
                     cityCode: cityCodeString,
                     nodeId: busStop.nodeId
                 )
-                busRoutes = routes
+
+                let arrivals = try await busRepository.fetchStopArrivals(
+                    cityCode: cityCodeString,
+                    nodeId: busStop.nodeId
+                )
+
+                busRoutes = routes.map { route in
+                    let matchingArrival = arrivals.first { arrival in
+                        arrival.routeId == route.routeId
+                    }
+                    return BusRouteWithArrival(route: route, arrival: matchingArrival)
+                }
             } catch {
                 print("Error fetching bus routes: \(error)")
                 errorMessage = error.localizedDescription
