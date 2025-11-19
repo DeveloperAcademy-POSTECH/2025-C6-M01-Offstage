@@ -42,28 +42,39 @@ struct BusStopSelectionView: View {
 
     /// 커스텀 헤더 - 타이틀과 닫기 버튼
     private func headerView() -> some View {
-        ZStack {
-            Text("정류장 변경")
-                .font(.headline)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .multilineTextAlignment(.center)
+        VStack {
+            ZStack {
+                Text("정류장 변경")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
 
-            HStack {
-                Spacer()
+                HStack {
+                    Spacer()
 
-                Button {
-                    dismiss() // Sheet 닫기
-                } label: {
-                    Image(systemName: "xmark")
-                        .foregroundColor(.white)
-                        .frame(width: 44, height: 44)
+                    Button {
+                        dismiss() // Sheet 닫기
+                    } label: {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.white)
+                            .frame(width: 44, height: 44)
+                    }
                 }
             }
+            .padding(.horizontal)
+            .padding(.vertical, 12)
+            .background(Color(red: 0x14 / 255, green: 0x15 / 255, blue: 0x1B / 255))
+
+            HStack {
+                Text("주변 정류장")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                Spacer()
+            }
+            .padding()
+            Divider()
         }
-        .padding(.horizontal)
-        .padding(.vertical, 12)
-        .background(Color(red: 0x14 / 255, green: 0x15 / 255, blue: 0x1B / 255))
     }
 
     // MARK: - Content View
@@ -156,7 +167,8 @@ struct BusStopSelectionView: View {
                 } label: {
                     stopRow(stopWithDistance: stopWithDistance) // ← 파라미터 변경
                 }
-                .listRowBackground(Color(red: 0x19 / 255, green: 0x1A / 255, blue: 0x1F / 255))
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color(red: 0x14 / 255, green: 0x15 / 255, blue: 0x1B / 255))
             }
         }
         .listStyle(.plain)
@@ -167,23 +179,41 @@ struct BusStopSelectionView: View {
 
     /// 각 정류장 행의 UI
     private func stopRow(stopWithDistance: BusStopSelectionViewModel.StopWithDistance) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                // 정류장 이름
-                Text(stopWithDistance.stop.name)
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
+        ZStack {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) { // spacing 추가
+                    // 정류장 이름
+                    Text(stopWithDistance.stop.name)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(.bottom, 8)
 
-                // 거리 표시
-                Text(formatDistance(stopWithDistance.distance))
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.6))
+                    // 정류장 번호 추가 (옵셔널 처리)
+                    if let number = stopWithDistance.stop.number {
+                        Text(number)
+                            .font(.callout)
+                            .fontWeight(.bold)
+                            .foregroundColor(.gray)
+                    }
+                }
+                Spacer()
             }
 
-            Spacer()
+            HStack {
+                Spacer()
+                // 거리 표시
+                Text(formatDistance(stopWithDistance.distance))
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(Color(.primarynormal))
+                    .padding(.trailing)
+            }
         }
-        .padding(.vertical, 8)
+        .padding()
+        .overlay(alignment: .bottom) {
+            Divider()
+        }
     }
 
     // 거리 포맷 함수 추가
