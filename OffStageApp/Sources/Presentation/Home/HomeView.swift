@@ -45,7 +45,9 @@ struct HomeView: View {
 
                 ZStack {
                     Button {
-                        router.push(.busRouteSearch(recognizedText: ""))
+                        if let nearestStop = viewModel.nearestBusStop {
+                            router.push(.busRouteSearch(busStop: nearestStop, recognizedText: ""))
+                        }
                     } label: {
                         HStack {
                             Text(L10n.Home.Stt.askBusNumber)
@@ -115,10 +117,12 @@ struct HomeView: View {
                         print("Error: Nearest bus stop not available for navigation.")
                     }
                 },
-                onTextRecognized: { recognizedText in // 추가
+                onTextRecognized: { recognizedText in
                     print("STT 완료: \(recognizedText)")
-                    isSheetPresented = false // Sheet dismiss
-                    router.push(.busRouteSearch(recognizedText: recognizedText)) // BusRouteSearchView로 이동
+                    isSheetPresented = false
+                    if let nearestStop = viewModel.nearestBusStop {
+                        router.push(.busRouteSearch(busStop: nearestStop, recognizedText: recognizedText))
+                    }
                 }
             )
         }
