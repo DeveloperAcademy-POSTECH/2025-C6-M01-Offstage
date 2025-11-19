@@ -139,6 +139,10 @@ struct HomeView: View {
                 onBusStopSelected: { selectedStop in
                     viewModel.nearestBusStop = selectedStop
                     isBusStopSelectionPresented = false
+                },
+                onRefresh: {
+                    isBusStopSelectionPresented = false // Sheet 닫기
+                    viewModel.fetchNearestStop() // GPS 갱신 및 정류장 재검색
                 }
             )
         }
@@ -197,7 +201,7 @@ struct HomeView: View {
                     .background(Color(red: 0.1098, green: 0.1176, blue: 0.1490))
                     .overlay(
                         RoundedRectangle(cornerRadius: 99)
-                            .stroke(.white, lineWidth: 2)
+                            .stroke(.white.opacity(0.4), lineWidth: 2)
                     )
                     .cornerRadius(99)
                 }

@@ -10,6 +10,9 @@ struct BusStopSelectionView: View {
     /// 정류장 선택 시 호출되는 콜백 함수
     let onBusStopSelected: (BusStop) -> Void
 
+    /// GPS 갱신을 위한 콜백
+    let onRefresh: (() -> Void)?
+
     /// ViewModel - 근처 정류장 데이터를 관리
     @StateObject private var viewModel = BusStopSelectionViewModel()
 
@@ -75,6 +78,27 @@ struct BusStopSelectionView: View {
             .padding()
             Divider()
         }
+    }
+
+    // MARK: - Header View
+
+    private func gpsButtonView() -> some View {
+        Button {
+            onRefresh?() // 콜백 호출 (dismiss + GPS 갱신)
+        } label: {
+            Text("현재 위치로 찾기")
+                .font(.body)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 20)
+        .background(Color(red: 0.1098, green: 0.1176, blue: 0.1490))
+        .overlay(
+            RoundedRectangle(cornerRadius: 99)
+                .stroke(.white, lineWidth: 2)
+        )
+        .cornerRadius(99)
     }
 
     // MARK: - Content View
@@ -147,12 +171,12 @@ struct BusStopSelectionView: View {
     /// 근처 정류장이 없을 때 UI
     private func emptyView() -> some View {
         VStack {
-            Spacer()
-            Text("근처에 정류장이 없습니다")
-                .font(.body)
-                .foregroundColor(.white)
+            Text("주변 500m 이내에 정류장이 없어요.")
+                .font(.title3)
+                .foregroundColor(.white.opacity(0.4))
             Spacer()
         }
+        .padding(.top, 50)
     }
 
     // MARK: - Stop List View
@@ -169,7 +193,16 @@ struct BusStopSelectionView: View {
                 }
                 .listRowInsets(EdgeInsets())
                 .listRowBackground(Color(red: 0x14 / 255, green: 0x15 / 255, blue: 0x1B / 255))
+                .listRowSeparator(.hidden)
             }
+            HStack {
+                Spacer()
+                gpsButtonView()
+                Spacer()
+            }
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color(red: 0x14 / 255, green: 0x15 / 255, blue: 0x1B / 255))
+            .padding(.top, 16)
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
