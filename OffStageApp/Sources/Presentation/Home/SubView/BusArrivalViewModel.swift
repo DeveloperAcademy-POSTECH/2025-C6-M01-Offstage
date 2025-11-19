@@ -8,7 +8,7 @@ import Foundation
 final class BusArrivalViewModel: ObservableObject {
     // MARK: - Published 속성
 
-    @Published var busArrivalInfo: BusArrival?
+    @Published var routeWithArrival: BusRouteWithArrival?
     @Published var busLocationInfo: BusLocation?
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -22,7 +22,7 @@ final class BusArrivalViewModel: ObservableObject {
 
     @Published var currentEstimatedArrivalTime: Int?
 
-    @Published var busUrgencyStatus: BusUrgencyStatus = .notApplicable { // 버스 긴급도 상태
+    @Published var busUrgencyStatus: BusUrgencyStatus = .notApplicable {
         didSet {
             print("버스 긴급도 상태 변경: \(busUrgencyStatus.rawValue)")
             updateBusVisionButtonState()
@@ -42,11 +42,17 @@ final class BusArrivalViewModel: ObservableObject {
     init(
         busStop: BusStop,
         busRoute: BusRoute,
+        initialArrival: BusArrival? = nil,
         busArrivalOperations: BusArrivalOperations = BusArrivalOperations()
     ) {
         self.busStop = busStop
         self.busRoute = busRoute
         self.busArrivalOperations = busArrivalOperations
+
+        if let arrival = initialArrival {
+            routeWithArrival = BusRouteWithArrival(route: busRoute, arrival: arrival)
+            currentEstimatedArrivalTime = arrival.estimatedArrivalTime
+        }
     }
 
     deinit {
@@ -86,13 +92,13 @@ final class BusArrivalViewModel: ObservableObject {
         isLoading = false
 
         // 이전 상태를 초기화합니다.
-        busArrivalInfo = nil
+        routeWithArrival = nil
         busLocationInfo = nil
 
         switch update {
         case let .arrival(arrival, status):
             errorMessage = nil
-            busArrivalInfo = arrival
+            routeWithArrival = BusRouteWithArrival(route: busRoute, arrival: arrival)
             busUrgencyStatus = status
             currentEstimatedArrivalTime = arrival.estimatedArrivalTime
             startCountdownTimer()

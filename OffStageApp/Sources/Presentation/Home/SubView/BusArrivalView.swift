@@ -4,12 +4,19 @@ import SwiftUI
 
 struct BusArrivalView: View {
     @Environment(\.dismiss) private var dismiss
-    // 라우터 주입
     @EnvironmentObject var router: Router<AppRoute>
     @StateObject private var viewModel: BusArrivalViewModel
 
     init(busStop: BusStop, busRoute: BusRoute) {
         _viewModel = StateObject(wrappedValue: BusArrivalViewModel(busStop: busStop, busRoute: busRoute))
+    }
+
+    init(busStop: BusStop, routeWithArrival: BusRouteWithArrival) {
+        _viewModel = StateObject(wrappedValue: BusArrivalViewModel(
+            busStop: busStop,
+            busRoute: routeWithArrival.route,
+            initialArrival: routeWithArrival.arrival
+        ))
     }
 
     var body: some View {
@@ -23,10 +30,9 @@ struct BusArrivalView: View {
                     .font(.title2)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity, alignment: .center)
-            } else if let arrival = viewModel.busArrivalInfo {
+            } else if let routeWithArrival = viewModel.routeWithArrival {
                 BusArrivalInfoView(
-                    arrival: arrival,
-                    busRoute: viewModel.busRoute,
+                    routeWithArrival: routeWithArrival,
                     currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime,
                     busUrgencyStatus: viewModel.busUrgencyStatus
                 )
@@ -79,10 +85,10 @@ struct BusArrivalView: View {
                 // 뷰가 사라질 때 타이머와 새로고침을 중지합니다.
                 viewModel.stopMonitoring()
             }
-            .onChange(of: viewModel.busArrivalInfo) { _, newArrivalInfo in
-                if let newArrivalInfo {
+            .onChange(of: viewModel.routeWithArrival) { _, newRouteWithArrival in
+                if let arrival = newRouteWithArrival?.arrival {
                     let announcement = generateAnnouncementLabel(
-                        arrival: newArrivalInfo,
+                        arrival: arrival,
                         busRoute: viewModel.busRoute,
                         currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime,
                         busUrgencyStatus: viewModel.busUrgencyStatus
@@ -112,8 +118,7 @@ struct BusArrivalView: View {
 
 // 버스 도착 정보 헬퍼 뷰
 struct BusArrivalInfoView: View {
-    let arrival: BusArrival
-    let busRoute: BusRoute
+    let routeWithArrival: BusRouteWithArrival
     let currentEstimatedArrivalTime: Int?
     let busUrgencyStatus: BusUrgencyStatus
 
@@ -122,8 +127,7 @@ struct BusArrivalInfoView: View {
             HStack {
                 Image(systemName: "bus.fill")
                     .foregroundColor(.white)
-                // busRoute.routeNumber 사용
-                Text(busRoute.routeNumber)
+                Text(routeWithArrival.route.routeNumber)
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
@@ -134,7 +138,7 @@ struct BusArrivalInfoView: View {
             .cornerRadius(12)
             .padding(.top, 5)
             .padding(.bottom, 8)
-            // Use mutable time
+
             Text(BusArrivalFormatter.formatArrivalTime(currentEstimatedArrivalTime))
                 .font(.largeTitle)
                 .fontWeight(.bold)
@@ -144,10 +148,12 @@ struct BusArrivalInfoView: View {
                 .font(.title3)
                 .foregroundColor(.white.opacity(0.8))
 
-            Text(BusArrivalFormatter.formatRemainingStops(arrival.remainingStopCount ?? 0))
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundColor(.white.opacity(0.8))
+            if let arrival = routeWithArrival.arrival {
+                Text(BusArrivalFormatter.formatRemainingStops(arrival.remainingStopCount ?? 0))
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white.opacity(0.8))
+            }
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(generateArrivalLabel()))
@@ -155,9 +161,12 @@ struct BusArrivalInfoView: View {
     }
 
     private func generateArrivalLabel() -> String {
-        BusArrivalFormatter.generateArrivalLabel(
+        guard let arrival = routeWithArrival.arrival else {
+            return "\(routeWithArrival.route.routeNumber)번 버스 도착 정보 없음"
+        }
+        return BusArrivalFormatter.generateArrivalLabel(
             arrival: arrival,
-            busRoute: busRoute,
+            busRoute: routeWithArrival.route,
             currentEstimatedArrivalTime: currentEstimatedArrivalTime,
             busUrgencyStatus: busUrgencyStatus
         )

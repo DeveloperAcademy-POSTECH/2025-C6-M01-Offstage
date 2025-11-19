@@ -2,18 +2,6 @@ import BusAPI
 import CoreLocation
 import Foundation
 
-struct BusRouteWithArrival: Identifiable {
-    let id: String
-    let route: BusRoute
-    let arrival: BusArrival?
-
-    init(route: BusRoute, arrival: BusArrival?) {
-        id = route.id
-        self.route = route
-        self.arrival = arrival
-    }
-}
-
 @MainActor
 final class BusRouteSearchViewModel: ObservableObject {
     @Published var busRoutes: [BusRouteWithArrival] = []
