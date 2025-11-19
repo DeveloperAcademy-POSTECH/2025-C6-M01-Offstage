@@ -1,30 +1,16 @@
 import BusAPI
 import SwiftUI
 
-// TODO: tts기반으로, busRoutes 목록 중 유사값 추측하는 모델 필요
 struct SheetView: View {
     @AccessibilityFocusState private var isListeningFocused: Bool
-    @AccessibilityFocusState private var isConfirmationFocused: Bool
     @Environment(\.dismiss) private var dismiss
     @State private var step: Int = 0
     @StateObject private var viewModel: SheetViewModel
-    let nearestBusStopFromHome: BusStop?
-    let busRoutes: [BusRoute] // New property
-    let onRouteSelected: (BusRoute) -> Void
 
-    init(
-        nearestBusStop: BusStop?,
-        busRoutes: [BusRoute], // New parameter
-        onRouteSelected: @escaping (BusRoute) -> Void,
-        onTextRecognized: @escaping (String) -> Void
-    ) {
+    init(onTextRecognized: @escaping (String) -> Void) {
         _viewModel = StateObject(wrappedValue: SheetViewModel(
-            busRoutes: busRoutes,
             onTextRecognized: onTextRecognized
         ))
-        nearestBusStopFromHome = nearestBusStop
-        self.busRoutes = busRoutes // Initialize
-        self.onRouteSelected = onRouteSelected
     }
 
     var body: some View {
@@ -45,21 +31,12 @@ struct SheetView: View {
 
                 Spacer()
 
-                // Content based on SheetState
-                switch viewModel.currentSheetState {
-                case .listening:
-                    listeningContent()
-                case let .confirmation(recognizedBusNumber):
-                    confirmationContent(recognizedBusNumber: recognizedBusNumber)
-                case let .busRouteList(routes):
-                    busRouteListContent(routes: routes)
-                }
+                listeningContent()
 
                 Spacer()
             }
         }
         .onAppear {
-            viewModel.currentBusStop = nearestBusStopFromHome // Set initially
             viewModel.startListeningProcess()
 
             step = 0
@@ -68,9 +45,6 @@ struct SheetView: View {
                     step = i
                 }
             }
-        }
-        .onChange(of: nearestBusStopFromHome) { newBusStop in
-            viewModel.currentBusStop = newBusStop // Update if HomeView's nearestBusStop changes
         }
         .onDisappear {
             viewModel.stopSpeaking()
@@ -136,98 +110,7 @@ struct SheetView: View {
                 }
             }
 
-            Spacer() // Add another spacer to balance the VStack
+            Spacer()
         }
-    }
-
-    // MARK: - Confirmation Content
-
-    @ViewBuilder
-    private func confirmationContent(recognizedBusNumber: String) -> some View {
-        VStack {
-            (Text(L10n.BusVision.Detection.confirmBusNumberPrefix) +
-                Text(recognizedBusNumber)
-                .foregroundColor(Color(.primarynormal))
-                .fontWeight(.bold) +
-                Text(L10n.BusVision.Detection.confirmBusNumber)
-            )
-            .font(.title)
-            .fontWeight(.bold)
-            .foregroundColor(.white)
-            .multilineTextAlignment(.center)
-            .padding(.bottom, 40)
-            .accessibilityFocused($isConfirmationFocused)
-            .onAppear {
-                isConfirmationFocused = true
-            }
-
-            VStack(spacing: 20) {
-                Button(action: {
-                    if let matchingRoute = busRoutes
-                        .first(where: { $0.routeNumber.removeParenthesesContent() == recognizedBusNumber })
-                    {
-                        onRouteSelected(matchingRoute)
-                        print("Confirmed and returned matching route: \(matchingRoute.routeNumber)")
-                    } else {
-                        // TODO: 일치하는 버스 노선이 없을 때 처리 필요
-                        print("No matching bus route found for recognized number: \(recognizedBusNumber)")
-                        dismiss()
-                    }
-                }) {
-                    Text(L10n.Common.Confirmation.yes)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 15)
-                                .stroke(Color.yellow, lineWidth: 2)
-                                .fill(Color.black.opacity(0.5))
-                        )
-                        .foregroundColor(.white)
-                }
-
-                Button(action: {
-                    viewModel.startListeningProcess()
-                }) {
-                    Text(L10n.BusVision.Detection.retry)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 15)
-                                .stroke(Color.cyan, lineWidth: 2)
-                                .fill(Color.black.opacity(0.5))
-                        )
-                        .foregroundColor(.white)
-                }
-
-                Button(action: {
-                    viewModel.showBusRouteList(routes: busRoutes)
-                }) {
-                    Text(L10n.BusVision.Detection.selectFromList)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 15)
-                                .stroke(Color.green, lineWidth: 2)
-                                .fill(Color.black.opacity(0.5))
-                        )
-                        .foregroundColor(.white)
-                }
-            }
-            .padding(.horizontal)
-            Spacer() // Add another spacer to balance the VStack
-        }
-    }
-
-    // MARK: - Bus Route List Content
-
-    @ViewBuilder
-    private func busRouteListContent(routes: [BusRoute]) -> some View {
-        BusRouteListView(busRoutes: routes, onRouteSelected: onRouteSelected) // Pass the closure
     }
 }

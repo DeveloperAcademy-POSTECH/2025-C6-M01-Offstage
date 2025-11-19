@@ -56,8 +56,11 @@ struct HomeView: View {
                     .padding(.leading, 25)
                     .padding(.vertical, 20)
                     .onSubmit {
-                        if !busNumberInput.isEmpty {
-                            router.push(.busRouteSearch(recognizedText: busNumberInput))
+                        if !busNumberInput.isEmpty, viewModel.nearestBusStop != nil {
+                            router.push(.busRouteSearch(
+                                busStop: viewModel.nearestBusStop!,
+                                recognizedText: busNumberInput
+                            ))
                             busNumberInput = ""
                         }
                     }
@@ -109,16 +112,6 @@ struct HomeView: View {
         .sheet(isPresented: $isSheetPresented) {
             SheetView(
                 nearestBusStop: viewModel.nearestBusStop,
-                busRoutes: viewModel.busRoutes,
-                onRouteSelected: { selectedRoute in
-                    print("HomeView received selected route: \(selectedRoute.routeNumber)")
-                    isSheetPresented = false // Dismiss the sheet
-                    if let nearestStop = viewModel.nearestBusStop {
-                        router.push(.busArrival(busStop: nearestStop, busRoute: selectedRoute))
-                    } else {
-                        print("Error: Nearest bus stop not available for navigation.")
-                    }
-                },
                 onTextRecognized: { recognizedText in
                     print("STT 완료: \(recognizedText)")
                     isSheetPresented = false
