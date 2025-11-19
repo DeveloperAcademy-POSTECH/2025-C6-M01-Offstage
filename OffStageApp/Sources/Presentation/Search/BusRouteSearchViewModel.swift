@@ -7,17 +7,26 @@ final class BusRouteSearchViewModel: ObservableObject {
     @Published var busRoutes: [BusRouteWithArrival] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
-    @Published var searchText: String = ""
+    @Published var isFiltered = false
+    @Published var recognizedText: String
 
     private let busRepository = MainBusRepository()
     let busStop: BusStop
-    let recognizedText: String
+
     private var refreshTask: Task<Void, Never>?
+    private(set) var allBusRoutes: [BusRouteWithArrival] = []
+
+    var allBusRoutesLoaded: Bool {
+        !allBusRoutes.isEmpty
+    }
 
     init(busStop: BusStop, recognizedText: String) {
         self.busStop = busStop
         self.recognizedText = recognizedText
-        searchText = recognizedText
+    }
+
+    func performSearch() {
+        filterBusRoutes()
     }
 
     deinit {
@@ -71,16 +80,30 @@ final class BusRouteSearchViewModel: ObservableObject {
                 nodeId: busStop.nodeId
             )
 
-            busRoutes = routes.map { route in
+            allBusRoutes = routes.map { route in
                 let matchingArrival = arrivals.first { arrival in
                     arrival.routeId == route.routeId
                 }
                 return BusRouteWithArrival(route: route, arrival: matchingArrival)
             }
+            filterBusRoutes()
         } catch {
             print("Error fetching bus routes: \(error)")
             errorMessage = error.localizedDescription
+            allBusRoutes = []
             busRoutes = []
+        }
+    }
+
+    private func filterBusRoutes() {
+        if recognizedText.isEmpty {
+            busRoutes = allBusRoutes
+            isFiltered = false
+        } else {
+            busRoutes = allBusRoutes.filter { routeWithArrival in
+                routeWithArrival.route.routeNumber.contains(recognizedText)
+            }
+            isFiltered = true
         }
     }
 
