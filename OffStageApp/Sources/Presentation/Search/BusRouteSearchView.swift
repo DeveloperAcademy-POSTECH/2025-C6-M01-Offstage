@@ -13,6 +13,7 @@ struct BusRouteSearchView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var router: Router<AppRoute>
     @AccessibilityFocusState private var isTitleFocused: Bool
+    @State private var isSheetPresented = false
 
     private var currentState: LoadingState {
         if viewModel.isLoading {
@@ -60,34 +61,32 @@ struct BusRouteSearchView: View {
         .onDisappear {
             viewModel.stopAutoRefresh()
         }
+        .sheet(isPresented: $isSheetPresented) {
+            SheetView(
+                onTextRecognized: { recognizedText in
+                    print("STT 완료: \(recognizedText)")
+                    isSheetPresented = false
+                    viewModel.searchText = recognizedText
+                    router.push(.busRouteSearch(busStop: viewModel.busStop, recognizedText: recognizedText))
+                }
+            )
+        }
     }
 
     private var searchBar: some View {
-        HStack {
-            if viewModel.recognizedText.isEmpty {
-                Text(L10n.Home.Stt.askBusNumber)
-                    .font(.title)
-                    .foregroundColor(.gray)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 24)
-            } else {
-                Text(viewModel.recognizedText)
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 24)
+        BusSearchBar(
+            text: $viewModel.searchText,
+            onSubmit: {
+                if !viewModel.searchText.isEmpty {
+                    router.push(.busRouteSearch(
+                        busStop: viewModel.busStop,
+                        recognizedText: viewModel.searchText
+                    ))
+                }
+            },
+            onMicTap: {
+                isSheetPresented = true
             }
-
-            Image(systemName: "mic.fill")
-                .font(.title2)
-                .foregroundColor(.white)
-                .padding(.trailing, 24)
-        }
-        .frame(height: 60)
-        .background(
-            RoundedRectangle(cornerRadius: 30)
-                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                .fill(Color(white: 0.15))
         )
         .padding(.horizontal)
         .padding(.bottom, 30)

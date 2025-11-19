@@ -7,6 +7,7 @@ final class BusRouteSearchViewModel: ObservableObject {
     @Published var busRoutes: [BusRouteWithArrival] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var searchText: String = ""
 
     private let busRepository = MainBusRepository()
     let busStop: BusStop
@@ -16,6 +17,7 @@ final class BusRouteSearchViewModel: ObservableObject {
     init(busStop: BusStop, recognizedText: String) {
         self.busStop = busStop
         self.recognizedText = recognizedText
+        searchText = recognizedText
     }
 
     deinit {
