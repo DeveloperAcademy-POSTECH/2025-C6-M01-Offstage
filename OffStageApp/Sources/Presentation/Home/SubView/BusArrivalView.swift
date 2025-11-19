@@ -2,6 +2,14 @@ import AVFoundation
 import BusAPI
 import SwiftUI
 
+enum BusArrivalViewState {
+    case loading
+    case error(String)
+    case arrival(BusRouteWithArrival, currentEstimatedTime: Int?)
+    case location(BusLocation)
+    case empty
+}
+
 struct BusArrivalView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var router: Router<AppRoute>
@@ -19,25 +27,44 @@ struct BusArrivalView: View {
         ))
     }
 
+    private var currentViewState: BusArrivalViewState {
+        if viewModel.isLoading {
+            .loading
+        } else if let errorMessage = viewModel.errorMessage {
+            .error(errorMessage)
+        } else if let routeWithArrival = viewModel.routeWithArrival {
+            .arrival(routeWithArrival, currentEstimatedTime: viewModel.currentEstimatedArrivalTime)
+        } else if let location = viewModel.busLocationInfo {
+            .location(location)
+        } else {
+            .empty
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            if viewModel.isLoading {
+            switch currentViewState {
+            case .loading:
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     .frame(maxWidth: .infinity, alignment: .center)
-            } else if let errorMessage = viewModel.errorMessage {
-                Text(errorMessage)
+            case let .error(message):
+                Text(message)
                     .font(.title2)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity, alignment: .center)
-            } else if let routeWithArrival = viewModel.routeWithArrival {
+            case let .arrival(routeWithArrival, currentEstimatedTime):
                 BusArrivalInfoView(
                     routeWithArrival: routeWithArrival,
-                    currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime,
-                    busUrgencyStatus: viewModel.busUrgencyStatus
+                    currentEstimatedArrivalTime: currentEstimatedTime
                 )
-            } else if let location = viewModel.busLocationInfo {
+            case let .location(location):
                 BusLocationInfoView(location: location, busRoute: viewModel.busRoute)
+            case .empty:
+                Text("버스 정보를 찾을 수 없습니다")
+                    .font(.title2)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
 
             Spacer()
@@ -49,7 +76,6 @@ struct BusArrivalView: View {
                     .multilineTextAlignment(.center)
                     .padding(.bottom, 5)
 
-                // Bus Vision Button
                 Button(action: {
                     router.push(.busVision(
                         busStop: viewModel.busStop,
@@ -72,10 +98,6 @@ struct BusArrivalView: View {
                     )
                     .cornerRadius(10)
                 }
-                // ViewModel 상태에 따라 비활성화
-                .disabled(!viewModel.isBusVisionButtonEnabled)
-                // 비활성화 상태에 대한 시각적 피드백
-                .opacity(viewModel.isBusVisionButtonEnabled ? 1.0 : 0.5)
             }
         }.padding()
             .onAppear {
@@ -87,11 +109,10 @@ struct BusArrivalView: View {
             }
             .onChange(of: viewModel.routeWithArrival) { _, newRouteWithArrival in
                 if let arrival = newRouteWithArrival?.arrival {
-                    let announcement = generateAnnouncementLabel(
+                    let announcement = BusArrivalFormatter.generateArrivalLabel(
                         arrival: arrival,
                         busRoute: viewModel.busRoute,
-                        currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime,
-                        busUrgencyStatus: viewModel.busUrgencyStatus
+                        currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime
                     )
                     /// TODO:
                     /// - api 호출 주기 짧게 만든 후, 테스트 필요
@@ -100,27 +121,12 @@ struct BusArrivalView: View {
                 }
             }
     }
-
-    private func generateAnnouncementLabel(
-        arrival: BusArrival,
-        busRoute: BusRoute,
-        currentEstimatedArrivalTime: Int?,
-        busUrgencyStatus: BusUrgencyStatus
-    ) -> String {
-        BusArrivalFormatter.generateArrivalLabel(
-            arrival: arrival,
-            busRoute: busRoute,
-            currentEstimatedArrivalTime: currentEstimatedArrivalTime,
-            busUrgencyStatus: busUrgencyStatus
-        )
-    }
 }
 
 // 버스 도착 정보 헬퍼 뷰
 struct BusArrivalInfoView: View {
     let routeWithArrival: BusRouteWithArrival
     let currentEstimatedArrivalTime: Int?
-    let busUrgencyStatus: BusUrgencyStatus
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -167,8 +173,7 @@ struct BusArrivalInfoView: View {
         return BusArrivalFormatter.generateArrivalLabel(
             arrival: arrival,
             busRoute: routeWithArrival.route,
-            currentEstimatedArrivalTime: currentEstimatedArrivalTime,
-            busUrgencyStatus: busUrgencyStatus
+            currentEstimatedArrivalTime: currentEstimatedArrivalTime
         )
     }
 }

@@ -55,7 +55,10 @@ struct BusRouteSearchView: View {
         }
         .background(Color.black)
         .onAppear {
-            viewModel.fetchBusRoutes()
+            viewModel.startAutoRefresh()
+        }
+        .onDisappear {
+            viewModel.stopAutoRefresh()
         }
     }
 

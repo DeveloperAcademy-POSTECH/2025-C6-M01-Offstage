@@ -2,10 +2,7 @@ import BusAPI
 import Foundation
 
 enum BusArrivalFormatter {
-    static func formatArrivalTime(_ seconds: Int?, busUrgencyStatus: BusUrgencyStatus? = nil) -> String {
-        if let urgencyStatus = busUrgencyStatus, urgencyStatus == .arrived {
-            return String(localized: "busArrival.a11y.format.soon")
-        }
+    static func formatArrivalTime(_ seconds: Int?) -> String {
         guard let seconds else { return String(localized: "busArrival.a11y.format.noInfo") }
         let minutes = seconds / 60
         let remainingSeconds = seconds % 60
@@ -33,19 +30,16 @@ enum BusArrivalFormatter {
     static func generateArrivalLabel(
         arrival: BusArrival,
         busRoute: BusRoute,
-        currentEstimatedArrivalTime: Int?,
-        busUrgencyStatus: BusUrgencyStatus
+        currentEstimatedArrivalTime: Int?
     ) -> String {
         let routeNum = String(
             format: String(localized: "busArrival.a11y.format.routeNumber"),
             busRoute.routeNumber
         )
-        let formattedArrivalTime = formatArrivalTime(currentEstimatedArrivalTime, busUrgencyStatus: busUrgencyStatus)
+        let formattedArrivalTime = formatArrivalTime(currentEstimatedArrivalTime)
         let formattedStops = formatRemainingStops(arrival.remainingStopCount ?? 0)
 
-        let status = (busUrgencyStatus == .arrived)
-            ? String(localized: "busArrival.a11y.format.arrived")
-            : String(localized: "busArrival.a11y.format.arriving")
+        let status = String(localized: "busArrival.a11y.format.arriving")
 
         return "\(routeNum), \(formattedArrivalTime) \(status), \(formattedStops)"
     }
