@@ -9,6 +9,7 @@ struct HomeView: View {
 
     @StateObject private var permissionManager = PermissionManager()
     @State private var isSheetPresented = false
+    @State private var busNumberInput: String = ""
 
     private var hasRequestedPermissions: Bool {
         UserDefaults.standard.bool(forKey: "hasRequestedPermissions")
@@ -44,19 +45,21 @@ struct HomeView: View {
                 .padding(.horizontal)
 
                 ZStack {
-                    Button {
-                        router.push(.busRouteSearch(recognizedText: ""))
-                    } label: {
-                        HStack {
-                            Text(L10n.Home.Stt.askBusNumber)
-                                .font(.body)
-                                .foregroundColor(.white)
-
-                            Spacer()
-                        }
-                    }
+                    TextField(
+                        "",
+                        text: $busNumberInput,
+                        prompt: Text(L10n.Home.Stt.askBusNumber).foregroundColor(.white.opacity(0.6))
+                    )
+                    .font(.body)
+                    .foregroundColor(.white)
                     .padding(.leading, 25)
                     .padding(.vertical, 20)
+                    .onSubmit {
+                        if !busNumberInput.isEmpty {
+                            router.push(.busRouteSearch(recognizedText: busNumberInput))
+                            busNumberInput = ""
+                        }
+                    }
 
                     HStack {
                         Spacer()
@@ -151,26 +154,45 @@ struct HomeView: View {
                 .padding(.horizontal)
                 .accessibilityLabel(Text(L10n.Home.A11y.Announcement.loading))
         } else if let stop = viewModel.nearestBusStop {
-            HStack {
-                (Text(L10n.Home.Stt.currentNearbyStopPrefix) +
-                    Text(stop.name)
-                    .foregroundColor(Color(.primarynormal))
-                    .fontWeight(.bold) +
-                    Text(L10n.Common.Ui.suffixIs)
-                )
-                .font(.title3)
-                .fontWeight(.semibold)
-                .multilineTextAlignment(.leading)
-                .foregroundColor(.white)
-                .lineSpacing(8)
+            ZStack {
+                HStack {
+                    (Text(L10n.Home.Stt.currentNearbyStopPrefix) +
+                        Text(stop.name)
+                        .foregroundColor(Color(.primarynormal))
+                        .fontWeight(.bold) +
+                        Text(L10n.Common.Ui.suffixIs)
+                    )
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .multilineTextAlignment(.leading)
+                    .foregroundColor(.white)
+                    .lineSpacing(8)
 
-                Spacer()
+                    Spacer()
+                }
+
+                HStack {
+                    Spacer()
+
+                    Button {} label: {
+                        ZStack {
+                            Circle()
+                                .stroke(style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+                                .frame(width: 24, height: 24)
+                                .foregroundColor(.white)
+                                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 0)
+
+                            Image(systemName: "pencil")
+                        }
+                    }
+                }
             }
             .padding()
             .frame(maxWidth: .infinity, minHeight: 60)
             .background(Color(red: 0x19 / 255, green: 0x1A / 255, blue: 0x1F / 255))
             .cornerRadius(12)
             .padding(.horizontal)
+
         } else {
             VStack(spacing: 10) {
                 HStack {
