@@ -37,7 +37,7 @@ class BusVisionViewModel: ObservableObject {
         startDetectingFeedback()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-            self?.ttsManager.speakNow(of: "버스 인식을 위해 카메라를 버스 진입 방향으로 비춰주세요")
+            self?.ttsManager.speakNow(of: "버스 인식을 위해 카메라를 어깨 위로 들어주세요.")
         }
     }
 
