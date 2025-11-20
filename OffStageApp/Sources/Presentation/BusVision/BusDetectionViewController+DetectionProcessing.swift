@@ -16,8 +16,9 @@ extension BusDetectionViewController {
             return
         }
 
+        drawingBoxesView?.drawBox(with: [])
         #if DEBUG_MODE
-            clearDebugBoxes()
+            tempStrokeBoxesView?.drawBox(with: [])
         #endif
 
         let highConfidencePredictions = predictions.filter { $0.confidence >= 0.8 }
@@ -93,9 +94,7 @@ extension BusDetectionViewController {
                 .mineDetected(routeNum: routeNumberToDetect)
             )
 
-            #if DEBUG_MODE
-                drawMyBus(with: myBusResult.prediction)
-            #endif
+            drawMyBus(with: myBusResult.prediction)
 
         } else if !ocrResults.isEmpty {
             // 버스는 감지됐지만 내 버스가 아님
@@ -109,25 +108,17 @@ extension BusDetectionViewController {
             drawJustBus(with: ocrResults, from: predictions)
         #endif
     }
+
+    /// 나의 버스인 경우 강조된 형태의 바운딩박스 그리기
+    func drawMyBus(with prediction: VNRecognizedObjectObservation) {
+        drawingBoxesView?.drawBox(with: [prediction])
+    }
 }
 
 // MARK: 디버그모드인 경우 활용할 바운딩박스 관련 로직
 
 #if DEBUG_MODE
     private extension BusDetectionViewController {
-        /// 바운딩박스 초기화 - 화면에서 지우기
-        func clearDebugBoxes() {
-            DispatchQueue.main.async {
-                self.drawingBoxesView?.drawBox(with: [])
-                self.tempStrokeBoxesView?.drawBox(with: [])
-            }
-        }
-
-        /// 나의 버스인 경우 강조된 형태의 바운딩박스 그리기
-        func drawMyBus(with prediction: VNRecognizedObjectObservation) {
-            drawingBoxesView?.drawBox(with: [prediction])
-        }
-
         /// 인지만 된 상태의 버스: 흰색 stroke 바운딩박스 그리기
         func drawJustBus(with ocrResults: [OCRResult], from predictions: [VNRecognizedObjectObservation]) {
             let myBusPredictions = ocrResults.filter(\.isMyBus).map(\.prediction)
