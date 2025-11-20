@@ -17,8 +17,8 @@ struct BusRouteSearchView: View {
     @StateObject private var viewModel: BusRouteSearchViewModel
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var router: Router<AppRoute>
-    @AccessibilityFocusState private var isTitleFocused: Bool
     @State private var isSheetPresented = false
+    @AccessibilityFocusState private var isSearchBarFocused: Bool
 
     private var currentState: LoadingState {
         if viewModel.isLoading {
@@ -74,6 +74,16 @@ struct BusRouteSearchView: View {
         .onDisappear {
             viewModel.stopAutoRefresh()
         }
+        .onChange(of: viewModel.allBusRoutes) { oldValue, newValue in
+            if !oldValue.isEmpty, !newValue.isEmpty {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    UIAccessibility.post(
+                        notification: .announcement,
+                        argument: String(localized: "busRouteSearch.a11y.announcement.dataRefreshed")
+                    )
+                }
+            }
+        }
         .sheet(isPresented: $isSheetPresented) {
             SheetView(
                 onTextRecognized: { recognizedText in
@@ -103,6 +113,11 @@ struct BusRouteSearchView: View {
         .padding(.horizontal)
         .padding(.top, 20)
         .padding(.bottom, 18)
+        .accessibilityFocused($isSearchBarFocused)
+        .task {
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            isSearchBarFocused = true
+        }
     }
 
     @ViewBuilder
@@ -115,28 +130,25 @@ struct BusRouteSearchView: View {
                 .font(.title2)
                 .foregroundColor(.white)
                 .padding(.top, 20)
+                .lineLimit(nil)
         }
     }
 
     @ViewBuilder
     private func busRouteListContent(routes: [BusRouteWithArrival], filterState: FilterState) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                titleText(for: filterState)
-                    .accessibilityAddTraits(.isHeader)
-                    .accessibilityFocused($isTitleFocused)
-                    .onAppear {
-                        isTitleFocused = true
-                    }
-                Spacer()
-            }
-            .background(Color(.backgroundstrong))
-
-            Divider()
-                .background(Color(.black500))
-
+        VStack {
+            Rectangle()
+                .fill(Color(.backgroundheavy))
+                .frame(maxWidth: .infinity)
+                .frame(height: 5)
             ScrollView {
-                VStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 0) {
+                    titleText(for: filterState)
+                        .background(Color(.backgroundstrong))
+                        .accessibilityAddTraits(.isHeader)
+                    Divider()
+                        .background(Color(.black500))
+
                     ForEach(routes, id: \.id) { routeWithArrival in
                         busRouteRow(routeWithArrival: routeWithArrival)
                         Divider()
@@ -159,12 +171,14 @@ struct BusRouteSearchView: View {
                 .foregroundColor(Color(.gray100))
                 .multilineTextAlignment(.center)
                 .padding(.top, 40)
+                .lineLimit(nil)
 
             Button(action: {
                 router.push(.quickCamera
                 )
             }) {
                 Text("버스 바로 인식")
+                    .lineLimit(nil)
                     .font(.body)
                     .fontWeight(.semibold)
                     .padding(.vertical, 13)
@@ -176,43 +190,63 @@ struct BusRouteSearchView: View {
                     )
             }
             .padding(.horizontal, 40)
+            .accessibilityLabel(String(localized: "busRouteSearch.a11y.button.quickRecognition.label"))
+            .accessibilityHint(String(localized: "busRouteSearch.a11y.button.quickRecognition.hint"))
         }
         .padding(.bottom, 40)
     }
 
+    @ViewBuilder
     private func titleText(for filterState: FilterState) -> some View {
-        let text: String = switch filterState {
-        case .noFilter:
-            "경유하는 다른 버스를 확인해보세요."
-        case let .filtered(hasResults):
-            hasResults ? "버스 도착 정보" : "경유하는 다른 버스를 확인해보세요."
+        VStack(alignment: .leading, spacing: 0) {
+            switch filterState {
+            case .noFilter:
+                noFilterText
+                filteredWithoutResultsText
+            case let .filtered(hasResults):
+                if hasResults {
+                    filteredWithResultsText
+                } else {
+                    filteredWithoutResultsText
+                }
+            }
         }
+    }
 
-        return VStack(alignment: .leading, spacing: 0) {
-            if filterState == .noFilter {
-                Text("\(viewModel.busStop.name) 정류장에는\n일치하는 버스가 없습니다.")
-                    .font(.body)
-                    .foregroundColor(Color(.gray100))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
-                    .background(Color(.backgroundheavy))
-            }
-
-            // "버스 도착 정보"일 때만 Divider 추가
-            if case .filtered(hasResults: true) = filterState {
-                Rectangle()
-                    .fill(Color(.backgroundheavy))
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 5)
-            }
-
-            Text(text)
+    private var noFilterText: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("\(viewModel.busStop.name) 정류장에는\n일치하는 버스가 없습니다.")
                 .font(.body)
-                .foregroundColor(.white)
+                .foregroundColor(Color(.gray100))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 16)
+                .background(Color(red: 13 / 255, green: 14 / 255, blue: 17 / 255))
         }
+    }
+
+    private var filteredWithResultsText: some View {
+        Text("버스 도착 정보")
+            .font(.body)
+            .foregroundColor(.white)
+            .lineLimit(nil)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var filteredWithoutResultsText: some View {
+        Text("경유하는 다른 버스를 확인해보세요.")
+            .font(.body)
+            .foregroundColor(.white)
+            .lineLimit(nil)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     @ViewBuilder
@@ -231,6 +265,7 @@ struct BusRouteSearchView: View {
                         .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
+                        .lineLimit(nil)
 
                     if let arrival = routeWithArrival.arrival {
                         Text(BusArrivalFormatter.formatSimpleArrivalInfo(
@@ -239,10 +274,12 @@ struct BusRouteSearchView: View {
                         ))
                         .font(.body)
                         .foregroundColor(Color(.primarynormal))
+                        .lineLimit(nil)
                     } else {
                         Text("도착 예정 정보 없음")
                             .font(.body)
                             .foregroundColor(.gray)
+                            .lineLimit(nil)
                     }
                 }
 
@@ -253,6 +290,7 @@ struct BusRouteSearchView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityHint(String(localized: "busRouteSearch.a11y.row.hint"))
     }
 
     @ViewBuilder
@@ -266,6 +304,7 @@ struct BusRouteSearchView: View {
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .padding()
+                .lineLimit(nil)
         }
     }
 
@@ -279,6 +318,7 @@ struct BusRouteSearchView: View {
                 .font(.title2)
                 .foregroundColor(.white)
                 .padding()
+                .lineLimit(nil)
         }
     }
 }

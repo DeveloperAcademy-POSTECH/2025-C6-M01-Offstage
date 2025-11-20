@@ -5,6 +5,7 @@ struct BusSearchBar: View {
     @Binding var text: String
     let showMicButton: Bool
     let isMicEnabled: Bool
+    let micHint: String
     let onSubmit: () -> Void
     let onMicTap: () -> Void
 
@@ -12,18 +13,20 @@ struct BusSearchBar: View {
         text: Binding<String>,
         showMicButton: Bool = true,
         isMicEnabled: Bool = true,
+        micHint: String = "",
         onSubmit: @escaping () -> Void = {},
         onMicTap: @escaping () -> Void = {}
     ) {
         _text = text
         self.showMicButton = showMicButton
         self.isMicEnabled = isMicEnabled
+        self.micHint = micHint
         self.onSubmit = onSubmit
         self.onMicTap = onMicTap
     }
 
     var body: some View {
-        ZStack {
+        HStack(spacing: 0) {
             TextField(
                 "",
                 text: $text,
@@ -39,24 +42,22 @@ struct BusSearchBar: View {
             }
 
             if showMicButton {
-                HStack {
-                    Spacer()
-
-                    Button {
-                        onMicTap()
-                    } label: {
-                        Image(systemName: "mic")
-                            .font(.system(size: 22, weight: .semibold))
-                            .foregroundColor(.white)
-                            .frame(width: 45, height: 45)
-                            .background(
-                                Circle()
-                                    .fill(Color(.backgroundmedium))
-                            )
-                    }
-                    .disabled(!isMicEnabled)
-                    .opacity(isMicEnabled ? 1.0 : 0.4)
+                Button {
+                    onMicTap()
+                } label: {
+                    Image(systemName: "mic")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(width: 45, height: 45)
+                        .background(
+                            Circle()
+                                .fill(Color(.backgroundmedium))
+                        )
                 }
+                .disabled(!isMicEnabled)
+                .opacity(isMicEnabled ? 1.0 : 0.4)
+                .accessibilityLabel(String(localized: "home.a11y.button.mic.label"))
+                .accessibilityHint(micHint)
                 .padding(.trailing, 10)
             }
         }

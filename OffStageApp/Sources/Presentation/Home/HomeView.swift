@@ -16,6 +16,16 @@ struct HomeView: View {
         UserDefaults.standard.bool(forKey: "hasRequestedPermissions")
     }
 
+    private var micAccessibilityHint: String {
+        if viewModel.isLoading {
+            String(localized: "home.a11y.button.mic.hint.loading")
+        } else if viewModel.nearestBusStop == nil {
+            String(localized: "home.a11y.button.mic.hint.noStop")
+        } else {
+            String(localized: "home.a11y.button.mic.hint.ready")
+        }
+    }
+
     init() {
         _viewModel = StateObject(wrappedValue: HomeViewModel())
     }
@@ -51,6 +61,7 @@ struct HomeView: View {
                 BusSearchBar(
                     text: $busNumberInput,
                     isMicEnabled: !viewModel.isLoading && viewModel.nearestBusStop != nil,
+                    micHint: micAccessibilityHint,
                     onSubmit: {
                         if !busNumberInput.isEmpty, let nearestStop = viewModel.nearestBusStop {
                             router.push(.busRouteSearch(
@@ -188,6 +199,8 @@ struct HomeView: View {
                             .stroke(Color(.black500), lineWidth: 5)
                     )
                     .cornerRadius(99)
+                    .accessibilityLabel(String(localized: "home.a11y.button.change.label"))
+                    .accessibilityHint(String(localized: "home.a11y.button.change.hint"))
                 }
             }
             .padding()
