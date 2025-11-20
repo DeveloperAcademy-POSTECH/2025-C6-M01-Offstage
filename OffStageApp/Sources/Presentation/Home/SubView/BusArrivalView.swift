@@ -69,13 +69,6 @@ struct BusArrivalView: View {
 
             Spacer()
             VStack(alignment: .center, spacing: 10) {
-                // Callout/Emphasized
-                Text(L10n.Home.Sheet.busDetectionGuide)
-                    .font(.callout)
-                    .foregroundColor(.white.opacity(0.7))
-                    .multilineTextAlignment(.center)
-                    .padding(.bottom, 5)
-
                 Button(action: {
                     router.push(.busVision(
                         busStop: viewModel.busStop,
