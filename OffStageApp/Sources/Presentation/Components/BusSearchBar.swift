@@ -27,10 +27,11 @@ struct BusSearchBar: View {
             TextField(
                 "",
                 text: $text,
-                prompt: Text(L10n.Home.Stt.askBusNumber).foregroundColor(.white.opacity(0.6))
+                prompt: Text(L10n.Home.Stt.askBusNumber).foregroundColor(Color(.gray100))
             )
             .font(.body)
             .foregroundColor(.white)
+            .background(Color(.backgroundstrong))
             .padding(.leading, 25)
             .padding(.vertical, 20)
             .onSubmit {
@@ -50,7 +51,7 @@ struct BusSearchBar: View {
                             .frame(width: 45, height: 45)
                             .background(
                                 Circle()
-                                    .fill(Color(red: 0.1098, green: 0.1176, blue: 0.1490))
+                                    .fill(Color(.backgroundmedium))
                             )
                     }
                     .disabled(!isMicEnabled)

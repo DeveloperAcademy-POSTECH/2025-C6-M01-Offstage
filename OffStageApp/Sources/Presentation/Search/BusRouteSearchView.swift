@@ -43,26 +43,31 @@ struct BusRouteSearchView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            searchBar
-            switch currentState {
-            case .loading:
-                Spacer()
-                loadingContent()
-                Spacer()
-            case let .loaded(routes, filterState):
-                busRouteListContent(routes: routes, filterState: filterState)
-            case let .error(message):
-                Spacer()
-                errorContent(message: message)
-                Spacer()
-            case .empty:
-                Spacer()
-                emptyContent()
-                Spacer()
+        ZStack {
+            Color(Color(.black800))
+                .ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                searchBar
+                    .background(Color(.backgroundstrong))
+                switch currentState {
+                case .loading:
+                    Spacer()
+                    loadingContent()
+                    Spacer()
+                case let .loaded(routes, filterState):
+                    busRouteListContent(routes: routes, filterState: filterState)
+                case let .error(message):
+                    Spacer()
+                    errorContent(message: message)
+                    Spacer()
+                case .empty:
+                    Spacer()
+                    emptyContent()
+                    Spacer()
+                }
             }
         }
-        .background(Color.black)
         .onAppear {
             viewModel.startAutoRefresh()
         }
@@ -91,8 +96,13 @@ struct BusRouteSearchView: View {
                 isSheetPresented = true
             }
         )
+        .overlay(
+            RoundedRectangle(cornerRadius: 99)
+                .stroke(Color(.black500), lineWidth: 2)
+        )
         .padding(.horizontal)
-        .padding(.bottom, 30)
+        .padding(.top, 20)
+        .padding(.bottom, 18)
     }
 
     @ViewBuilder
@@ -111,20 +121,28 @@ struct BusRouteSearchView: View {
     @ViewBuilder
     private func busRouteListContent(routes: [BusRouteWithArrival], filterState: FilterState) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            titleText(for: filterState)
-                .accessibilityAddTraits(.isHeader)
-                .accessibilityFocused($isTitleFocused)
-                .onAppear {
-                    isTitleFocused = true
-                }
+            HStack {
+                titleText(for: filterState)
+                    .accessibilityAddTraits(.isHeader)
+                    .accessibilityFocused($isTitleFocused)
+                    .onAppear {
+                        isTitleFocused = true
+                    }
+                Spacer()
+            }
+            .background(Color(.backgroundstrong))
+
+            Divider()
+                .background(Color(.black500))
 
             ScrollView {
                 VStack(spacing: 0) {
                     ForEach(routes, id: \.id) { routeWithArrival in
                         busRouteRow(routeWithArrival: routeWithArrival)
                         Divider()
-                            .background(Color.gray.opacity(0.3))
+                            .background(Color(.black500))
                     }
+                    .background(Color(.backgroundstrong))
 
                     if case .noFilter = filterState {
                         searchPromptFooter
@@ -138,7 +156,7 @@ struct BusRouteSearchView: View {
         VStack(spacing: 16) {
             Text("탑승할 버스를 찾기 어렵다면\n직접 번호를 입력해서 버스 인식을 시작해 보세요.")
                 .font(.body)
-                .foregroundColor(.gray)
+                .foregroundColor(Color(.gray100))
                 .multilineTextAlignment(.center)
                 .padding(.top, 40)
 
@@ -147,12 +165,14 @@ struct BusRouteSearchView: View {
                 )
             }) {
                 Text("버스 바로 인식")
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-                    .foregroundColor(.gray)
+                    .font(.body)
+                    .fontWeight(.semibold)
+                    .padding(.vertical, 13)
+                    .padding(.horizontal, 20)
+                    .foregroundColor(.white)
                     .background(
-                        RoundedRectangle(cornerRadius: 24)
-                            .stroke(Color.gray, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 99)
+                            .stroke(Color(.gray100), lineWidth: 3)
                     )
             }
             .padding(.horizontal, 40)
@@ -172,12 +192,19 @@ struct BusRouteSearchView: View {
             if filterState == .noFilter {
                 Text("\(viewModel.busStop.name) 정류장에는\n일치하는 버스가 없습니다.")
                     .font(.body)
-                    .foregroundColor(.gray)
+                    .foregroundColor(Color(.gray100))
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(red: 13 / 255, green: 14 / 255, blue: 17 / 255))
-                    .ignoresSafeArea()
+                    .background(Color(.backgroundheavy))
+            }
+
+            // "버스 도착 정보"일 때만 Divider 추가
+            if case .filtered(hasResults: true) = filterState {
+                Rectangle()
+                    .fill(Color(.backgroundheavy))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 5)
             }
 
             Text(text)
