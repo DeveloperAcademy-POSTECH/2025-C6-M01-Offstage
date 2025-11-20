@@ -17,8 +17,8 @@ struct BusRouteSearchView: View {
     @StateObject private var viewModel: BusRouteSearchViewModel
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var router: Router<AppRoute>
-    @AccessibilityFocusState private var isTitleFocused: Bool
     @State private var isSheetPresented = false
+    @AccessibilityFocusState private var isSearchBarFocused: Bool
 
     private var currentState: LoadingState {
         if viewModel.isLoading {
@@ -69,6 +69,16 @@ struct BusRouteSearchView: View {
         .onDisappear {
             viewModel.stopAutoRefresh()
         }
+        .onChange(of: viewModel.allBusRoutes) { oldValue, newValue in
+            if !oldValue.isEmpty, !newValue.isEmpty {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    UIAccessibility.post(
+                        notification: .announcement,
+                        argument: String(localized: "busRouteSearch.a11y.announcement.dataRefreshed")
+                    )
+                }
+            }
+        }
         .sheet(isPresented: $isSheetPresented) {
             SheetView(
                 onTextRecognized: { recognizedText in
@@ -93,6 +103,11 @@ struct BusRouteSearchView: View {
         )
         .padding(.horizontal)
         .padding(.bottom, 30)
+        .accessibilityFocused($isSearchBarFocused)
+        .task {
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            isSearchBarFocused = true
+        }
     }
 
     @ViewBuilder
@@ -115,10 +130,6 @@ struct BusRouteSearchView: View {
             VStack(alignment: .leading, spacing: 0) {
                 titleText(for: filterState)
                     .accessibilityAddTraits(.isHeader)
-                    .accessibilityFocused($isTitleFocused)
-                    .onAppear {
-                        isTitleFocused = true
-                    }
                 ForEach(routes, id: \.id) { routeWithArrival in
                     busRouteRow(routeWithArrival: routeWithArrival)
                     Divider()
@@ -156,6 +167,8 @@ struct BusRouteSearchView: View {
                     )
             }
             .padding(.horizontal, 40)
+            .accessibilityLabel(String(localized: "busRouteSearch.a11y.button.quickRecognition.label"))
+            .accessibilityHint(String(localized: "busRouteSearch.a11y.button.quickRecognition.hint"))
         }
         .padding(.bottom, 40)
     }
@@ -240,6 +253,7 @@ struct BusRouteSearchView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityHint(String(localized: "busRouteSearch.a11y.row.hint"))
     }
 
     @ViewBuilder
