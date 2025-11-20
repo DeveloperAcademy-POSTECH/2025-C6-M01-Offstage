@@ -63,6 +63,9 @@ struct BusRouteSearchView: View {
             }
         }
         .background(Color.black)
+        .onTapGesture {
+            hideKeyboard()
+        }
         .onAppear {
             viewModel.startAutoRefresh()
         }
@@ -89,6 +92,10 @@ struct BusRouteSearchView: View {
                 }
             )
         }
+    }
+
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 
     private var searchBar: some View {
@@ -141,6 +148,11 @@ struct BusRouteSearchView: View {
                     }
                 }
             }
+            .simultaneousGesture(
+                TapGesture().onEnded { _ in
+                    hideKeyboard()
+                }
+            )
         }
     }
 

@@ -32,6 +32,13 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
+            // 전체 영역을 터치 가능하게 만드는 투명 배경
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    hideKeyboard()
+                }
+
             VStack(spacing: 0) {
                 Text(L10n.K.appName)
                     .font(.body)
@@ -77,6 +84,7 @@ struct HomeView: View {
                 Spacer()
             }
             .padding(.top)
+            .allowsHitTesting(true)
         }
         .onAppear {
             if !hasRequestedPermissions {
@@ -235,5 +243,9 @@ struct HomeView: View {
             .cornerRadius(12)
             .padding(.horizontal)
         }
+    }
+
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
