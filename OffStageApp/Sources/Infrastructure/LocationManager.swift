@@ -20,10 +20,25 @@ final class LocationManager: NSObject, LocationProviding {
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.allowsBackgroundLocationUpdates = true
+        locationManager.pausesLocationUpdatesAutomatically = false
+        locationManager.showsBackgroundLocationIndicator = true
     }
 
     func requestLocationPermission() {
         locationManager.requestWhenInUseAuthorization()
+    }
+
+    func requestAlwaysAuthorization() {
+        locationManager.requestAlwaysAuthorization()
+    }
+
+    func startBackgroundLocationUpdates() {
+        locationManager.startUpdatingLocation()
+    }
+
+    func stopBackgroundLocationUpdates() {
+        locationManager.stopUpdatingLocation()
     }
 
     func requestLocation() async throws -> CLLocationCoordinate2D {
