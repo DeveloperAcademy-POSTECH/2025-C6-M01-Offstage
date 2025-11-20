@@ -33,7 +33,7 @@ struct WaitingBusRealtimeInfoView: View {
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(Color(red: 0.08, green: 0.08, blue: 0.11))
+                .foregroundStyle(.black)
         )
     }
 }
