@@ -3,9 +3,14 @@ import SwiftUI
 
 enum LoadingState {
     case loading
-    case loaded([BusRouteWithArrival])
+    case loaded([BusRouteWithArrival], filterState: FilterState)
     case empty
     case error(String)
+}
+
+enum FilterState: Equatable {
+    case noFilter
+    case filtered(hasResults: Bool)
 }
 
 struct BusRouteSearchView: View {
@@ -13,16 +18,20 @@ struct BusRouteSearchView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var router: Router<AppRoute>
     @AccessibilityFocusState private var isTitleFocused: Bool
+    @State private var isSheetPresented = false
 
     private var currentState: LoadingState {
         if viewModel.isLoading {
-            .loading
+            return .loading
         } else if let errorMessage = viewModel.errorMessage {
-            .error(errorMessage)
-        } else if !viewModel.busRoutes.isEmpty {
-            .loaded(viewModel.busRoutes)
+            return .error(errorMessage)
+        } else if viewModel.allBusRoutesLoaded {
+            let hasFilterResults = viewModel.isFiltered && !viewModel.busRoutes.isEmpty
+            let filterState: FilterState = hasFilterResults ? .filtered(hasResults: true) : .noFilter
+            let displayRoutes = hasFilterResults ? viewModel.busRoutes : viewModel.allBusRoutes
+            return .loaded(displayRoutes, filterState: filterState)
         } else {
-            .empty
+            return .empty
         }
     }
 
@@ -41,8 +50,8 @@ struct BusRouteSearchView: View {
                 Spacer()
                 loadingContent()
                 Spacer()
-            case let .loaded(routes):
-                busRouteListContent(routes: routes)
+            case let .loaded(routes, filterState):
+                busRouteListContent(routes: routes, filterState: filterState)
             case let .error(message):
                 Spacer()
                 errorContent(message: message)
@@ -60,34 +69,27 @@ struct BusRouteSearchView: View {
         .onDisappear {
             viewModel.stopAutoRefresh()
         }
+        .sheet(isPresented: $isSheetPresented) {
+            SheetView(
+                onTextRecognized: { recognizedText in
+                    print("STT 완료: \(recognizedText)")
+                    isSheetPresented = false
+                    viewModel.recognizedText = recognizedText
+                    router.push(.busRouteSearch(busStop: viewModel.busStop, recognizedText: recognizedText))
+                }
+            )
+        }
     }
 
     private var searchBar: some View {
-        HStack {
-            if viewModel.recognizedText.isEmpty {
-                Text(L10n.Home.Stt.askBusNumber)
-                    .font(.title)
-                    .foregroundColor(.gray)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 24)
-            } else {
-                Text(viewModel.recognizedText)
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 24)
+        BusSearchBar(
+            text: $viewModel.recognizedText,
+            onSubmit: {
+                viewModel.performSearch()
+            },
+            onMicTap: {
+                isSheetPresented = true
             }
-
-            Image(systemName: "mic.fill")
-                .font(.title2)
-                .foregroundColor(.white)
-                .padding(.trailing, 24)
-        }
-        .frame(height: 60)
-        .background(
-            RoundedRectangle(cornerRadius: 30)
-                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                .fill(Color(white: 0.15))
         )
         .padding(.horizontal)
         .padding(.bottom, 30)
@@ -107,14 +109,9 @@ struct BusRouteSearchView: View {
     }
 
     @ViewBuilder
-    private func busRouteListContent(routes: [BusRouteWithArrival]) -> some View {
+    private func busRouteListContent(routes: [BusRouteWithArrival], filterState: FilterState) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("버스 도착 정보")
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .padding(.horizontal)
-                .padding(.bottom, 20)
+            titleText(for: filterState)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($isTitleFocused)
                 .onAppear {
@@ -128,8 +125,66 @@ struct BusRouteSearchView: View {
                         Divider()
                             .background(Color.gray.opacity(0.3))
                     }
+
+                    if case .noFilter = filterState {
+                        searchPromptFooter
+                    }
                 }
             }
+        }
+    }
+
+    private var searchPromptFooter: some View {
+        VStack(spacing: 16) {
+            Text("탑승할 버스를 찾기 어렵다면\n직접 번호를 입력해서 버스 인식을 시작해 보세요.")
+                .font(.body)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+                .padding(.top, 40)
+
+            Button(action: {
+                router.push(.quickCamera
+                )
+            }) {
+                Text("버스 바로 인식")
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                    .foregroundColor(.gray)
+                    .background(
+                        RoundedRectangle(cornerRadius: 24)
+                            .stroke(Color.gray, lineWidth: 1)
+                    )
+            }
+            .padding(.horizontal, 40)
+        }
+        .padding(.bottom, 40)
+    }
+
+    private func titleText(for filterState: FilterState) -> some View {
+        let text: String = switch filterState {
+        case .noFilter:
+            "경유하는 다른 버스를 확인해보세요."
+        case let .filtered(hasResults):
+            hasResults ? "버스 도착 정보" : "경유하는 다른 버스를 확인해보세요."
+        }
+
+        return VStack(alignment: .leading, spacing: 0) {
+            if filterState == .noFilter {
+                Text("\(viewModel.busStop.name) 정류장에는\n일치하는 버스가 없습니다.")
+                    .font(.body)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(red: 13 / 255, green: 14 / 255, blue: 17 / 255))
+                    .ignoresSafeArea()
+            }
+
+            Text(text)
+                .font(.body)
+                .foregroundColor(.white)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
         }
     }
 

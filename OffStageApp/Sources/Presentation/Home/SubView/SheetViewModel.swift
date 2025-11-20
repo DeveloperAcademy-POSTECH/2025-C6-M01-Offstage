@@ -2,58 +2,23 @@ import AVFoundation
 import BusAPI
 import Foundation
 
-enum SheetState {
-    case listening
-    case confirmation(recognizedBusNumber: String)
-    case busRouteList([BusRoute])
-}
-
 @MainActor
 class SheetViewModel: ObservableObject {
-    @Published var currentSheetState: SheetState = .listening
-    @Published var recognizedBusNumber: String? = nil
-    @Published var currentBusStop: BusStop? = nil
-
     private let synthesizer = AVSpeechSynthesizer()
     private let sttManager = STTManager()
-    private let busRouteMatcher: BusRouteMatcher
     private var audioPlayer: AVAudioPlayer?
     private var onTextRecognized: ((String) -> Void)?
 
-    init(busRoutes: [BusRoute], onTextRecognized: @escaping (String) -> Void) { // 수정
-        busRouteMatcher = .init(busRoutes: busRoutes)
-        self.onTextRecognized = onTextRecognized // 추가
+    init(onTextRecognized: @escaping (String) -> Void) {
+        self.onTextRecognized = onTextRecognized
     }
 
     func startListeningProcess() {
-        currentSheetState = .listening
         Task {
             if let recognizedText = await startSpeechRecognition() {
-                // 정규화 및 추론 전략을 수행하는 함수를 호출합니다.
                 let processedText = recognizedText.normalizeBusNumber()
                 onTextRecognized?(processedText)
-            } else {
-                // Handle case where nothing is recognized
             }
-        }
-    }
-
-    func showBusRouteList(routes: [BusRoute]) {
-        currentSheetState = .busRouteList(routes)
-    }
-
-    @MainActor
-    private func processRecognizedText(_ transcript: String) {
-        let matchResult = busRouteMatcher.process(transcript: transcript)
-
-        switch matchResult {
-        case let .exact(route), let .fuzzy(route):
-            recognizedBusNumber = route.routeNumber
-            currentSheetState = .confirmation(recognizedBusNumber: route.routeNumber)
-        case let .partial(routes):
-            currentSheetState = .busRouteList(routes)
-        case let .none(normalizedText):
-            currentSheetState = .confirmation(recognizedBusNumber: normalizedText)
         }
     }
 
@@ -66,7 +31,7 @@ class SheetViewModel: ObservableObject {
         sttManager.startListening()
 
         // 음성 인식 시간 (5초 동안 듣기)
-        try? await Task.sleep(nanoseconds: 5_000_000_000)
+        try? await Task.sleep(nanoseconds: RefreshInterval.seconds(5))
 
         // STT 중지
         sttManager.stopListening()

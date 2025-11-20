@@ -45,32 +45,22 @@ struct HomeView: View {
                 }
                 .padding(.horizontal)
 
-                ZStack {
-                    TextField(
-                        "",
-                        text: $busNumberInput,
-                        prompt: Text(L10n.Home.Stt.askBusNumber).foregroundColor(.white.opacity(0.6))
-                    )
-                    .font(.body)
-                    .foregroundColor(.white)
-                    .padding(.leading, 25)
-                    .padding(.vertical, 20)
-                    .onSubmit {
-                        if !busNumberInput.isEmpty {
-                            router.push(.busRouteSearch(recognizedText: busNumberInput))
+                BusSearchBar(
+                    text: $busNumberInput,
+                    isMicEnabled: !viewModel.isLoading && viewModel.nearestBusStop != nil,
+                    onSubmit: {
+                        if !busNumberInput.isEmpty, let nearestStop = viewModel.nearestBusStop {
+                            router.push(.busRouteSearch(
+                                busStop: nearestStop,
+                                recognizedText: busNumberInput
+                            ))
                             busNumberInput = ""
                         }
+                    },
+                    onMicTap: {
+                        isSheetPresented = true
                     }
-
-                    HStack {
-                        Spacer()
-
-                        micButton
-                    }
-                    .padding(.trailing, 10)
-                }
-                .background(Color(red: 0.0784, green: 0.0823, blue: 0.1059))
-                .cornerRadius(99)
+                )
                 .padding(.horizontal)
 
                 Spacer()
@@ -108,17 +98,6 @@ struct HomeView: View {
         }
         .sheet(isPresented: $isSheetPresented) {
             SheetView(
-                nearestBusStop: viewModel.nearestBusStop,
-                busRoutes: viewModel.busRoutes,
-                onRouteSelected: { selectedRoute in
-                    print("HomeView received selected route: \(selectedRoute.routeNumber)")
-                    isSheetPresented = false // Dismiss the sheet
-                    if let nearestStop = viewModel.nearestBusStop {
-                        router.push(.busArrival(busStop: nearestStop, busRoute: selectedRoute))
-                    } else {
-                        print("Error: Nearest bus stop not available for navigation.")
-                    }
-                },
                 onTextRecognized: { recognizedText in
                     print("STT 완료: \(recognizedText)")
                     isSheetPresented = false
@@ -243,38 +222,5 @@ struct HomeView: View {
             .cornerRadius(12)
             .padding(.horizontal)
         }
-    }
-
-    private var micButton: some View {
-        // 활성화 조건: 주변 정류장이 있는 경우
-        let isMicDisabled = viewModel.isLoading || viewModel.nearestBusStop == nil
-
-        return Button {
-            isSheetPresented = true
-        } label: {
-            Image(systemName: "mic")
-                .font(.system(size: 22, weight: .semibold))
-                .foregroundColor(.white)
-                .frame(width: 45, height: 45)
-                .background(
-                    Circle()
-                        .fill(Color(red: 0.1098, green: 0.1176, blue: 0.1490))
-                )
-        }
-        .disabled(isMicDisabled)
-        .opacity(isMicDisabled ? 0.4 : 1.0)
-        .accessibilityLabel(Text(L10n.Home.A11y.Button.Mic.label))
-        .accessibilityHint({
-            let hintKey: LocalizedStringKey = {
-                if viewModel.isLoading {
-                    return L10n.Home.A11y.Button.Mic.Hint.loading
-                }
-                if viewModel.nearestBusStop == nil {
-                    return L10n.Home.A11y.Button.Mic.Hint.noStop
-                }
-                return L10n.Home.A11y.Button.Mic.Hint.ready
-            }()
-            return Text(hintKey)
-        }())
     }
 }
