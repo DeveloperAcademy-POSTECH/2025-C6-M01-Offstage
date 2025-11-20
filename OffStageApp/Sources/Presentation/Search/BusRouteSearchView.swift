@@ -105,30 +105,28 @@ struct BusRouteSearchView: View {
                 .font(.title2)
                 .foregroundColor(.white)
                 .padding(.top, 20)
+                .lineLimit(nil)
         }
     }
 
     @ViewBuilder
     private func busRouteListContent(routes: [BusRouteWithArrival], filterState: FilterState) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            titleText(for: filterState)
-                .accessibilityAddTraits(.isHeader)
-                .accessibilityFocused($isTitleFocused)
-                .onAppear {
-                    isTitleFocused = true
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                titleText(for: filterState)
+                    .accessibilityAddTraits(.isHeader)
+                    .accessibilityFocused($isTitleFocused)
+                    .onAppear {
+                        isTitleFocused = true
+                    }
+                ForEach(routes, id: \.id) { routeWithArrival in
+                    busRouteRow(routeWithArrival: routeWithArrival)
+                    Divider()
+                        .background(Color.gray.opacity(0.3))
                 }
 
-            ScrollView {
-                VStack(spacing: 0) {
-                    ForEach(routes, id: \.id) { routeWithArrival in
-                        busRouteRow(routeWithArrival: routeWithArrival)
-                        Divider()
-                            .background(Color.gray.opacity(0.3))
-                    }
-
-                    if case .noFilter = filterState {
-                        searchPromptFooter
-                    }
+                if case .noFilter = filterState {
+                    searchPromptFooter
                 }
             }
         }
@@ -141,18 +139,20 @@ struct BusRouteSearchView: View {
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
                 .padding(.top, 40)
+                .lineLimit(nil)
 
             Button(action: {
                 router.push(.quickCamera
                 )
             }) {
                 Text("버스 바로 인식")
+                    .lineLimit(nil)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 48)
                     .foregroundColor(.gray)
+                    .padding(.vertical, 14)
                     .background(
                         RoundedRectangle(cornerRadius: 24)
-                            .stroke(Color.gray, lineWidth: 1)
+                            .stroke(Color.gray, lineWidth: 3)
                     )
             }
             .padding(.horizontal, 40)
@@ -160,31 +160,42 @@ struct BusRouteSearchView: View {
         .padding(.bottom, 40)
     }
 
+    @ViewBuilder
     private func titleText(for filterState: FilterState) -> some View {
-        let text: String = switch filterState {
-        case .noFilter:
-            "경유하는 다른 버스를 확인해보세요."
-        case let .filtered(hasResults):
-            hasResults ? "버스 도착 정보" : "경유하는 다른 버스를 확인해보세요."
-        }
+        VStack(alignment: .leading, spacing: 0) {
+            if case .noFilter = filterState {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("\(viewModel.busStop.name) 정류장에는\n일치하는 버스가 없습니다.")
+                        .font(.body)
+                        .foregroundColor(.gray)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(red: 13 / 255, green: 14 / 255, blue: 17 / 255))
 
-        return VStack(alignment: .leading, spacing: 0) {
-            if filterState == .noFilter {
-                Text("\(viewModel.busStop.name) 정류장에는\n일치하는 버스가 없습니다.")
+                Text("경유하는 다른 버스를 확인해보세요.")
                     .font(.body)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.white)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(red: 13 / 255, green: 14 / 255, blue: 17 / 255))
-                    .ignoresSafeArea()
             }
 
-            Text(text)
-                .font(.body)
-                .foregroundColor(.white)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
+            if case let .filtered(hasResults) = filterState {
+                Text(hasResults ? "버스 도착 정보" : "경유하는 다른 버스를 확인해보세요.")
+                    .font(.body)
+                    .foregroundColor(.white)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
     }
 
@@ -204,6 +215,7 @@ struct BusRouteSearchView: View {
                         .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
+                        .lineLimit(nil)
 
                     if let arrival = routeWithArrival.arrival {
                         Text(BusArrivalFormatter.formatSimpleArrivalInfo(
@@ -212,10 +224,12 @@ struct BusRouteSearchView: View {
                         ))
                         .font(.body)
                         .foregroundColor(Color(.primarynormal))
+                        .lineLimit(nil)
                     } else {
                         Text("도착 예정 정보 없음")
                             .font(.body)
                             .foregroundColor(.gray)
+                            .lineLimit(nil)
                     }
                 }
 
@@ -239,6 +253,7 @@ struct BusRouteSearchView: View {
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .padding()
+                .lineLimit(nil)
         }
     }
 
@@ -252,6 +267,7 @@ struct BusRouteSearchView: View {
                 .font(.title2)
                 .foregroundColor(.white)
                 .padding()
+                .lineLimit(nil)
         }
     }
 }

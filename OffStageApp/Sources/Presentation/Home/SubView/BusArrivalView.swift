@@ -42,54 +42,61 @@ struct BusArrivalView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            switch currentViewState {
-            case .loading:
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                    .frame(maxWidth: .infinity, alignment: .center)
-            case let .error(message):
-                Text(message)
-                    .font(.title2)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .center)
-            case let .arrival(routeWithArrival, currentEstimatedTime):
-                BusArrivalInfoView(
-                    routeWithArrival: routeWithArrival,
-                    currentEstimatedArrivalTime: currentEstimatedTime
-                )
-            case let .location(location):
-                BusLocationInfoView(location: location, busRoute: viewModel.busRoute)
-            case .empty:
-                Text("버스 정보를 찾을 수 없습니다")
-                    .font(.title2)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .center)
-            }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                switch currentViewState {
+                case .loading:
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .frame(maxWidth: .infinity, alignment: .center)
+                case let .error(message):
+                    Text(message)
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .lineLimit(nil)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                case let .arrival(routeWithArrival, currentEstimatedTime):
+                    BusArrivalInfoView(
+                        routeWithArrival: routeWithArrival,
+                        currentEstimatedArrivalTime: currentEstimatedTime
+                    )
+                case let .location(location):
+                    BusLocationInfoView(location: location, busRoute: viewModel.busRoute)
+                case .empty:
+                    Text("버스 정보를 찾을 수 없습니다")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .lineLimit(nil)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
 
-            Spacer()
-            VStack(alignment: .center, spacing: 10) {
-                // Callout/Emphasized
-                Text(L10n.Home.Sheet.busDetectionGuide)
-                    .font(.callout)
-                    .foregroundColor(.white.opacity(0.7))
-                    .multilineTextAlignment(.center)
-                    .padding(.bottom, 5)
+                Spacer()
+                VStack(alignment: .center, spacing: 10) {
+                    Text(L10n.Home.Sheet.busDetectionGuide)
+                        .font(.callout)
+                        .foregroundColor(.white.opacity(0.7))
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom, 5)
+                        .lineLimit(nil)
 
-                Button(action: {
-                    router.push(.busVision(
-                        busStop: viewModel.busStop,
-                        busRoute: viewModel.busRoute
-                    ))
-                }) {
-                    HStack {
-                        Image(systemName: "camera")
-                        Text(L10n.Home.Sheet.startBusDetection)
+                    Button(action: {
+                        router.push(.busVision(
+                            busStop: viewModel.busStop,
+                            busRoute: viewModel.busRoute
+                        ))
+                    }) {
+                        HStack {
+                            Image(systemName: "camera")
+                            Text(L10n.Home.Sheet.startBusDetection)
+                                .lineLimit(nil)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(Color(.white))
+                        .padding(.vertical, 13)
+                        .padding(.horizontal, 20)
                     }
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                    .foregroundColor(Color(.white))
-                    .padding(.vertical, 13)
                     .frame(maxWidth: .infinity)
                     .background(Color.black)
                     .overlay(
@@ -99,27 +106,28 @@ struct BusArrivalView: View {
                     .cornerRadius(99)
                 }
             }
-        }.padding()
-            .onAppear {
-                viewModel.startMonitoring()
+        }
+        .padding()
+        .onAppear {
+            viewModel.startMonitoring()
+        }
+        .onDisappear {
+            // 뷰가 사라질 때 타이머와 새로고침을 중지합니다.
+            viewModel.stopMonitoring()
+        }
+        .onChange(of: viewModel.routeWithArrival) { _, newRouteWithArrival in
+            if let arrival = newRouteWithArrival?.arrival {
+                let announcement = BusArrivalFormatter.generateArrivalLabel(
+                    arrival: arrival,
+                    busRoute: viewModel.busRoute,
+                    currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime
+                )
+                /// TODO:
+                /// - api 호출 주기 짧게 만든 후, 테스트 필요
+                /// - 짧은 시간에 공지가 연속 게시되면 이전 멘트를 중단하고 새 멘트를 읽어 "문장이 씹히는" 현상이 발생함
+                UIAccessibility.post(notification: .announcement, argument: announcement)
             }
-            .onDisappear {
-                // 뷰가 사라질 때 타이머와 새로고침을 중지합니다.
-                viewModel.stopMonitoring()
-            }
-            .onChange(of: viewModel.routeWithArrival) { _, newRouteWithArrival in
-                if let arrival = newRouteWithArrival?.arrival {
-                    let announcement = BusArrivalFormatter.generateArrivalLabel(
-                        arrival: arrival,
-                        busRoute: viewModel.busRoute,
-                        currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime
-                    )
-                    /// TODO:
-                    /// - api 호출 주기 짧게 만든 후, 테스트 필요
-                    /// - 짧은 시간에 공지가 연속 게시되면 이전 멘트를 중단하고 새 멘트를 읽어 "문장이 씹히는" 현상이 발생함
-                    UIAccessibility.post(notification: .announcement, argument: announcement)
-                }
-            }
+        }
     }
 }
 
@@ -137,6 +145,7 @@ struct BusArrivalInfoView: View {
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
+                    .lineLimit(nil)
             }
             .accessibilityElement(children: .combine)
             .padding(8)
@@ -149,16 +158,19 @@ struct BusArrivalInfoView: View {
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
+                .lineLimit(nil)
 
             Text(L10n.Bus.Arrival.imminent)
                 .font(.title3)
                 .foregroundColor(.white.opacity(0.8))
+                .lineLimit(nil)
 
             if let arrival = routeWithArrival.arrival {
                 Text(BusArrivalFormatter.formatRemainingStops(arrival.remainingStopCount ?? 0))
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.white.opacity(0.8))
+                    .lineLimit(nil)
             }
         }
         .accessibilityElement(children: .ignore)
@@ -195,6 +207,7 @@ struct BusLocationInfoView: View {
                     .padding(.vertical, 4)
                     .background(Capsule().fill(Color.gray.opacity(0.5)))
                     .foregroundColor(.white)
+                    .lineLimit(nil)
             }
             .padding(.bottom, 10)
 
@@ -202,10 +215,12 @@ struct BusLocationInfoView: View {
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
+                .lineLimit(nil)
 
             Text(L10n.Bus.Arrival.currentBusLocation)
                 .font(.title3)
                 .foregroundColor(.white.opacity(0.8))
+                .lineLimit(nil)
 
             let locationName = location.nodeName ?? String(localized: "common.ui.unknownLocation")
             Text(String(
@@ -214,6 +229,7 @@ struct BusLocationInfoView: View {
             ))
             .font(.title3)
             .foregroundColor(.white.opacity(0.8))
+            .lineLimit(nil)
         }
     }
 }
