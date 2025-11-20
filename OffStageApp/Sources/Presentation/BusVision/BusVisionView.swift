@@ -53,6 +53,7 @@ struct BusVisionView: View {
                     .offset(y: -10)
                 }
             }
+            .accessibilitySortPriority(-100)
         }
         .sheet(isPresented: $showHelpSheet) {
             BusVisionHelpSheet(showSheet: $showHelpSheet)
@@ -62,6 +63,7 @@ struct BusVisionView: View {
                 Text("카메라 버스 인식")
                     .font(.headline)
                     .accessibilityAddTraits(.isHeader)
+                    .accessibilitySortPriority(100)
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
