@@ -10,6 +10,7 @@ struct BusVisionView: View {
     @StateObject var vm: BusVisionViewModel
 
     @EnvironmentObject var router: Router<AppRoute>
+    @State var showHelpSheet: Bool = false
 
     // init
     init(busStop: BusStop, busRoute: BusRoute) {
@@ -52,23 +53,25 @@ struct BusVisionView: View {
                     .offset(y: -10)
                 }
             }
-
-            Button {
-                router.popToRoot()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 48, weight: .medium))
-                    .foregroundStyle(Color.white)
-                    .padding()
-                    .background(
-                        Circle()
-                            .fill(Color(.backgroundheavy))
-                            .stroke(Color(.primarynormal), lineWidth: 7)
-                            .frame(width: 96, height: 96)
-                    )
+        }
+        .sheet(isPresented: $showHelpSheet) {
+            BusVisionHelpSheet(showSheet: $showHelpSheet)
+        }
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("카메라 버스 인식")
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-            .padding(.bottom)
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showHelpSheet.toggle()
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                }
+                .accessibilityLabel("도움말")
+                .accessibilityHint("두번 탭하여 도움말 시트를 열 수 있습니다.")
+            }
         }
     }
 }
