@@ -24,7 +24,7 @@ struct BusStopSelectionView: View {
     var body: some View {
         ZStack {
             // 배경색 설정 (다크 테마)
-            Color(red: 0x14 / 255, green: 0x15 / 255, blue: 0x1B / 255)
+            Color(Color(.backgroundstrong))
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
