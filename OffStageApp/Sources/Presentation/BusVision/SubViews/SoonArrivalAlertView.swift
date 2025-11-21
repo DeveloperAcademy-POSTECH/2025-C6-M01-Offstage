@@ -6,20 +6,21 @@ struct SoonArrivalAlertView: View {
     let routeNo: String
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             Image(systemName: "bell.circle")
                 .font(.title2)
+                .fontWeight(.regular)
                 .foregroundStyle(Color(.primarynormal))
 
             Text("\(routeNo)번 버스가 정류장 진입 중입니다.")
                 .fontWeight(.semibold)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
+        .padding(20)
         .background(
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: 12)
                 .stroke(Color(.primarynormal), lineWidth: 2)
-                .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.12).opacity(0.9))
+                .fill(.black)
         )
         .padding(.horizontal)
     }
@@ -27,4 +28,6 @@ struct SoonArrivalAlertView: View {
 
 #Preview {
     SoonArrivalAlertView(routeNo: "207")
+        .padding()
+        .background(Color(.black500))
 }
