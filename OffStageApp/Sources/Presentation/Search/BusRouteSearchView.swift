@@ -174,8 +174,7 @@ struct BusRouteSearchView: View {
                 .lineLimit(nil)
 
             Button(action: {
-                router.push(.quickCamera
-                )
+                router.push(.quickCamera(routeNo: viewModel.recognizedText))
             }) {
                 Text("버스 바로 인식")
                     .lineLimit(nil)
