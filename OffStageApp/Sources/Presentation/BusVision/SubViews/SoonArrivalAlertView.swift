@@ -1,5 +1,6 @@
 import SwiftUI
 
+// TODO: 추후 정류장 개수로 수정 시 텍스트와 VO라벨링 수정 필요
 /// 비전버스에서 곧도착  알람 뜨는 뷰
 struct SoonArrivalAlertView: View {
     /// 보여줄 노선번호
@@ -23,6 +24,13 @@ struct SoonArrivalAlertView: View {
                 .fill(.black)
         )
         .padding(.horizontal)
+        .onAppear {
+            // tts 효과를 내는 a11y announcement post
+            UIAccessibility.post(
+                notification: .announcement,
+                argument: "\(routeNo)번 버스가 정류장 진입 중입니다."
+            )
+        }
     }
 }
 
