@@ -108,7 +108,7 @@ final class BusRouteSearchViewModel: ObservableObject {
     }
 
     private func detectCityCode(from gps: CLLocationCoordinate2D) async throws -> String {
-        let locationProvider = LocationManager()
+        let locationProvider = LocationManager.shared
         guard let placemark = try await locationProvider.fetchPlacemark(from: gps) else {
             throw BusAPIError.unknown("Failed to fetch placemark for city code detection.")
         }

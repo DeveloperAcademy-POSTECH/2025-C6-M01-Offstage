@@ -7,6 +7,8 @@ import Foundation
 /// This class is part of the Infrastructure layer and is responsible for all interactions
 /// with the `CLLocationManager` system API.
 final class LocationManager: NSObject, LocationProviding {
+    static let shared = LocationManager()
+
     private let locationManager = CLLocationManager()
     private let subject = PassthroughSubject<CLLocationCoordinate2D, Error>()
     private var locationContinuation: CheckedContinuation<CLLocationCoordinate2D, Error>?
@@ -15,6 +17,12 @@ final class LocationManager: NSObject, LocationProviding {
 
     // [추가] Reverse Geocoding을 위한 지오코더
     private let geocoder = CLGeocoder()
+
+    #if DEBUG_MODE
+        // 디버그 모드에서 강제 위치 설정
+        var overrideLocation: CLLocationCoordinate2D?
+        var isOverrideEnabled: Bool = false
+    #endif
 
     override init() {
         super.init()
@@ -42,7 +50,13 @@ final class LocationManager: NSObject, LocationProviding {
     }
 
     func requestLocation() async throws -> CLLocationCoordinate2D {
-        try await withCheckedThrowingContinuation { continuation in
+        #if DEBUG_MODE
+            if isOverrideEnabled, let overrideLocation {
+                return overrideLocation
+            }
+        #endif
+
+        return try await withCheckedThrowingContinuation { continuation in
             locationContinuation = continuation
             locationManager.requestLocation()
         }
@@ -83,6 +97,15 @@ extension LocationManager: CLLocationManagerDelegate {
     }
 
     func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        #if DEBUG_MODE
+            if isOverrideEnabled, let overrideLocation {
+                subject.send(overrideLocation)
+                locationContinuation?.resume(returning: overrideLocation)
+                locationContinuation = nil
+                return
+            }
+        #endif
+
         guard let location = locations.last else { return }
         let coordinate = CLLocationCoordinate2D(
             latitude: location.coordinate.latitude,

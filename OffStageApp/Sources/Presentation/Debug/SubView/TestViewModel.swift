@@ -38,7 +38,7 @@ final class TestViewModel: ObservableObject {
     private let logger = Logger(label: "TestViewModel")
 
     init(
-        locationProvider: LocationProviding = LocationManager(),
+        locationProvider: LocationProviding = LocationManager.shared,
         busRepository: BusRepository = MainBusRepository()
     ) {
         self.locationProvider = locationProvider

@@ -22,7 +22,7 @@ final class MVPTestViewModel: ObservableObject {
     private let logger = Logger(label: "MVPTestViewModel")
 
     init(
-        locationProvider: LocationProviding = LocationManager(),
+        locationProvider: LocationProviding = LocationManager.shared,
         busRepository: BusRepository = MainBusRepository()
     ) {
         self.locationProvider = locationProvider
