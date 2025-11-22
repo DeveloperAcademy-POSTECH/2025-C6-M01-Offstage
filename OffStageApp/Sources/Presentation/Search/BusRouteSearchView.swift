@@ -18,7 +18,6 @@ struct BusRouteSearchView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var router: Router<AppRoute>
     @State private var isSheetPresented = false
-    @AccessibilityFocusState private var isSearchBarFocused: Bool
 
     private var currentState: LoadingState {
         if viewModel.isLoading {
@@ -68,6 +67,8 @@ struct BusRouteSearchView: View {
                 }
             }
         }
+        .navigationTitle("번호 입력 확인")
+        .navigationBarTitleDisplayMode(.inline)
         .onTapGesture {
             hideKeyboard()
         }
@@ -120,11 +121,6 @@ struct BusRouteSearchView: View {
         .padding(.horizontal)
         .padding(.top, 20)
         .padding(.bottom, 18)
-        .accessibilityFocused($isSearchBarFocused)
-        .task {
-            try? await Task.sleep(nanoseconds: 300_000_000)
-            isSearchBarFocused = true
-        }
     }
 
     @ViewBuilder
