@@ -19,8 +19,8 @@ final class BusDetectionViewController: UIViewController {
     private var ttsManager: TTSManager = .init()
 
     // subviews
+    var drawingBoxesView: DrawingBoxesView?
     #if DEBUG_MODE
-        var drawingBoxesView: DrawingBoxesView?
         var tempStrokeBoxesView: TempStokeBoxesView?
     #endif
 
@@ -39,8 +39,8 @@ final class BusDetectionViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
+        setupBoxesView()
         #if DEBUG_MODE
-            setupBoxesView()
             setupDebugModeBoxesView()
         #endif
 
@@ -64,9 +64,9 @@ final class BusDetectionViewController: UIViewController {
         view.layer.sublayers?.first(where: { $0 is AVCaptureVideoPreviewLayer }
         )?.frame = fullFrame
 
+        // 내버스 바운딩박스
+        drawingBoxesView?.frame = fullFrame
         #if DEBUG_MODE
-            // 내버스 바운딩박스
-            drawingBoxesView?.frame = fullFrame
 
             // 버스 인식 바운딩박스
             tempStrokeBoxesView?.frame = fullFrame
@@ -137,15 +137,15 @@ final class BusDetectionViewController: UIViewController {
         }
     }
 
-    #if DEBUG_MODE
-        /// 디버깅모드용 내버스 바운딩박스 뷰 서브뷰 설정
-        private func setupBoxesView() {
-            let drawingBoxesView = DrawingBoxesView()
-            drawingBoxesView.frame = view.frame
-            view.addSubview(drawingBoxesView)
-            self.drawingBoxesView = drawingBoxesView
-        }
+    /// 내버스 바운딩박스 뷰 서브뷰 설정
+    private func setupBoxesView() {
+        let drawingBoxesView = DrawingBoxesView()
+        drawingBoxesView.frame = view.frame
+        view.addSubview(drawingBoxesView)
+        self.drawingBoxesView = drawingBoxesView
+    }
 
+    #if DEBUG_MODE
         /// 디버깅모드용 감지된 버스 바운딩박스 서브뷰 설정
         private func setupDebugModeBoxesView() {
             let strokeBoxesView = TempStokeBoxesView()

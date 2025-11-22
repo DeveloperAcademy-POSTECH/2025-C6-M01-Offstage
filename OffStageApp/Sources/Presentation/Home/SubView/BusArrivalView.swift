@@ -42,57 +42,67 @@ struct BusArrivalView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            switch currentViewState {
-            case .loading:
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                    .frame(maxWidth: .infinity, alignment: .center)
-            case let .error(message):
-                Text(message)
-                    .font(.title2)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .center)
-            case let .arrival(routeWithArrival, currentEstimatedTime):
-                BusArrivalInfoView(
-                    routeWithArrival: routeWithArrival,
-                    currentEstimatedArrivalTime: currentEstimatedTime
-                )
-            case let .location(location):
-                BusLocationInfoView(location: location, busRoute: viewModel.busRoute)
-            case .empty:
-                Text("버스 정보를 찾을 수 없습니다")
-                    .font(.title2)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .center)
-            }
+        ScrollView {
+            ZStack {
+                Color(Color(.black800))
+                    .ignoresSafeArea()
 
-            Spacer()
-            VStack(alignment: .center, spacing: 10) {
-                Button(action: {
-                    router.push(.busVision(
-                        busStop: viewModel.busStop,
-                        busRoute: viewModel.busRoute
-                    ))
-                }) {
-                    HStack {
-                        Image(systemName: "camera")
-                        Text(L10n.Home.Sheet.startBusDetection)
+                VStack(alignment: .leading, spacing: 10) {
+                    switch currentViewState {
+                    case .loading:
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    case let .error(message):
+                        Text(message)
+                            .font(.title2)
+                            .foregroundColor(.white)
+                            .lineLimit(nil)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    case let .arrival(routeWithArrival, currentEstimatedTime):
+                        BusArrivalInfoView(
+                            routeWithArrival: routeWithArrival,
+                            currentEstimatedArrivalTime: currentEstimatedTime
+                        )
+                    case let .location(location):
+                        BusLocationInfoView(location: location, busRoute: viewModel.busRoute)
+                    case .empty:
+                        Text("버스 정보를 찾을 수 없습니다")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                            .lineLimit(nil)
+                            .frame(maxWidth: .infinity, alignment: .center)
                     }
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                    .foregroundColor(Color(.white))
-                    .padding(.vertical, 13)
-                    .frame(maxWidth: .infinity)
-                    .background(Color.black)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 99)
-                            .stroke(Color(.primarynormal), lineWidth: 2)
-                    )
-                    .cornerRadius(99)
+
+                    Spacer()
+                    VStack(alignment: .center, spacing: 10) {
+                        Button(action: {
+                            router.push(.busVision(
+                                busStop: viewModel.busStop,
+                                busRoute: viewModel.busRoute
+                            ))
+                        }) {
+                            HStack {
+                                Image(systemName: "camera")
+                                Text(L10n.Home.Sheet.startBusDetection)
+                                    .lineLimit(nil)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(Color(.white))
+                            .padding(.vertical, 13)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 99)
+                                .stroke(Color(.primarynormal), lineWidth: 2)
+                        )
+                        .cornerRadius(99)
+                    }
                 }
             }
-        }.padding()
+            .padding()
             .onAppear {
                 viewModel.startMonitoring()
             }
@@ -113,100 +123,119 @@ struct BusArrivalView: View {
                     UIAccessibility.post(notification: .announcement, argument: announcement)
                 }
             }
+        }
     }
-}
 
-// 버스 도착 정보 헬퍼 뷰
-struct BusArrivalInfoView: View {
-    let routeWithArrival: BusRouteWithArrival
-    let currentEstimatedArrivalTime: Int?
+    // 버스 도착 정보 헬퍼 뷰
+    struct BusArrivalInfoView: View {
+        let routeWithArrival: BusRouteWithArrival
+        let currentEstimatedArrivalTime: Int?
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Image(systemName: "bus.fill")
-                    .foregroundColor(.white)
-                Text(routeWithArrival.route.routeNumber)
-                    .font(.title2)
+        var body: some View {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Image(systemName: "bus.fill")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                    Text(routeWithArrival.route.routeNumber)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .lineLimit(nil)
+                }
+                .accessibilityElement(children: .combine)
+                .padding(8)
+                .background(Color(.black700))
+                .cornerRadius(12)
+                .padding(.top, 5)
+                .padding(.bottom, 8)
+
+                Text(BusArrivalFormatter.formatArrivalTime(currentEstimatedArrivalTime))
+                    .font(.largeTitle)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
-            }
-            .accessibilityElement(children: .combine)
-            .padding(8)
-            .background(Color.gray.opacity(0.5))
-            .cornerRadius(12)
-            .padding(.top, 5)
-            .padding(.bottom, 8)
+                    .foregroundColor(getArrivalTimeColor(currentEstimatedArrivalTime))
+                    .lineLimit(nil)
 
-            Text(BusArrivalFormatter.formatArrivalTime(currentEstimatedArrivalTime))
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-
-            Text(L10n.Bus.Arrival.imminent)
-                .font(.title3)
-                .foregroundColor(.white.opacity(0.8))
-
-            if let arrival = routeWithArrival.arrival {
-                Text(BusArrivalFormatter.formatRemainingStops(arrival.remainingStopCount ?? 0))
+                Text(L10n.Bus.Arrival.imminent)
                     .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(Color(.gray50))
+                    .lineLimit(nil)
+
+                if let arrival = routeWithArrival.arrival {
+                    Text(BusArrivalFormatter.formatRemainingStops(arrival.remainingStopCount ?? 0))
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color(.gray100))
+                        .lineLimit(nil)
+                }
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(generateArrivalLabel()))
+            .accessibilityAddTraits(.updatesFrequently)
         }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(generateArrivalLabel()))
-        .accessibilityAddTraits(.updatesFrequently)
+
+        private func generateArrivalLabel() -> String {
+            guard let arrival = routeWithArrival.arrival else {
+                return "\(routeWithArrival.route.routeNumber)번 버스 도착 정보 없음"
+            }
+            return BusArrivalFormatter.generateArrivalLabel(
+                arrival: arrival,
+                busRoute: routeWithArrival.route,
+                currentEstimatedArrivalTime: currentEstimatedArrivalTime
+            )
+        }
     }
 
-    private func generateArrivalLabel() -> String {
-        guard let arrival = routeWithArrival.arrival else {
-            return "\(routeWithArrival.route.routeNumber)번 버스 도착 정보 없음"
+    // 버스 위치 정보 Helper View (Fallback)
+    struct BusLocationInfoView: View {
+        let location: BusLocation
+        let busRoute: BusRoute
+
+        var body: some View {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Image(systemName: "bus.fill")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                    Text(busRoute.routeNumber)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .lineLimit(nil)
+                }
+                .accessibilityElement(children: .combine)
+                .padding(8)
+                .background(Color(.black700))
+                .cornerRadius(12)
+                .padding(.top, 5)
+                .padding(.bottom, 8)
+
+                Text(L10n.Bus.Arrival.noInformation)
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .lineLimit(nil)
+
+                Text(L10n.Bus.Arrival.currentBusLocation)
+                    .font(.title3)
+                    .foregroundColor(Color(.gray50))
+                    .lineLimit(nil)
+
+                let locationName = location.nodeName ?? String(localized: "common.ui.unknownLocation")
+                Text(String(
+                    format: String(localized: "home.map.near"),
+                    locationName
+                ))
+                .font(.title2)
+                .foregroundColor(Color(.gray100))
+                .lineLimit(nil)
+            }
         }
-        return BusArrivalFormatter.generateArrivalLabel(
-            arrival: arrival,
-            busRoute: routeWithArrival.route,
-            currentEstimatedArrivalTime: currentEstimatedArrivalTime
-        )
     }
 }
 
-// 버스 위치 정보 Helper View (Fallback)
-struct BusLocationInfoView: View {
-    let location: BusLocation
-    let busRoute: BusRoute
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Image(systemName: "bus.fill")
-                    .foregroundColor(.white)
-                Text(busRoute.routeNumber)
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Capsule().fill(Color.gray.opacity(0.5)))
-                    .foregroundColor(.white)
-            }
-            .padding(.bottom, 10)
-
-            Text(L10n.Bus.Arrival.noInformation)
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-
-            Text(L10n.Bus.Arrival.currentBusLocation)
-                .font(.title3)
-                .foregroundColor(.white.opacity(0.8))
-
-            let locationName = location.nodeName ?? String(localized: "common.ui.unknownLocation")
-            Text(String(
-                format: String(localized: "home.map.near"),
-                locationName
-            ))
-            .font(.title3)
-            .foregroundColor(.white.opacity(0.8))
-        }
-    }
+private func getArrivalTimeColor(_ seconds: Int?) -> Color {
+    guard let seconds else { return .white }
+    let minutes = seconds / 60
+    return minutes < 1 ? Color(.primarynormal) : .white // 1분 미만이면 빨강, 아니면 하양
 }

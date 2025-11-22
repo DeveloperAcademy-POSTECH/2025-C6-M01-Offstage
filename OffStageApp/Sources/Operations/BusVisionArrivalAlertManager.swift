@@ -7,6 +7,8 @@ class BusVisionArrivalAlertManager: ObservableObject {
 
     /// 도착예정시간 (초)
     @Published var arrivalTime: Int = 0
+    /// 남은 정류장 개수
+    @Published var remainingStops: Int = 0
     @Published var currentState: BusNotificationState = .waitingForArrival
 
     // 알림 표시 상태 (View에서 이걸로 알림뷰 띄움)
@@ -23,6 +25,7 @@ class BusVisionArrivalAlertManager: ObservableObject {
     private var passingWaitStartTime: Date?
     /// 지나감 대기 플래그
     private var isWaitingForPassing: Bool = false
+    private var elapsedTime: Int = 0
 
     // MARK: - Init
 
@@ -41,8 +44,24 @@ class BusVisionArrivalAlertManager: ObservableObject {
 
     func startTracking() {
         // 5초마다 API 호출
-        timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
-            self?.fetchBusArrivalTime()
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self else { return }
+
+            // 5초마다 API 호출
+            if elapsedTime % 5 == 0 {
+                fetchBusArrivalTime()
+            }
+
+            if elapsedTime < Int.max - 1 {
+                elapsedTime += 1
+            } else {
+                elapsedTime = 0
+            }
+
+            // 도착시간이 줄어드는 걸 보여주기
+            if arrivalTime > 0 {
+                arrivalTime -= 1
+            }
         }
         // 즉시 한 번 호출
         fetchBusArrivalTime()
@@ -64,19 +83,23 @@ class BusVisionArrivalAlertManager: ObservableObject {
                 )
 
                 let newArrivalTime: Int
+                let remainingStopCount: Int
                 if let firstArrival = arrivals.first,
                    let estimatedTime = firstArrival.estimatedArrivalTime
                 {
                     newArrivalTime = estimatedTime
-                    print("🚌 버스 도착 정보 조회 성공: \(estimatedTime)초 후 도착, 남은 정류장: \(firstArrival.remainingStopCount ?? 0)개")
+                    remainingStopCount = firstArrival.remainingStopCount ?? 0
+                    print("🚌 버스 도착 정보 조회 성공: \(estimatedTime)초 후 도착, 남은 정류장: \(remainingStopCount)개")
                 } else {
                     // 도착 정보가 없으면 -1로 설정
                     newArrivalTime = -1
+                    remainingStopCount = -1
                     print("⚠️ 버스 도착 정보 없음")
                 }
 
                 await MainActor.run {
                     self.processArrivalTime(newArrivalTime)
+                    self.remainingStops = remainingStopCount
                 }
             } catch {
                 print("❌ 버스 도착 정보 조회 실패: \(error.localizedDescription)")

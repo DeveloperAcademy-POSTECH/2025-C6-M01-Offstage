@@ -29,14 +29,16 @@ class BusVisionViewModel: ObservableObject {
         // busRoute.routeNumber에서 괄호 내용 제거
         busNumberToDetect = busRoute.routeNumber.removeParenthesesContent()
         alertManager = .init(busStop: busStop, busRoute: busRoute)
-        ttsManager.speakNow(of: "버스 인식을 위해 카메라를 버스 진입 방향으로 비춰주세요")
         // combine 등록
         observeBusDetectStatus()
         setupAlertObservers()
 
         // 감지중 햅틱 피드백 시작
         startDetectingFeedback()
-        ttsManager.speakNow(of: "버스를 찾고 있어요")
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            self?.ttsManager.speakNow(of: "버스 인식을 위해 카메라를 어깨 위로 들어주세요.")
+        }
     }
 
     deinit {

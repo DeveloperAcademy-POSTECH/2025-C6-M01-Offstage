@@ -10,6 +10,7 @@ struct BusVisionView: View {
     @StateObject var vm: BusVisionViewModel
 
     @EnvironmentObject var router: Router<AppRoute>
+    @State var showHelpSheet: Bool = false
 
     // init
     init(busStop: BusStop, busRoute: BusRoute) {
@@ -31,44 +32,47 @@ struct BusVisionView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
             VStack {
-                // 탐지결과
-                DetectingStatusSubView(status: vm.stateToPresent)
-                    .padding(.horizontal)
+                // 버스도착정보 실시간 정보
+                WaitingBusRealtimeInfoView(
+                    routeno: vm.busNumberToDetect,
+                    arrivalSecconds: vm.alertManager.arrivalTime
+                )
+                .padding()
 
+                // TODO: 정류장 1개 기준으로 알람 띄우는 방식 바꾸기
                 // 버스 도착 & 지나감 알람
                 if vm.alertManager.showSoonArrivalAlert {
-                    SoonArrivalAlertView(
-                        isArrivingAlert: true,
-                        routeNo: busRoute.routeNumber
-                    )
-                    .offset(y: -10)
+                    SoonArrivalAlertView(routeNo: busRoute.routeNumber)
+                        .offset(y: -10)
                 }
 
-                if vm.alertManager.showBusPassedAlert {
-                    SoonArrivalAlertView(
-                        isArrivingAlert: false,
-                        routeNo: busRoute.routeNumber
-                    )
-                    .offset(y: -10)
-                }
-            }
+                Spacer()
 
-            Button {
-                router.popToRoot()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 48, weight: .medium))
-                    .foregroundStyle(Color.white)
+                // 탐지결과
+                DetectingStatusSubView(status: vm.stateToPresent)
                     .padding()
-                    .background(
-                        Circle()
-                            .fill(Color(.backgroundheavy))
-                            .stroke(Color(.primarynormal), lineWidth: 7)
-                            .frame(width: 96, height: 96)
-                    )
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-            .padding(.bottom)
+            .accessibilitySortPriority(-100)
+        }
+        .sheet(isPresented: $showHelpSheet) {
+            BusVisionHelpSheet(showSheet: $showHelpSheet)
+        }
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("카메라 버스 인식")
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
+                    .accessibilitySortPriority(100)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showHelpSheet.toggle()
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                }
+                .accessibilityLabel("도움말")
+                .accessibilityHint("두번 탭하여 도움말 시트를 열 수 있습니다.")
+            }
         }
     }
 }

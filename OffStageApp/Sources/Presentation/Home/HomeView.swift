@@ -32,9 +32,8 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
-            // 전체 영역을 터치 가능하게 만드는 투명 배경
-            Color.clear
-                .contentShape(Rectangle())
+            Color(Color(.black800))
+                .ignoresSafeArea()
                 .onTapGesture {
                     hideKeyboard()
                 }
@@ -44,7 +43,7 @@ struct HomeView: View {
                     .font(.body)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(.gray50))
                     .padding(.bottom, 35)
 
                 stopInfoView()
@@ -194,14 +193,14 @@ struct HomeView: View {
                         Text("변경")
                             .font(.body)
                             .fontWeight(.semibold)
-                            .foregroundColor(.white)
+                            .foregroundColor(Color(.gray50))
                     }
                     .padding(.vertical, 10)
                     .padding(.horizontal, 20)
-                    .background(Color(red: 0.1098, green: 0.1176, blue: 0.1490))
+                    .background(Color(.backgroundmedium))
                     .overlay(
                         RoundedRectangle(cornerRadius: 99)
-                            .stroke(.white.opacity(0.4), lineWidth: 2)
+                            .stroke(Color(.black500), lineWidth: 5)
                     )
                     .cornerRadius(99)
                     .accessibilityLabel(String(localized: "home.a11y.button.change.label"))
@@ -210,7 +209,7 @@ struct HomeView: View {
             }
             .padding()
             .frame(maxWidth: .infinity, minHeight: 60)
-            .background(Color(red: 0.0784, green: 0.0823, blue: 0.1059))
+            .background(Color(.backgroundstrong))
             .cornerRadius(12)
             .padding(.horizontal)
 
