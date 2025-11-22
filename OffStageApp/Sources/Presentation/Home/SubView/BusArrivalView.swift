@@ -96,7 +96,7 @@ struct BusArrivalView: View {
                         .frame(maxWidth: .infinity)
                         .overlay(
                             RoundedRectangle(cornerRadius: 99)
-                                .stroke(Color(.primarynormal), lineWidth: 2)
+                                .stroke(Color(.primarynormal), lineWidth: 6)
                         )
                         .cornerRadius(99)
                     }
