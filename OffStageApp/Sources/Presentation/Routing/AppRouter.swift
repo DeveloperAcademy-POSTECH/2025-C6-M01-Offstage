@@ -7,7 +7,7 @@ enum AppRoute: Routable {
     case busRouteSearch(busStop: BusStop, recognizedText: String)
     case busVision(busStop: BusStop, busRoute: BusRoute)
     case sttTest
-    case quickCamera
+    case quickCamera(routeNo: String)
     case busArrival(busStop: BusStop, busRoute: BusRoute) // New route
 
     @MainActor
@@ -29,8 +29,8 @@ enum AppRoute: Routable {
         case .sttTest:
             STTandTTSTestView()
 
-        case .quickCamera:
-            QuickCameraView()
+        case let .quickCamera(routeNo):
+            QuickCameraView(routeNo: routeNo)
 
         case let .busArrival(busStop, busRoute): // Handle the new route
             BusArrivalView(busStop: busStop, busRoute: busRoute)
