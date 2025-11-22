@@ -53,33 +53,52 @@ extension BusVisionViewModel {
     private func observeBusDetectStatus() {
         $busDetectedState
             .sink { [weak self] status in
+                guard let self else { return }
+                
                 switch status {
                 case let .mineDetected(routeNo):
-                    self?.myBusFeedback(routeNo)
-                    self?.stateToPresent = status
-                    self?.lastMineDetectedTime = Date()
-                    self?.shouldPlayDetectingHaptic = false
-
-                default:
+                    myBusFeedback(routeNo)
+                    stateToPresent = status
+                    lastMineDetectedTime = Date()
+                    shouldPlayDetectingHaptic = false
+                    
+                case .notMine:
                     // mineDetected 후 1초 이내면 상태 변경 무시
-                    if let lastTime = self?.lastMineDetectedTime,
+                    if let lastTime = lastMineDetectedTime,
                        Date().timeIntervalSince(lastTime) < 1.0
                     {
                         return
                     }
-                    self?.stateToPresent = status
-                    self?.shouldPlayDetectingHaptic = true
+                    stateToPresent = status
+                    notMineFeedback()
+                    shouldPlayDetectingHaptic = false
+
+                case .unDetected:
+                    // mineDetected 후 1초 이내면 상태 변경 무시
+                    if let lastTime = lastMineDetectedTime,
+                       Date().timeIntervalSince(lastTime) < 1.0
+                    {
+                        return
+                    }
+                    stateToPresent = status
+                    shouldPlayDetectingHaptic = true
                 }
             }
             .store(in: &cancellables)
     }
 
+    /// 내 버스가 인식된 경우 햅틱과 TTS재생
     private func myBusFeedback(_ detectedRouteNo: String) {
         // 햅틱
         hapticManager.playHaptic(intensity: 1.0, sharpness: 1.0, duration: 0.2)
 
         // TTS
-        ttsManager.speakNow(of: "\(detectedRouteNo)번 버스가 인식됐어요.")
+        ttsManager.speakNow(of: "\(detectedRouteNo)번 버스. 버스를 향해 손을 흔들어주세요")
+    }
+    
+    /// 다른 버스가 인식된 경우  TTS재생
+    private func notMineFeedback() {
+        ttsManager.speakNow(of: "다른 번호의 버스입니다.")
     }
 
     private func startDetectingFeedback() {
