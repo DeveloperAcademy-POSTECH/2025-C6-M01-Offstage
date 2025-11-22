@@ -1,53 +1,80 @@
+import BusAPI
 import SwiftUI
 
+/// 빠른 버스인식 뷰
 struct QuickCameraView: View {
     // properties
-    /// 탐지할 노선번호
-    @State var routeNumber: String = ""
-    @State var busDetectedState: BusDetectStatus = .unDetected
-    /// 비전 타입
-    @State var isRouteNumEntered: Bool = false
-    /// 빠른 버스탐지일 때 입력받을 노선번호텍스트용
-    @State var routeNumInputText: String = ""
+    @StateObject var vm: QuickCameraViewModel
+    var routeNumber: String = ""
 
     @EnvironmentObject var router: Router<AppRoute>
+    @State var showHelpSheet: Bool = false
+
+    // init
+    init(routeNo: String) {
+        _vm = StateObject(wrappedValue: QuickCameraViewModel(routeNo: routeNo))
+        routeNumber = routeNo
+    }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack(alignment: .top) {
             // 뷰파인더 + 바운딩박스
             BusDetectionView(
-                routeNumberToDetect: routeNumber,
-                detectStatus: $busDetectedState
+                routeNumberToDetect: vm.busNumberToDetect,
+                detectStatus: $vm.busDetectedState
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
             VStack {
-                if isRouteNumEntered {
-                    #if DEBUG_MODE
-                        if busDetectedState == .unDetected {
-                            Text(String(format: String(localized: "busVision.debug.detectingWithNumber"), routeNumber))
-                        }
-                    #endif
-                    // 탐지 결과
-                    DetectingStatusSubView(status: busDetectedState)
-                        .padding(.horizontal)
-                } else {
-                    FastBusVisionInputView(routeNumber: $routeNumInputText) {
-                        isRouteNumEntered = true
-                        routeNumber = routeNumInputText
-                    }
-                }
+                // 버스도착정보: \(버스번호)번 버스를 인식합니다
+                (
+                    Text(routeNumber)
+                        .foregroundColor(Color(.primarynormal))
+                        .font(.title3)
+                        .fontWeight(.semibold)
+
+                        +
+
+                        Text("번 버스를 인식합니다.")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                )
+                .padding(.vertical, 16)
+                .padding(.horizontal, 20)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundStyle(Color.black)
+                )
+                .padding()
+
+                Spacer()
+
+                // 탐지결과
+                DetectingStatusSubView(status: vm.stateToPresent)
+                    .padding()
             }
-            .padding(.vertical)
-            .frame(maxWidth: .infinity, maxHeight: 300, alignment: .center)
-            .background {
-                Rectangle()
-                    .foregroundStyle(.black)
+            .accessibilitySortPriority(-100)
+        }
+        .sheet(isPresented: $showHelpSheet) {
+            BusVisionHelpSheet(showSheet: $showHelpSheet)
+        }
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("버스 바로 인식")
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
+                    .accessibilitySortPriority(100)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showHelpSheet.toggle()
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                }
+                .accessibilityLabel("도움말")
+                .accessibilityHint("두번 탭하여 도움말 시트를 열 수 있습니다.")
             }
         }
     }
-}
-
-#Preview {
-    QuickCameraView()
 }

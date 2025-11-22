@@ -68,6 +68,9 @@ struct BusRouteSearchView: View {
                 }
             }
         }
+        .onTapGesture {
+            hideKeyboard()
+        }
         .onAppear {
             viewModel.startAutoRefresh()
         }
@@ -94,6 +97,10 @@ struct BusRouteSearchView: View {
                 }
             )
         }
+    }
+
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 
     private var searchBar: some View {
@@ -161,6 +168,11 @@ struct BusRouteSearchView: View {
                     }
                 }
             }
+            .simultaneousGesture(
+                TapGesture().onEnded { _ in
+                    hideKeyboard()
+                }
+            )
         }
     }
 
@@ -174,8 +186,7 @@ struct BusRouteSearchView: View {
                 .lineLimit(nil)
 
             Button(action: {
-                router.push(.quickCamera
-                )
+                router.push(.quickCamera(routeNo: viewModel.recognizedText))
             }) {
                 Text("버스 바로 인식")
                     .lineLimit(nil)

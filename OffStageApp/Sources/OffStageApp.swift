@@ -34,6 +34,8 @@ import SwiftUI
 @main
 struct OffStageApp: App {
     @StateObject private var router: Router<AppRoute>
+    @StateObject private var backgroundLocationManager = BackgroundLocationManager()
+    @Environment(\.scenePhase) private var scenePhase
 
     init() {
         #if DEBUG_MODE
@@ -54,6 +56,18 @@ struct OffStageApp: App {
             #else
                 RouterView(router: router)
             #endif
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            switch newPhase {
+            case .background:
+                backgroundLocationManager.startBackgroundTracking()
+            case .active:
+                backgroundLocationManager.stopBackgroundTracking()
+            case .inactive:
+                break
+            @unknown default:
+                break
+            }
         }
     }
 }
