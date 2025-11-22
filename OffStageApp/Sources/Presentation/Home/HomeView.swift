@@ -178,10 +178,6 @@ struct HomeView: View {
                     .lineSpacing(8)
 
                     Spacer()
-                }
-
-                HStack {
-                    Spacer()
 
                     Button {
                         isBusStopSelectionPresented = true
