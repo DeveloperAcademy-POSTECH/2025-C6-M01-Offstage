@@ -13,6 +13,15 @@ public protocol LocationProviding {
     /// Requests permission from the user to access their location.
     func requestLocationPermission()
 
+    /// Requests always authorization for background location updates.
+    func requestAlwaysAuthorization()
+
+    /// Starts continuous location updates (including background).
+    func startBackgroundLocationUpdates()
+
+    /// Stops continuous location updates.
+    func stopBackgroundLocationUpdates()
+
     /// GPS 좌표를 주소(CLPlacemark)로 변환합니다.
     func fetchPlacemark(from location: CLLocationCoordinate2D) async throws -> CLPlacemark?
 

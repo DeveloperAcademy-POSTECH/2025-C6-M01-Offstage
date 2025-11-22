@@ -30,8 +30,18 @@ final class HomeViewModel: ObservableObject {
             isLoading = true
             defer { isLoading = false }
             do {
-                let location = try await locationProvider.requestLocation()
-                let coordinate = CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude)
+                // 먼저 백그라운드에서 저장된 위치를 확인
+                var coordinate: CLLocationCoordinate2D
+
+                if let cachedLocation = BackgroundLocationManager.getLastKnownLocation() {
+                    print("✅ Using cached location from background tracking")
+                    coordinate = cachedLocation
+                } else {
+                    print("📍 Requesting fresh location")
+                    let location = try await locationProvider.requestLocation()
+                    coordinate = CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude)
+                }
+
                 let cityCodeString = try await detectCityCode(from: coordinate)
                 let stops = try await busRepository.fetchStopsNearby(
                     latitude: coordinate.latitude,

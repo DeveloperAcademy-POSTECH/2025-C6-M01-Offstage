@@ -34,6 +34,9 @@ struct HomeView: View {
         ZStack {
             Color(Color(.black800))
                 .ignoresSafeArea()
+                .onTapGesture {
+                    hideKeyboard()
+                }
 
             VStack(spacing: 0) {
                 Text(L10n.K.appName)
@@ -80,6 +83,7 @@ struct HomeView: View {
                 Spacer()
             }
             .padding(.top)
+            .allowsHitTesting(true)
         }
         .onAppear {
             if !hasRequestedPermissions {
@@ -238,5 +242,9 @@ struct HomeView: View {
             .cornerRadius(12)
             .padding(.horizontal)
         }
+    }
+
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
