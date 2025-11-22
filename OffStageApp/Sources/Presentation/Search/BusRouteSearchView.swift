@@ -67,8 +67,14 @@ struct BusRouteSearchView: View {
                 }
             }
         }
-        .navigationTitle("번호 입력 확인")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("번호 입력 확인")
+                    .font(.headline)
+                    .foregroundColor(.white)
+            }
+        }
         .onTapGesture {
             hideKeyboard()
         }
@@ -157,9 +163,11 @@ struct BusRouteSearchView: View {
                         Divider()
                             .background(Color(.black500))
                     }
-                    .background(Color(.backgroundstrong))
+                }
+                .background(Color(.backgroundstrong))
 
-                    if case .noFilter = filterState {
+                if case .noFilter = filterState {
+                    VStack(alignment: .center, spacing: 0) {
                         searchPromptFooter
                     }
                 }
@@ -221,7 +229,7 @@ struct BusRouteSearchView: View {
     }
 
     private var noFilterText: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .center, spacing: 0) {
             Text("\(viewModel.busStop.name) 정류장에는\n일치하는 버스가 없습니다.")
                 .font(.body)
                 .foregroundColor(Color(.gray100))
