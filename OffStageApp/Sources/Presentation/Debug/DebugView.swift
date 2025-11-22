@@ -36,10 +36,10 @@
                             busRoute: testBusRoute
                         )
                     )
-                    NavigationLink(
-                        "빠른버스",
-                        destination: QuickCameraView()
-                    )
+                    // NavigationLink(
+                    //     "빠른버스",
+                    //     destination: QuickCameraView()
+                    // )
                     NavigationLink(
                         L10n.Debug.Ui.buttonApiTest,
                         destination: TestView()
