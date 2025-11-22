@@ -9,6 +9,9 @@ class HapticManager {
     // 핵심 햅틱 엔진
     var hapticEngine: CHHapticEngine?
 
+    // 엔진 실행 상태 추적
+    private var isEngineRunning: Bool = false
+
     // MARK: - init
 
     private init() {
@@ -31,7 +34,8 @@ class HapticManager {
         }
 
         // The stopped handler alerts you of engine stoppage due to external causes.
-        hapticEngine.stoppedHandler = { reason in
+        hapticEngine.stoppedHandler = { [weak self] reason in
+            self?.isEngineRunning = false
             print("The engine stopped for reason: \(reason.rawValue)")
             switch reason {
             case .audioSessionInterrupt:
@@ -54,12 +58,15 @@ class HapticManager {
         }
 
         // The reset handler provides an opportunity for your app to restart the engine in case of failure.
-        hapticEngine.resetHandler = {
+        hapticEngine.resetHandler = { [weak self] in
             print("The engine reset --> Restarting now!")
+            self?.isEngineRunning = false
             do {
-                try self.hapticEngine?.start()
+                try self?.hapticEngine?.start()
+                self?.isEngineRunning = true
             } catch {
                 print("Failed to restart the engine: \(error)")
+                self?.isEngineRunning = false
             }
         }
     }
@@ -71,11 +78,18 @@ class HapticManager {
             return false
         }
 
+        // 이미 실행 중이면 다시 시작하지 않음
+        guard !isEngineRunning else {
+            return true
+        }
+
         do {
             try hapticEngine?.start()
+            isEngineRunning = true
             return true
         } catch {
             print("엔진 시작 실패: \(error)")
+            isEngineRunning = false
             return false
         }
     }
@@ -84,9 +98,18 @@ class HapticManager {
 
     /// ahap 파일로부터 햅틱 읽어서 재생하기
     func playHapticsFile(named filename: String) {
+        // 메인 스레드에서 실행 보장
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in
+                self?.playHapticsFile(named: filename)
+            }
+            return
+        }
+
         guard startEngineIfNeeded() else { return }
 
         guard let path = Bundle.main.path(forResource: filename, ofType: "ahap") else {
+            print("햅틱 파일을 찾을 수 없습니다: \(filename).ahap")
             return
         }
 
@@ -111,6 +134,14 @@ class HapticManager {
 
     // 패턴 햅틱 재생 (통합 버전)
     func playHapticPattern(hapticEvents: [CHHapticEvent]) {
+        // 메인 스레드에서 실행 보장
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in
+                self?.playHapticPattern(hapticEvents: hapticEvents)
+            }
+            return
+        }
+
         guard startEngineIfNeeded() else { return }
 
         do {

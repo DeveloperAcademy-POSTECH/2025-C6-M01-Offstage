@@ -21,6 +21,10 @@ final class BusArrivalViewModel: ObservableObject {
     private let busArrivalOperations: BusArrivalOperations
     private var arrivalMonitoringTask: Task<Void, Never>?
     private var countdownTimer: Timer?
+    private let hapticManager = HapticManager.shared
+
+    // Haptic 중복 방지 플래그
+    private var hasVibratedAtSecondStop = false
 
     // MARK: - 초기화
 
@@ -69,6 +73,7 @@ final class BusArrivalViewModel: ObservableObject {
         arrivalMonitoringTask?.cancel()
         arrivalMonitoringTask = nil
         stopCountdownTimer()
+        hasVibratedAtSecondStop = false
     }
 
     // MARK: - 비공개 헬퍼 메서드
@@ -85,16 +90,23 @@ final class BusArrivalViewModel: ObservableObject {
             errorMessage = nil
             routeWithArrival = BusRouteWithArrival(route: busRoute, arrival: arrival)
             currentEstimatedArrivalTime = arrival.estimatedArrivalTime
+
+            // 2번째 전 정류장 출발 조건 체크 및 Haptic 피드백
+            checkAndTriggerHapticFeedback(arrival: arrival)
+
             startCountdownTimer()
         case let .location(location):
             errorMessage = nil
             busLocationInfo = location
             currentEstimatedArrivalTime = nil
             stopCountdownTimer()
+            // 위치 정보만 있을 때는 플래그 초기화
+            hasVibratedAtSecondStop = false
         case .empty:
             errorMessage = String(localized: "bus.arrival.noOperatingRoutes")
             currentEstimatedArrivalTime = nil
             stopCountdownTimer()
+            hasVibratedAtSecondStop = false
         case let .error(error):
             errorMessage = String(
                 format: String(localized: "bus.arrival.error.loadFailed"),
@@ -102,7 +114,26 @@ final class BusArrivalViewModel: ObservableObject {
             )
             currentEstimatedArrivalTime = nil
             stopCountdownTimer()
+            hasVibratedAtSecondStop = false
         }
+    }
+
+    private func checkAndTriggerHapticFeedback(arrival: BusArrival) {
+        // 이미 진동을 울렸다면 중복 방지
+        guard !hasVibratedAtSecondStop else { return }
+
+        // 2번째 전 정류장 출발 조건: remainingStopCount == 2
+        guard let remainingStops = arrival.remainingStopCount,
+              remainingStops <= 2
+        else {
+            return
+        }
+
+        print("✅ 2번째 전 정류장 출발 감지 - Haptic 피드백 실행")
+        hasVibratedAtSecondStop = true
+
+        // Haptic 피드백 실행 (메인 스레드 보장됨)
+        hapticManager.playHaptic(intensity: 1.0, sharpness: 1.0, duration: 0.3)
     }
 
     private func startCountdownTimer() {
