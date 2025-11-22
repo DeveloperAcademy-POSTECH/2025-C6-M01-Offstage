@@ -1,3 +1,4 @@
+import Accelerate
 import AVFoundation // 마이크 캡처를 위한 오디오 세션/엔진
 import Combine // @Published와 ObservableObject를 통해 상태 변경을 UI에 전달하기 위해 필요
 import Foundation
@@ -19,6 +20,19 @@ final class STTManager: NSObject, ObservableObject {
     private var request: SFSpeechAudioBufferRecognitionRequest?
     // 실제 인식 작업(콜백으로 부분/최종 결과, 오류를 받는다)
     private var recognitionTask: SFSpeechRecognitionTask?
+    private var finalResultContinuation: CheckedContinuation<String?, Never>?
+
+    // 발화 상태 추적용
+    private enum ListeningState {
+        case waitingForSpeech
+        case trackingSpeech(peak: Float)
+    }
+
+    private var listeningState: ListeningState = .waitingForSpeech
+    private let startThreshold: Float = -40 // 말 시작 판단 임계값(dB)
+    private let falloffMargin: Float = 20 // 피크 대비 종료 판단 마진(dB)
+    private var silenceTimerTask: Task<Void, Never>? // 1초 무음 확인용 타이머
+    private var lastSpeechTimestamp = Date.distantPast // 최소 발화 지속 시간 추적
 
     // MARK: - 초기화
 
@@ -45,6 +59,15 @@ final class STTManager: NSObject, ObservableObject {
         }
     }
 
+    // MARK: 음성이 끝난 것을 인식
+
+    func listenUntilFinalResult() async -> String? {
+        await withCheckedContinuation { continuation in
+            finalResultContinuation = continuation
+            startListening()
+        }
+    }
+
     // MARK: - 인식 시작 (실시간 스트리밍)
 
     func startListening() {
@@ -53,6 +76,11 @@ final class STTManager: NSObject, ObservableObject {
 
         // UI 토글용 상태 업데이트
         isListening = true
+
+        // 상태 초기화
+        listeningState = .waitingForSpeech
+        silenceTimerTask?.cancel()
+        silenceTimerTask = nil
 
         // 1) 스트리밍 요청 객체 생성
         let request = SFSpeechAudioBufferRecognitionRequest()
@@ -69,13 +97,20 @@ final class STTManager: NSObject, ObservableObject {
                 // UI 업데이트는 메인 스레드에서
                 DispatchQueue.main.async {
                     self.transcript = result.bestTranscription.formattedString
+                    print("[STT] transcript:", self.transcript)
+                }
+
+                if result.isFinal {
+                    finishRecognition(with: result.bestTranscription.formattedString)
+                    print("[STT] recognizer reported final result")
+                    return
                 }
             }
 
             if let error {
                 // 오류가 발생하면 안전하게 정리하고 중지
-                print("인식 오류: \(error.localizedDescription)")
-                stopListening()
+                print("[STT] recognition error:", error.localizedDescription)
+                finishRecognition(with: nil)
             }
         }
 
@@ -89,37 +124,110 @@ final class STTManager: NSObject, ObservableObject {
         // installTap: 마이크에서 나오는 오디오 버퍼를 "훔쳐보기"로 가져옴
         // bufferSize는 1024 샘플 단위로 콜백. 너무 작거나 크면 지연/성능 영향
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
+            guard let self else { return }
+
+            // 데시벨 기반 상태 머신
+            let rms = rmsLevel(for: buffer)
+            print("[STT] rms:", rms, "state:", listeningState)
+
+            switch listeningState {
+            case .waitingForSpeech:
+                if rms > startThreshold {
+                    print("[STT] speech detected, peak:", rms)
+                    listeningState = .trackingSpeech(peak: rms)
+                    lastSpeechTimestamp = Date() // 발화 시작 시각 저장
+                }
+            case let .trackingSpeech(peak):
+                let newPeak = max(peak, rms)
+                listeningState = .trackingSpeech(peak: newPeak)
+
+                let hasRecognizedText = !transcript.isEmpty // 👈 실제 문장이 나왔을 때만 무음 판단
+                let elapsedSinceSpeech = Date().timeIntervalSince(lastSpeechTimestamp)
+                let canCheckSilence = hasRecognizedText && elapsedSinceSpeech > 1.0
+
+                if canCheckSilence, rms < newPeak - falloffMargin {
+                    scheduleSilenceTimeout()
+                } else {
+                    cancelSilenceTimeout()
+                    if rms > newPeak - 3 { // 👈 충분히 큰 입력이면 최근 발화 시각 갱신
+                        lastSpeechTimestamp = Date()
+                    }
+                }
+            }
+
             // 가져온 오디오 버퍼를 인식 요청에 계속 추가 → 스트리밍 인식
-            self?.request?.append(buffer)
+            self.request?.append(buffer)
         }
 
         // 4) 오디오 엔진 시작 (실제 마이크 캡처 ON)
         audioEngine.prepare()
         do {
             try audioEngine.start() // 여기서부터 마이크 입력이 흘러들어옴
+            print("[STT] audio engine started")
         } catch {
-            print("오디오 엔진 시작 실패: \(error.localizedDescription)")
-            stopListening()
+            print("[STT] audio engine start failed:", error.localizedDescription)
+            finishRecognition(with: nil)
         }
     }
 
     // MARK: - 인식 중지 (리소스 정리)
 
     func stopListening() {
-        // 오디오 입력 정지
-        audioEngine.stop()
-        // 탭 제거: 다음 시작 때 중복 탭으로 인한 충돌/중복 콜백 방지
-        audioEngine.inputNode.removeTap(onBus: 0)
-        // 인식 요청 스트림 종료 통지(더 이상 오디오 없음)
-        request?.endAudio()
-        // 인식 작업 취소(완전 종료)
-        recognitionTask?.cancel()
+        print("[STT] stopListening called")
+        finishRecognition(with: nil)
+    }
 
-        // 참조 해제 (다음 시작을 위해 깔끔히)
+    private func finishRecognition(with finalText: String?) {
+        print("[STT] finishRecognition finalText:", finalText ?? "nil")
+
+        if audioEngine.isRunning {
+            audioEngine.stop()
+            audioEngine.inputNode.removeTap(onBus: 0)
+        }
+
+        request?.endAudio()
+        recognitionTask?.cancel()
         request = nil
         recognitionTask = nil
-
-        // UI 토글용 상태 업데이트
         isListening = false
+        listeningState = .waitingForSpeech
+        silenceTimerTask?.cancel()
+        silenceTimerTask = nil
+
+        finalResultContinuation?.resume(returning: finalText?.isEmpty == false ? finalText : nil)
+        finalResultContinuation = nil
+    }
+
+    // 1초 무음 대기 로직
+    private func scheduleSilenceTimeout() {
+        if silenceTimerTask != nil { return }
+        print("[STT] silence candidate, start 1s timer")
+        silenceTimerTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(1))
+            await MainActor.run {
+                guard let self else { return }
+                print("[STT] silence confirmed -> finishing")
+                self.finishRecognition(with: self.transcript)
+            }
+        }
+    }
+
+    private func cancelSilenceTimeout() {
+        if silenceTimerTask != nil {
+            print("[STT] speech resumed, cancel timer")
+        }
+        silenceTimerTask?.cancel()
+        silenceTimerTask = nil
+    }
+
+    // RMS 계산
+    private func rmsLevel(for buffer: AVAudioPCMBuffer) -> Float {
+        guard let channelData = buffer.floatChannelData?.pointee else { return -100 }
+        let frameLength = vDSP_Length(buffer.frameLength)
+        var meanSquare: Float = 0
+        vDSP_measqv(channelData, 1, &meanSquare, frameLength)
+        let rms = sqrt(meanSquare)
+        let db = 20 * log10(rms)
+        return db.isFinite ? db : -100
     }
 }

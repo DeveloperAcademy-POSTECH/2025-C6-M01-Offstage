@@ -59,9 +59,15 @@ struct BusStopSelectionView: View {
                     Button {
                         dismiss() // Sheet 닫기
                     } label: {
-                        Image(systemName: "xmark")
-                            .foregroundColor(.white)
-                            .frame(width: 44, height: 44)
+                        Image(systemName: "xmark.circle.fill")
+                            .symbolRenderingMode(.palette)
+                            .foregroundStyle(
+                                .white,
+                                Color(red: 0.11, green: 0.12, blue: 0.15)
+                            )
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.white)
                     }
                 }
             }

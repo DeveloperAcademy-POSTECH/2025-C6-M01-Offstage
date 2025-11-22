@@ -34,6 +34,9 @@ let baseInfoPlist: [String: Plist.Value] = [
     "ITSAppUsesNonExemptEncryption": .boolean(false),
     "UIDesignRequiresCompatibility": .boolean(true),
     "UIUserInterfaceStyle": "Dark",
+    "UISupportedInterfaceOrientations": [
+        "UIInterfaceOrientationPortrait",
+    ],
 ]
 
 let formatScript: TargetScript = .pre(

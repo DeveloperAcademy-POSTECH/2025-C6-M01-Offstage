@@ -26,19 +26,14 @@ class SheetViewModel: ObservableObject {
         let audioSession = AVAudioSession.sharedInstance()
         try? audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
         try? audioSession.setActive(true)
+
         playSound(named: "onsound")
-        // STT 시작
-        sttManager.startListening()
 
-        // 음성 인식 시간 (5초 동안 듣기)
-        try? await Task.sleep(nanoseconds: RefreshInterval.seconds(5))
+        let recognizedText = await sttManager.listenUntilFinalResult()
 
-        // STT 중지
-        sttManager.stopListening()
         playSound(named: "offsound")
 
-        let recognizedText = sttManager.transcript
-        return recognizedText.isEmpty ? nil : recognizedText
+        return recognizedText
     }
 
     func stopSpeaking() {
