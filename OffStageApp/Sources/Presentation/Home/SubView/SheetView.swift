@@ -15,14 +15,23 @@ struct SheetView: View {
 
     var body: some View {
         ZStack {
+            Color(Color(.backgroundstrong))
+                .ignoresSafeArea()
+
             VStack {
                 // Dismiss Button
                 HStack {
                     Spacer()
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.largeTitle)
-                            .foregroundColor(.gray.opacity(0.8))
+                            .symbolRenderingMode(.palette)
+                            .foregroundStyle(
+                                .white,
+                                Color(red: 0.11, green: 0.12, blue: 0.15)
+                            )
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.white)
                     }
                     .accessibilityLabel(L10n.Common.Ui.buttonCancel)
                 }
