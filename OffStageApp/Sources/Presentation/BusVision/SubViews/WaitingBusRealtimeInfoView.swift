@@ -39,12 +39,13 @@ struct WaitingBusRealtimeInfoView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .accessibilityLabel(arrivalSecconds >= 0 ? "\(routeno) 버스 \(arrialTimeText) 도착 예정" : "도착 정보 없음")
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .foregroundStyle(.black)
         )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(arrivalSecconds >= 0 ? "\(routeno) 버스 \(arrialTimeText) 도착 예정" : "도착 정보 없음")
     }
 }
 
