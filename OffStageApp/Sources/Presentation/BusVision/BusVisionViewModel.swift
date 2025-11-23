@@ -54,14 +54,14 @@ extension BusVisionViewModel {
         $busDetectedState
             .sink { [weak self] status in
                 guard let self else { return }
-                
+
                 switch status {
                 case let .mineDetected(routeNo):
                     myBusFeedback(routeNo)
                     stateToPresent = status
                     lastMineDetectedTime = Date()
                     shouldPlayDetectingHaptic = false
-                    
+
                 case .notMine:
                     // mineDetected 후 1초 이내면 상태 변경 무시
                     if let lastTime = lastMineDetectedTime,
@@ -95,7 +95,7 @@ extension BusVisionViewModel {
         // TTS
         ttsManager.speakNow(of: "\(detectedRouteNo)번 버스. 버스를 향해 손을 흔들어주세요")
     }
-    
+
     /// 다른 버스가 인식된 경우  TTS재생
     private func notMineFeedback() {
         ttsManager.speakNow(of: "다른 번호의 버스입니다.")
