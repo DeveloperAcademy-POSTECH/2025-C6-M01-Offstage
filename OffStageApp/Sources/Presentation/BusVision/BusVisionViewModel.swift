@@ -104,7 +104,6 @@ extension BusVisionViewModel {
     private func startDetectingFeedback() {
         detectingHapticTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true, block: { [weak self] _ in
             guard let self, shouldPlayDetectingHaptic else { return }
-            print("기다리는중 피드백")
             hapticManager.playHapticsFile(named: "Waiting")
         })
     }
