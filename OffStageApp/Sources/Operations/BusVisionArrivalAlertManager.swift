@@ -13,7 +13,6 @@ class BusVisionArrivalAlertManager: ObservableObject {
 
     // 알림 표시 상태 (View에서 이걸로 알림뷰 띄움)
     @Published var showSoonArrivalAlert: Bool = false
-    @Published var showBusPassedAlert: Bool = false
 
     private var timer: Timer?
     private let busStop: BusStop
@@ -21,10 +20,6 @@ class BusVisionArrivalAlertManager: ObservableObject {
     private let busArrivalOperations: BusArrivalOperations
     private var previousArrivalTime: Int = 0
 
-    /// 지나감 대기 중인 버스의 시작 시간 추적
-    private var passingWaitStartTime: Date?
-    /// 지나감 대기 플래그
-    private var isWaitingForPassing: Bool = false
     private var elapsedTime: Int = 0
 
     // MARK: - Init
@@ -83,23 +78,23 @@ class BusVisionArrivalAlertManager: ObservableObject {
                 )
 
                 let newArrivalTime: Int
-                let remainingStopCount: Int
+                let newRemainingStopCount: Int
                 if let firstArrival = arrivals.first,
                    let estimatedTime = firstArrival.estimatedArrivalTime
                 {
                     newArrivalTime = estimatedTime
-                    remainingStopCount = firstArrival.remainingStopCount ?? 0
-                    print("🚌 버스 도착 정보 조회 성공: \(estimatedTime)초 후 도착, 남은 정류장: \(remainingStopCount)개")
+                    newRemainingStopCount = firstArrival.remainingStopCount ?? 0
+                    print("🚌 버스 도착 정보 조회 성공: \(estimatedTime)초 후 도착, 남은 정류장: \(newRemainingStopCount)개")
                 } else {
                     // 도착 정보가 없으면 -1로 설정
                     newArrivalTime = -1
-                    remainingStopCount = -1
+                    newRemainingStopCount = -1
                     print("⚠️ 버스 도착 정보 없음")
                 }
 
                 await MainActor.run {
-                    self.processArrivalTime(newArrivalTime)
-                    self.remainingStops = remainingStopCount
+                    self.processArrivalInfo(time: newArrivalTime, stop: newRemainingStopCount)
+                    self.remainingStops = newRemainingStopCount
                 }
             } catch {
                 print("❌ 버스 도착 정보 조회 실패: \(error.localizedDescription)")
@@ -108,21 +103,24 @@ class BusVisionArrivalAlertManager: ObservableObject {
         }
     }
 
-    private func processArrivalTime(_ newTime: Int) {
-        let oldTime = arrivalTime
+    /// 버스 도착 정보를 처리하고 상태에 따른 알림 로직 실행
+    private func processArrivalInfo(time newTime: Int, stop newRemainings: Int) {
         arrivalTime = newTime
 
-        print("🚌 processArrivalTime - newTime: \(newTime), + currentState: \(currentState)")
+        let oldRemainings = remainingStops
+        remainingStops = newRemainings
+
+        print(
+            "🚌 processArrivalStops - newTime: \(newTime), newRemainings: \(newRemainings), + currentState: \(currentState)"
+        )
 
         switch currentState {
         case .waitingForArrival:
             handleWaitingState(newTime)
 
         case .arrivalAlertSent:
-            handleSoonNotifiedState(oldTime, newTime)
+            handleSoonNotifiedState(oldRemainings, newRemainings)
         }
-
-        checkPassingWait()
 
         previousArrivalTime = newTime
     }
@@ -137,38 +135,11 @@ class BusVisionArrivalAlertManager: ObservableObject {
     }
 
     /// 곧도착 알림 완료 상태 처리
-    private func handleSoonNotifiedState(_ oldTime: Int, _ newTime: Int) {
+    private func handleSoonNotifiedState(_ oldRemainings: Int, _ newRemainingStops: Int) {
         // 도착 정보가 없어진 경우 (버스가 출발/지나간 것으로 판단)
-        if newTime == -1 || (newTime > oldTime && oldTime >= 0) {
-            // 버스가 지나갔다고 판단, 30초 카운트다운 시작
-            startPassedCountdown()
+        if newRemainingStops == -1 || (newRemainingStops > oldRemainings && oldRemainings >= 1) {
             currentState = .waitingForArrival
         }
-    }
-
-    /// 지나감 대기 상태 관리
-    private func checkPassingWait() {
-        guard isWaitingForPassing, let startTime = passingWaitStartTime else {
-            return
-        }
-
-        let elapsed = Date().timeIntervalSince(startTime)
-        if elapsed >= 0.0 {
-            // 30초 경과, 버스 지나감 알림
-            showBusPassedNotification()
-
-            // 지나감 대기 상태 리셋
-            isWaitingForPassing = false
-            passingWaitStartTime = nil
-        }
-    }
-
-    private func startPassedCountdown() {
-        // 지나감 대기 플래그 설정
-        isWaitingForPassing = true
-        passingWaitStartTime = Date()
-
-        print("⏰ 버스 지나감 30초 카운트다운 시작")
     }
 
     // MARK: - Notification Methods
@@ -181,17 +152,6 @@ class BusVisionArrivalAlertManager: ObservableObject {
         // 3초 후 자동으로 사라지게
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
             self?.showSoonArrivalAlert = false
-        }
-    }
-
-    private func showBusPassedNotification() {
-        print("🔔 버스가 지나갔습니다!")
-        // 알림 뷰 표시
-        showBusPassedAlert = true
-
-        // 3초 후 자동으로 사라지게
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
-            self?.showBusPassedAlert = false
         }
     }
 }

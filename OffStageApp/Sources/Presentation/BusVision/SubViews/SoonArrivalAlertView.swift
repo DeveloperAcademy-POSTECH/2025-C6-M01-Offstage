@@ -13,7 +13,7 @@ struct SoonArrivalAlertView: View {
                 .fontWeight(.regular)
                 .foregroundStyle(Color(.primarynormal))
 
-            Text("\(routeNo)번 버스가 정류장 진입 중입니다.")
+            Text("버스가 전정류장에서 출발했어요.")
                 .fontWeight(.semibold)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -28,7 +28,7 @@ struct SoonArrivalAlertView: View {
             // tts 효과를 내는 a11y announcement post
             UIAccessibility.post(
                 notification: .announcement,
-                argument: "\(routeNo)번 버스가 정류장 진입 중입니다."
+                argument: "\(routeNo)번 전 정류장에서 출발했습니다"
             )
         }
     }
