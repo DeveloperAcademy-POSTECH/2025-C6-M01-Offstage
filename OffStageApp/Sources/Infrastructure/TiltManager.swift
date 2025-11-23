@@ -36,6 +36,30 @@ class TiltManager: ObservableObject {
         }
     }
 
+    /// 버스 인식에 적합한 기울기 상태인지 확인
+    var isSuitableForBusDetection: Bool {
+        tiltState == .normal
+    }
+
+    /// 기울기 상태별 햅틱 강도 계산 (0.0 ~ 1.0)
+    func hapticIntensityForCurrentTilt() -> Float {
+        let maxOffset: Float = 1.1 // 실제 최대 오프셋
+        let clampedOffset = min(offsetZ, maxOffset)
+        return clampedOffset / maxOffset
+    }
+
+    /// 기울기 상태별 가이드 메시지 반환
+    var tiltGuideMessage: String {
+        switch tiltState {
+        case .forward:
+            "휴대폰을 몸 안쪽으로 기울여주세요"
+        case .backward:
+            "휴대폰을 몸 바깥쪽으로 기울여주세요"
+        case .normal:
+            ""
+        }
+    }
+
     // MARK: - init
 
     /// - Parameters:
