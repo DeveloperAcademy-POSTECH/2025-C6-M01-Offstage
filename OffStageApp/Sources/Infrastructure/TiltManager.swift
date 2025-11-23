@@ -11,16 +11,22 @@ class TiltManager: ObservableObject {
     @Published var degreeTilt: Float = 0 {
         didSet {
             offsetZ = abs(degreeTilt - properTilt)
-            checkTiltFeedback()
+            autoUpdateHapticFeedback()
         }
     }
 
     /// UI 표시용 앞뒤 오프셋 값
-    /// - 추후 햅틱 강도로 활용을 기대해보는 중
     @Published var offsetZ: Float = 0
 
     /// Combine 구독을 관리하는 Set
     private var cancellables = Set<AnyCancellable>()
+
+    /// 햅틱 피드백 관리
+    private var hapticManager = HapticManager.shared
+    private var hapticTimer: Timer?
+    private var lastTiltState: TiltState = .normal
+    private var hasPlayedCompletionHaptic = false
+    private var isHapticEnabled = true
 
     /// 현재 기울기 상태
     var tiltState: TiltState {
@@ -81,18 +87,103 @@ class TiltManager: ObservableObject {
         offsetZ = abs(degreeTilt - properTilt)
     }
 
-    // MARK: - Methods
+    deinit {
+        stopPeriodicHaptic()
+    }
 
-    /// 기울기에 따른 피드백 로그를 출력합니다
-    private func checkTiltFeedback() {
-        switch tiltState {
-        case .backward:
-            print("뒤로 기울이세요")
-        case .forward:
-            print("앞으로 기울이세요")
-        case .normal:
-            break
+    // MARK: - Haptic Feedback Methods
+
+    /// 기울기 상태 변화에 따른 자동 햅틱 피드백 업데이트
+    private func autoUpdateHapticFeedback() {
+        guard isHapticEnabled else {
+            return
         }
+
+        let currentState = tiltState
+
+        switch currentState {
+        case .normal:
+            // 적정 기울기 달성
+            if lastTiltState != .normal, !hasPlayedCompletionHaptic {
+                stopPeriodicHaptic()
+                playCompletionHaptic()
+                hasPlayedCompletionHaptic = true
+            }
+        case .forward, .backward:
+            // 기울기 틀어짐 - 자동으로 주기적 햅틱 시작
+            hasPlayedCompletionHaptic = false
+            if lastTiltState == .normal || hapticTimer == nil {
+                startPeriodicHaptic()
+            }
+        }
+
+        lastTiltState = currentState
+    }
+
+    /// 주기적 햅틱 시작 (강도에 따라 주기 조절)
+    private func startPeriodicHaptic() {
+        stopPeriodicHaptic()
+
+        let interval = calculateHapticInterval()
+
+        hapticTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
+            guard let self else { return }
+
+            if tiltState != .normal, isHapticEnabled {
+                let intensity = hapticIntensityForCurrentTilt()
+                hapticManager.playHaptic(
+                    intensity: intensity,
+                    sharpness: intensity,
+                    duration: 0.1
+                )
+                startPeriodicHaptic()
+            }
+        }
+    }
+
+    /// 완료 햅틱 재생
+    private func playCompletionHaptic() {
+        let hapticPattern = [
+            hapticManager.makeHaptic(intensity: 0.5, sharpness: 0.0, duration: 0.1),
+            hapticManager.makeHaptic(intensity: 0.5, sharpness: 0.0, relativeTime: 0.16, duration: 0.1),
+        ]
+
+        hapticManager.playHapticPattern(hapticEvents: hapticPattern)
+    }
+
+    /// 주기적 햅틱 중지
+    private func stopPeriodicHaptic() {
+        hapticTimer?.invalidate()
+        hapticTimer = nil
+    }
+
+    /// 햅틱 주기 계산 (강도에 반비례)
+    func calculateHapticInterval() -> TimeInterval {
+        let intensity = hapticIntensityForCurrentTilt()
+
+        // 강도가 높을수록 짧은 주기 (0.1초), 낮을수록 긴 주기 (0.5초)
+        let minInterval = 0.1
+        let maxInterval = 0.5
+
+        // intensity가 1.0이면 minInterval, 0.0이면 maxInterval
+        let interval = maxInterval - (Double(intensity) * (maxInterval - minInterval))
+
+        return max(minInterval, min(maxInterval, interval))
+    }
+
+    // MARK: - Public Control Methods
+
+    /// 햅틱 피드백 활성화
+    func enableHapticFeedback() {
+        isHapticEnabled = true
+        autoUpdateHapticFeedback()
+    }
+
+    /// 햅틱 피드백 비활성화
+    func disableHapticFeedback() {
+        isHapticEnabled = false
+        stopPeriodicHaptic()
+        hasPlayedCompletionHaptic = false
     }
 }
 
