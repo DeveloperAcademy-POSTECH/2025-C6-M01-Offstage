@@ -81,7 +81,7 @@ struct TiltDebugView: View {
             .frame(width: 200, height: 200)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(Color(.gray200)).opacity(0.1))
+                    .fill(Color(.gray200).opacity(0.1))
             )
 
             // TTS 메시지 테스트
