@@ -298,7 +298,7 @@ struct BusRouteSearchView: View {
                     } else {
                         Text("도착 예정 정보 없음")
                             .font(.body)
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color(.gray200))
                             .lineLimit(nil)
                     }
                 }
@@ -350,7 +350,7 @@ struct BusRouteSearchView: View {
         VStack {
             Image(systemName: "bus")
                 .font(.largeTitle)
-                .foregroundColor(.gray)
+                .foregroundColor(Color(.gray200))
                 .accessibilityHidden(true)
             Text("버스 노선을 찾을 수 없습니다")
                 .font(.title2)

@@ -26,7 +26,7 @@ struct STTandTTSTestView: View {
             .padding()
             .overlay( // 테두리
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    .stroke(Color(.gray200).opacity(0.3), lineWidth: 1)
             )
 
             // 인식 시작/중지 버튼
@@ -58,7 +58,7 @@ struct STTandTTSTestView: View {
                 TextField(L10n.SttTtsTest.Ui.placeholderTts, text: $ttsText)
                     .frame(maxWidth: .infinity)
                     .padding(8)
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(.gray.opacity(0.3)))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.gray200).opacity(0.3)))
                     .focused($isTextEditorFocused) // 키보드를 내리기 위한 포커스 모디파이어
                 // 키보드를 내리기 위한 버튼
                 Button(L10n.SttTtsTest.Ui.buttonDismissKeyboard) {

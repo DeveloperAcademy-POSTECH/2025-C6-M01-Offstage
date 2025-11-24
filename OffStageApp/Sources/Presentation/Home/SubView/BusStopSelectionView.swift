@@ -232,7 +232,7 @@ struct BusStopSelectionView: View {
                         Text(number)
                             .font(.callout)
                             .fontWeight(.bold)
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color(.gray200))
                     }
                 }
                 Spacer()
