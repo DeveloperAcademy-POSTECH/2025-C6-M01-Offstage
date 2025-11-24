@@ -328,6 +328,21 @@ struct BusRouteSearchView: View {
                 .lineLimit(nil)
         }
         .accessibilityElement(children: .combine)
+        VStack {
+            Button(action: {
+                Task {
+                    await viewModel.fetchBusRoutes()
+                }
+            }) {
+                Text(L10n.Common.Ui.buttonRetry)
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 15)
+                    .background(Capsule().fill(Color.blue))
+            }
+        }
+        .accessibilityElement(children: .combine)
     }
 
     @ViewBuilder

@@ -158,11 +158,11 @@ struct BusStopSelectionView: View {
                 Button {
                     viewModel.fetchNearbyStops()
                 } label: {
-                    Text("다시 시도")
+                    Text(L10n.Common.Ui.buttonRetry)
                         .font(.headline)
                         .foregroundColor(.white)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 24)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 15)
                         .background(Capsule().fill(Color.blue))
                 }
             }
