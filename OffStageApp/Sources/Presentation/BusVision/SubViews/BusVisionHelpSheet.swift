@@ -14,12 +14,13 @@ struct BusVisionHelpSheet: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(alignment: .leading, spacing: 20) {
                     ForEach(helpTextList, id: \.self) { text in
                         Text(text)
                     }
                 }
-                .padding(.horizontal)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .padding(.horizontal, 24)
             }
             .toolbar {
                 ToolbarItem(placement: .principal) {

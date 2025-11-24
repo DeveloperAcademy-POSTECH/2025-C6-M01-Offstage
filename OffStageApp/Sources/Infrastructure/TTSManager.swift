@@ -1,6 +1,7 @@
 import AVFoundation
 import Combine // ObservableObject, @Published 등을 사용해 View에 상태 전달
 import Foundation
+import UIKit
 
 final class TTSManager: NSObject, ObservableObject {
     // MARK: - 공개 상태 (View에서 바인딩)
@@ -86,6 +87,13 @@ final class TTSManager: NSObject, ObservableObject {
         if synthesizer.isSpeaking || synthesizer.isPaused {
             synthesizer.stopSpeaking(at: .immediate)
             speechQueue.removeAll()
+        }
+    }
+
+    /// 보이스오버 음성 안내
+    func a11yPost(of message: String) {
+        if UIAccessibility.isVoiceOverRunning {
+            UIAccessibility.post(notification: .announcement, argument: message)
         }
     }
 }

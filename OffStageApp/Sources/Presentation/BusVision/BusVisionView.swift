@@ -39,7 +39,6 @@ struct BusVisionView: View {
                 )
                 .padding()
 
-                // TODO: 정류장 1개 기준으로 알람 띄우는 방식 바꾸기
                 // 버스 도착 & 지나감 알람
                 if vm.alertManager.showSoonArrivalAlert {
                     SoonArrivalAlertView(routeNo: busRoute.routeNumber)
