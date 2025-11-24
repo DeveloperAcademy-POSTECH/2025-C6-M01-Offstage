@@ -18,7 +18,6 @@ struct BusRouteSearchView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var router: Router<AppRoute>
     @State private var isSheetPresented = false
-    @AccessibilityFocusState private var isSearchBarFocused: Bool
 
     private var currentState: LoadingState {
         if viewModel.isLoading {
@@ -66,6 +65,14 @@ struct BusRouteSearchView: View {
                     emptyContent()
                     Spacer()
                 }
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("번호 입력 확인")
+                    .font(.headline)
+                    .foregroundColor(.white)
             }
         }
         .onTapGesture {
@@ -120,11 +127,6 @@ struct BusRouteSearchView: View {
         .padding(.horizontal)
         .padding(.top, 20)
         .padding(.bottom, 18)
-        .accessibilityFocused($isSearchBarFocused)
-        .task {
-            try? await Task.sleep(nanoseconds: 300_000_000)
-            isSearchBarFocused = true
-        }
     }
 
     @ViewBuilder
@@ -161,9 +163,11 @@ struct BusRouteSearchView: View {
                         Divider()
                             .background(Color(.black500))
                     }
-                    .background(Color(.backgroundstrong))
+                }
+                .background(Color(.backgroundstrong))
 
-                    if case .noFilter = filterState {
+                if case .noFilter = filterState {
+                    VStack(alignment: .center, spacing: 0) {
                         searchPromptFooter
                     }
                 }
@@ -225,7 +229,7 @@ struct BusRouteSearchView: View {
     }
 
     private var noFilterText: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .center, spacing: 0) {
             Text("\(viewModel.busStop.name) 정류장에는\n일치하는 버스가 없습니다.")
                 .font(.body)
                 .foregroundColor(Color(.gray100))

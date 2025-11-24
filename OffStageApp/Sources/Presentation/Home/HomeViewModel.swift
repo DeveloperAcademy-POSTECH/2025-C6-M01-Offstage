@@ -13,7 +13,7 @@ final class HomeViewModel: ObservableObject {
     private var locationProvider: LocationProviding
     private let busRepository = MainBusRepository()
 
-    init(locationProvider: LocationProviding = LocationManager()) {
+    init(locationProvider: LocationProviding = LocationManager.shared) {
         self.locationProvider = locationProvider
     }
 

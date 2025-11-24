@@ -17,7 +17,7 @@ final class BusArrivalOperations {
 
     init(
         busRepository: BusRepository = MainBusRepository(),
-        locationProvider: LocationProviding = LocationManager()
+        locationProvider: LocationProviding = LocationManager.shared
     ) {
         self.busRepository = busRepository
         self.locationProvider = locationProvider

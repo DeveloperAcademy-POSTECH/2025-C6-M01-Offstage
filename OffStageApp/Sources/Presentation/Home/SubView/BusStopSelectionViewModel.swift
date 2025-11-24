@@ -33,7 +33,7 @@ final class BusStopSelectionViewModel: ObservableObject {
 
     // MARK: - Initializer
 
-    init(locationProvider: LocationProviding = LocationManager()) {
+    init(locationProvider: LocationProviding = LocationManager.shared) {
         self.locationProvider = locationProvider
     }
 

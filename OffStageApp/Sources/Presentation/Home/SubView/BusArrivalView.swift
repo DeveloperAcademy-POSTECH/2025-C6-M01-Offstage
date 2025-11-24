@@ -45,83 +45,78 @@ struct BusArrivalView: View {
         ZStack {
             Color(Color(.black800))
                 .ignoresSafeArea()
-            ScrollView {
-                ZStack {
-                    VStack(alignment: .leading, spacing: 10) {
-                        switch currentViewState {
-                        case .loading:
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                .frame(maxWidth: .infinity, alignment: .center)
-                        case let .error(message):
-                            Text(message)
-                                .font(.title2)
-                                .foregroundColor(.white)
-                                .lineLimit(nil)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                        case let .arrival(routeWithArrival, currentEstimatedTime):
-                            BusArrivalInfoView(
-                                routeWithArrival: routeWithArrival,
-                                currentEstimatedArrivalTime: currentEstimatedTime
-                            )
-                        case let .location(location):
-                            BusLocationInfoView(location: location, busRoute: viewModel.busRoute)
-                        case .empty:
-                            Text("버스 정보를 찾을 수 없습니다")
-                                .font(.title2)
-                                .foregroundColor(.white)
-                                .lineLimit(nil)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                        }
-
-                        Spacer()
-                        VStack(alignment: .center, spacing: 10) {
-                            Button(action: {
-                                router.push(.busVision(
-                                    busStop: viewModel.busStop,
-                                    busRoute: viewModel.busRoute
-                                ))
-                            }) {
-                                HStack {
-                                    Image(systemName: "camera")
-                                    Text(L10n.Home.Sheet.startBusDetection)
-                                        .lineLimit(nil)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                }
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(Color(.white))
-                                .padding(.vertical, 13)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 99)
-                                    .stroke(Color(.primarynormal), lineWidth: 6)
-                            )
-                            .cornerRadius(99)
-                        }
-                    }
-                }
-                .padding()
-                .onAppear {
-                    viewModel.startMonitoring()
-                }
-                .onDisappear {
-                    // 뷰가 사라질 때 타이머와 새로고침을 중지합니다.
-                    viewModel.stopMonitoring()
-                }
-                .onChange(of: viewModel.routeWithArrival) { _, newRouteWithArrival in
-                    if let arrival = newRouteWithArrival?.arrival {
-                        let announcement = BusArrivalFormatter.generateArrivalLabel(
-                            arrival: arrival,
-                            busRoute: viewModel.busRoute,
-                            currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime
+            VStack(alignment: .leading, spacing: 0) {
+                ScrollView {
+                    switch currentViewState {
+                    case .loading:
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    case let .error(message):
+                        Text(message)
+                            .font(.title2)
+                            .foregroundColor(.white)
+                            .lineLimit(nil)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    case let .arrival(routeWithArrival, currentEstimatedTime):
+                        BusArrivalInfoView(
+                            routeWithArrival: routeWithArrival,
+                            currentEstimatedArrivalTime: currentEstimatedTime
                         )
-                        /// TODO:
-                        /// - api 호출 주기 짧게 만든 후, 테스트 필요
-                        /// - 짧은 시간에 공지가 연속 게시되면 이전 멘트를 중단하고 새 멘트를 읽어 "문장이 씹히는" 현상이 발생함
-                        UIAccessibility.post(notification: .announcement, argument: announcement)
+                    case let .location(location):
+                        BusLocationInfoView(location: location, busRoute: viewModel.busRoute)
+                    case .empty:
+                        Text("버스 정보를 찾을 수 없습니다")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                            .lineLimit(nil)
+                            .frame(maxWidth: .infinity, alignment: .center)
                     }
+                }
+
+                Button(action: {
+                    router.push(.busVision(
+                        busStop: viewModel.busStop,
+                        busRoute: viewModel.busRoute
+                    ))
+                }) {
+                    HStack {
+                        Image(systemName: "camera")
+                        Text(L10n.Home.Sheet.startBusDetection)
+                            .lineLimit(nil)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(Color(.white))
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 2)
+                    .frame(maxWidth: .infinity)
+                }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 99)
+                        .stroke(Color(.primarynormal), lineWidth: 6)
+                )
+                .cornerRadius(99)
+            }
+            .padding(.horizontal, 20)
+            .onAppear {
+                viewModel.startMonitoring()
+            }
+            .onDisappear {
+                // 뷰가 사라질 때 타이머와 새로고침을 중지합니다.
+                viewModel.stopMonitoring()
+            }
+            .onChange(of: viewModel.routeWithArrival) { _, newRouteWithArrival in
+                if let arrival = newRouteWithArrival?.arrival {
+                    let announcement = BusArrivalFormatter.generateArrivalLabel(
+                        arrival: arrival,
+                        busRoute: viewModel.busRoute,
+                        currentEstimatedArrivalTime: viewModel.currentEstimatedArrivalTime
+                    )
+                    /// - api 호출 주기 짧게 만든 후, 테스트 필요
+                    /// - 짧은 시간에 공지가 연속 게시되면 이전 멘트를 중단하고 새 멘트를 읽어 "문장이 씹히는" 현상이 발생함
+                    UIAccessibility.post(notification: .announcement, argument: announcement)
                 }
             }
         }
@@ -148,8 +143,8 @@ struct BusArrivalView: View {
                 .padding(8)
                 .background(Color(.black700))
                 .cornerRadius(12)
-                .padding(.top, 5)
-                .padding(.bottom, 8)
+                .padding(.top, 8)
+                .padding(.bottom, 4)
 
                 Text(BusArrivalFormatter.formatArrivalTime(currentEstimatedArrivalTime))
                     .font(.largeTitle)

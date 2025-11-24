@@ -5,7 +5,7 @@ import Foundation
 /// 백그라운드에서 위치를 추적하여 최신 위치를 UserDefaults에 저장하는 매니저
 @MainActor
 final class BackgroundLocationManager: NSObject, ObservableObject {
-    private let locationManager = LocationManager()
+    private let locationManager = LocationManager.shared
     private var cancellables = Set<AnyCancellable>()
 
     private let lastLocationKey = "lastKnownLocation"
