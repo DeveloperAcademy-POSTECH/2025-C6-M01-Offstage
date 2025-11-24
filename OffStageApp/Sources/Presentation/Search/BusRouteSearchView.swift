@@ -135,12 +135,14 @@ struct BusRouteSearchView: View {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 .scaleEffect(2)
+                .accessibilityHidden(true)
             Text("API 호출중")
                 .font(.title2)
                 .foregroundColor(.white)
                 .padding(.top, 20)
                 .lineLimit(nil)
         }
+        .accessibilityElement(children: .combine)
     }
 
     @ViewBuilder
@@ -206,7 +208,10 @@ struct BusRouteSearchView: View {
             }
             .padding(.horizontal, 40)
             .accessibilityLabel(String(localized: "busRouteSearch.a11y.button.quickRecognition.label"))
-            .accessibilityHint(String(localized: "busRouteSearch.a11y.button.quickRecognition.hint"))
+            .accessibilityHint(String(
+                format: String(localized: "busRouteSearch.a11y.button.quickRecognition.hint"),
+                viewModel.recognizedText
+            ))
         }
         .padding(.bottom, 40)
     }
@@ -314,6 +319,7 @@ struct BusRouteSearchView: View {
             Image(systemName: "exclamationmark.triangle")
                 .font(.largeTitle)
                 .foregroundColor(.red)
+                .accessibilityHidden(true)
             Text(message)
                 .font(.title2)
                 .foregroundColor(.white)
@@ -321,6 +327,22 @@ struct BusRouteSearchView: View {
                 .padding()
                 .lineLimit(nil)
         }
+        .accessibilityElement(children: .combine)
+        VStack {
+            Button(action: {
+                Task {
+                    await viewModel.fetchBusRoutes()
+                }
+            }) {
+                Text(L10n.Common.Ui.buttonRetry)
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 15)
+                    .background(Capsule().fill(Color.blue))
+            }
+        }
+        .accessibilityElement(children: .combine)
     }
 
     @ViewBuilder
@@ -329,11 +351,13 @@ struct BusRouteSearchView: View {
             Image(systemName: "bus")
                 .font(.largeTitle)
                 .foregroundColor(.gray)
+                .accessibilityHidden(true)
             Text("버스 노선을 찾을 수 없습니다")
                 .font(.title2)
                 .foregroundColor(.white)
                 .padding()
                 .lineLimit(nil)
         }
+        .accessibilityElement(children: .combine)
     }
 }
