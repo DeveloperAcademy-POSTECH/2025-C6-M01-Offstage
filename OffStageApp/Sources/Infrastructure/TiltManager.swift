@@ -18,6 +18,9 @@ class TiltManager: ObservableObject {
     /// UI 표시용 앞뒤 오프셋 값
     @Published var offsetZ: Float = 0
 
+    /// Published된 기울기 상태 (Combine 사용을 위해)
+    @Published var publishedTiltState: TiltState = .normal
+
     /// Combine 구독을 관리하는 Set
     private var cancellables = Set<AnyCancellable>()
 
@@ -34,10 +37,13 @@ class TiltManager: ObservableObject {
         let tiltDifference = degreeTilt - properTilt
 
         if tiltDifference > tolerance {
+            publishedTiltState = .backward
             return .backward
         } else if tiltDifference < -tolerance {
+            publishedTiltState = .forward
             return .forward
         } else {
+            publishedTiltState = .normal
             return .normal
         }
     }

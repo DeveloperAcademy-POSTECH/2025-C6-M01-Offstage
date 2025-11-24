@@ -31,6 +31,8 @@ struct BusVisionView: View {
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
+            TiltGuideView(offset: vm.tiltManager.offsetZ, tiltState: vm.tiltManager.tiltState)
+
             VStack {
                 // 버스도착정보 실시간 정보
                 WaitingBusRealtimeInfoView(
@@ -39,7 +41,6 @@ struct BusVisionView: View {
                 )
                 .padding()
 
-                // TODO: 정류장 1개 기준으로 알람 띄우는 방식 바꾸기
                 // 버스 도착 & 지나감 알람
                 if vm.alertManager.showSoonArrivalAlert {
                     SoonArrivalAlertView(routeNo: busRoute.routeNumber)
@@ -73,6 +74,9 @@ struct BusVisionView: View {
                 .accessibilityLabel("도움말")
                 .accessibilityHint("두번 탭하여 도움말 시트를 열 수 있습니다.")
             }
+        }
+        .onDisappear {
+            vm.tiltManager.disableHapticFeedback()
         }
     }
 }

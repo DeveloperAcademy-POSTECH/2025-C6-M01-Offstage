@@ -16,9 +16,19 @@ class BusVisionViewModel: ObservableObject {
     /// 내 버스가 감지된 시간
     private var lastMineDetectedTime: Date?
 
+    // 곧도착알림
     var alertManager: BusVisionArrivalAlertManager
+    
+    // 햅틱진동
     private var hapticManager = HapticManager.shared
+    
+    // tts
     private var ttsManager: TTSManager = .init()
+    
+    // 기울기
+    private var tiltDataCollector: TiltDataCollector
+    var tiltManager: TiltManager
+
     private var cancellables = Set<AnyCancellable>()
     private var detectingHapticTimer: Timer?
     private var shouldPlayDetectingHaptic: Bool = true
@@ -29,9 +39,13 @@ class BusVisionViewModel: ObservableObject {
         // busRoute.routeNumber에서 괄호 내용 제거
         busNumberToDetect = busRoute.routeNumber.removeParenthesesContent()
         alertManager = .init(busStop: busStop, busRoute: busRoute)
+        tiltDataCollector = TiltDataCollector()
+        tiltManager = TiltManager(dataCollector: tiltDataCollector)
+
         // combine 등록
         observeBusDetectStatus()
         setupAlertObservers()
+        observeTiltStateChanges()
 
         // 감지중 햅틱 피드백 시작
         startDetectingFeedback()
@@ -132,5 +146,33 @@ extension BusVisionViewModel {
 
         // TTS
         ttsManager.speakNow(of: "\(busNumberToDetect)번 버스가 정류장을 벗어났습니다.")
+    }
+}
+
+// MARK: - 기울기 상태 관찰
+
+extension BusVisionViewModel {
+    private func observeTiltStateChanges() {
+        tiltManager.$publishedTiltState
+            .removeDuplicates()
+            .sink { [weak self] tiltState in
+                self?.handleTiltStateChange(tiltState)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func handleTiltStateChange(_ tiltState: TiltState) {
+        if tiltState == .forward || tiltState == .backward {
+            let message = switch tiltState {
+            case .forward:
+                "휴대폰을 몸 안쪽으로 기울여주세요"
+            case .backward:
+                "휴대폰을 몸 바깥쪽으로 기울여주세요"
+            default:
+                ""
+            }
+
+            ttsManager.speakNow(of: message)
+        }
     }
 }
