@@ -116,7 +116,7 @@ class BusVisionArrivalAlertManager: ObservableObject {
 
         switch currentState {
         case .waitingForArrival:
-            handleWaitingState(newTime)
+            handleWaitingState(newRemainings)
 
         case .arrivalAlertSent:
             handleSoonNotifiedState(oldRemainings, newRemainings)
@@ -126,9 +126,9 @@ class BusVisionArrivalAlertManager: ObservableObject {
     }
 
     /// 버스 곧 도착 감지 대기 중 상태 처리
-    private func handleWaitingState(_ time: Int) {
-        if time <= 90, time > 0 {
-            // 90초 미만이면 곧도착 알림
+    private func handleWaitingState(_ remainingStops: Int) {
+        if remainingStops <= 2, remainingStops > 0 {
+            // 2개 이하 정류장 남으면 곧도착 알림
             showSoonArrivalNotification()
             currentState = .arrivalAlertSent
         }
