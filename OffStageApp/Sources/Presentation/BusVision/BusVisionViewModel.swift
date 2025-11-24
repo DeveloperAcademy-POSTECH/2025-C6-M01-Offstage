@@ -146,9 +146,8 @@ extension BusVisionViewModel {
         // 햅틱
         hapticManager.playHaptic(intensity: 1.0, sharpness: 1.0, duration: 0.2)
 
-        // TODO: a11y와 충돌 가능성을 고려해 주석처리. 결정 후 반영 필요
-//        // TTS
-//        ttsManager.speakNow(of: "\(busNumberToDetect)번 전 정류장에서 출발했습니다")
+        // TTS
+        ttsManager.speakNow(of: "\(busNumberToDetect)번 전 정류장에서 출발했습니다")
     }
 }
 

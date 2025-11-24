@@ -24,13 +24,6 @@ struct SoonArrivalAlertView: View {
                 .fill(.black)
         )
         .padding(.horizontal)
-        .onAppear {
-            // tts 효과를 내는 a11y announcement post
-            UIAccessibility.post(
-                notification: .announcement,
-                argument: "\(routeNo)번 전 정류장에서 출발했습니다"
-            )
-        }
     }
 }
 
