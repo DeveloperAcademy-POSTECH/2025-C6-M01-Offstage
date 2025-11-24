@@ -36,7 +36,7 @@ final class DrawingBoxesView: UIView {
             cornerLength: cornerLength,
             radius: radius
         ).cgPath
-        viewfinderLayer.strokeColor = UIColor(named: "primarynormal")?.withAlphaComponent(0.1).cgColor
+        viewfinderLayer.strokeColor = UIColor(named: "primarynormal")?.withAlphaComponent(1.0).cgColor
         viewfinderLayer.fillColor = UIColor.clear.cgColor
         viewfinderLayer.lineWidth = 4
         viewfinderLayer.lineCap = .round
