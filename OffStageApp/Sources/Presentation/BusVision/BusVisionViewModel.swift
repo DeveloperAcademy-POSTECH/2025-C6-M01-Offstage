@@ -18,13 +18,13 @@ class BusVisionViewModel: ObservableObject {
 
     // 곧도착알림
     var alertManager: BusVisionArrivalAlertManager
-    
+
     // 햅틱진동
     private var hapticManager = HapticManager.shared
-    
+
     // tts
     private var ttsManager: TTSManager = .init()
-    
+
     // 기울기
     private var tiltDataCollector: TiltDataCollector
     var tiltManager: TiltManager

@@ -57,7 +57,7 @@ class TiltManager: ObservableObject {
     func hapticIntensityForCurrentTilt() -> Float {
         let maxOffset: Float = 1.1 // 실제 최대 오프셋
         let clampedOffset = min(offsetZ, maxOffset)
-        return clampedOffset / maxOffset
+        return (clampedOffset / maxOffset) * 0.7
     }
 
     /// 기울기 상태별 가이드 메시지 반환
@@ -150,8 +150,8 @@ class TiltManager: ObservableObject {
     /// 완료 햅틱 재생
     private func playCompletionHaptic() {
         let hapticPattern = [
-            hapticManager.makeHaptic(intensity: 0.5, sharpness: 0.0, duration: 0.1),
-            hapticManager.makeHaptic(intensity: 0.5, sharpness: 0.0, relativeTime: 0.16, duration: 0.1),
+            hapticManager.makeHaptic(intensity: 1.0, sharpness: 1.0, relativeTime: 0.0, duration: 0.1),
+            hapticManager.makeHaptic(intensity: 1.0, sharpness: 1.0, relativeTime: 0.16, duration: 0.1),
         ]
 
         hapticManager.playHapticPattern(hapticEvents: hapticPattern)
