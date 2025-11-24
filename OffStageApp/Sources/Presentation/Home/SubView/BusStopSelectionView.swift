@@ -63,7 +63,7 @@ struct BusStopSelectionView: View {
                             .symbolRenderingMode(.palette)
                             .foregroundStyle(
                                 .white,
-                                Color(red: 0.11, green: 0.12, blue: 0.15)
+                                Color(.backgroundmedium)
                             )
                             .font(.title3)
                             .fontWeight(.bold)
@@ -73,7 +73,7 @@ struct BusStopSelectionView: View {
             }
             .padding(.horizontal)
             .padding(.vertical, 12)
-            .background(Color(red: 0x14 / 255, green: 0x15 / 255, blue: 0x1B / 255))
+            .background(Color(.backgroundstrong))
 
             HStack {
                 Text("주변 정류장")
@@ -99,7 +99,6 @@ struct BusStopSelectionView: View {
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 20)
-        .background(Color(red: 0.1098, green: 0.1176, blue: 0.1490))
         .overlay(
             RoundedRectangle(cornerRadius: 99)
                 .stroke(.white, lineWidth: 2)
@@ -198,7 +197,7 @@ struct BusStopSelectionView: View {
                     stopRow(stopWithDistance: stopWithDistance) // ← 파라미터 변경
                 }
                 .listRowInsets(EdgeInsets())
-                .listRowBackground(Color(red: 0x14 / 255, green: 0x15 / 255, blue: 0x1B / 255))
+                .listRowBackground(Color(.backgroundstrong))
                 .listRowSeparator(.hidden)
             }
             HStack {
@@ -207,7 +206,7 @@ struct BusStopSelectionView: View {
                 Spacer()
             }
             .listRowSeparator(.hidden)
-            .listRowBackground(Color(red: 0x14 / 255, green: 0x15 / 255, blue: 0x1B / 255))
+            .listRowBackground(Color(.backgroundstrong))
             .padding(.top, 16)
         }
         .listStyle(.plain)

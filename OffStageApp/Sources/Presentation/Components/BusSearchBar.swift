@@ -61,7 +61,7 @@ struct BusSearchBar: View {
                 .padding(.trailing, 10)
             }
         }
-        .background(Color(red: 0.0784, green: 0.0823, blue: 0.1059))
+        .background(Color(.backgroundstrong))
         .cornerRadius(99)
     }
 }
