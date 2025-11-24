@@ -31,7 +31,9 @@ struct BusVisionView: View {
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
-            TiltGuideView(offset: vm.tiltManager.offsetZ, tiltState: vm.tiltManager.tiltState)
+            if !vm.tiltManager.isSuitableForBusDetection {
+                TiltGuideView(offset: vm.tiltManager.offsetZ, tiltState: vm.tiltManager.tiltState)
+            }
 
             VStack {
                 // 버스도착정보 실시간 정보
@@ -50,8 +52,11 @@ struct BusVisionView: View {
                 Spacer()
 
                 // 탐지결과
-                DetectingStatusSubView(status: vm.stateToPresent)
-                    .padding()
+                if vm.tiltManager.isSuitableForBusDetection {
+                    DetectingStatusSubView(status: vm.stateToPresent)
+                        .padding()
+                        .animation(.easeInOut, value: vm.tiltManager.isSuitableForBusDetection)
+                }
             }
             .accessibilitySortPriority(-100)
         }
