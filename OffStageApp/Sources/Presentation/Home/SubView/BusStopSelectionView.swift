@@ -237,11 +237,7 @@ struct BusStopSelectionView: View {
                     }
                 }
                 Spacer()
-            }
 
-            HStack {
-                Spacer()
-                // 거리 표시
                 Text(formatDistance(stopWithDistance.distance))
                     .font(.title2)
                     .fontWeight(.bold)
