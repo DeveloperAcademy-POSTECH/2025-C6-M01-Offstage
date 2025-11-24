@@ -151,11 +151,13 @@ class TiltManager: ObservableObject {
     /// 완료 햅틱 재생
     private func playCompletionHaptic() {
         let hapticPattern = [
-            hapticManager.makeHaptic(intensity: 1.0, sharpness: 1.0, relativeTime: 0.0, duration: 0.1),
-            hapticManager.makeHaptic(intensity: 1.0, sharpness: 1.0, relativeTime: 0.16, duration: 0.1),
+            hapticManager.makeHaptic(intensity: 1.0, sharpness: 1.0, relativeTime: 0.0, duration: 0.08),
+            hapticManager.makeHaptic(intensity: 1.0, sharpness: 1.0, relativeTime: 0.1, duration: 0.1),
         ]
 
         hapticManager.playHapticPattern(hapticEvents: hapticPattern)
+
+        AudioServicesPlaySystemSound(1114)
     }
 
     /// 주기적 햅틱 중지
