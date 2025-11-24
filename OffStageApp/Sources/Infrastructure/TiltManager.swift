@@ -1,3 +1,4 @@
+import AVFoundation
 import Combine
 import Foundation
 
@@ -33,7 +34,7 @@ class TiltManager: ObservableObject {
 
     /// 현재 기울기 상태
     var tiltState: TiltState {
-        let tolerance: Float = 0.15
+        let tolerance: Float = 0.4
         let tiltDifference = degreeTilt - properTilt
 
         if tiltDifference > tolerance {
