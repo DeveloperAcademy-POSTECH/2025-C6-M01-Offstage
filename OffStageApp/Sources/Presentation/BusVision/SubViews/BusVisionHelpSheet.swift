@@ -38,7 +38,7 @@ struct BusVisionHelpSheet: View {
                             .symbolRenderingMode(.palette)
                             .foregroundStyle(
                                 .white,
-                                Color(red: 0.11, green: 0.12, blue: 0.15)
+                                Color(.backgroundmedium)
                             )
                             .font(.title3)
                             .fontWeight(.bold)

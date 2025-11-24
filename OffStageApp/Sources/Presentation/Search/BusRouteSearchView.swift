@@ -149,7 +149,7 @@ struct BusRouteSearchView: View {
     private func busRouteListContent(routes: [BusRouteWithArrival], filterState: FilterState) -> some View {
         VStack {
             Rectangle()
-                .fill(Color(.backgroundheavy))
+                .fill(Color(.black800))
                 .frame(maxWidth: .infinity)
                 .frame(height: 5)
             ScrollView {
@@ -243,7 +243,7 @@ struct BusRouteSearchView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 16)
-                .background(Color(red: 13 / 255, green: 14 / 255, blue: 17 / 255))
+                .background(Color(.black800))
         }
     }
 
