@@ -22,7 +22,7 @@ struct DetectingStatusSubView: View {
 
             case let .mineDetected(routeNumber):
                 Text(routeNumber)
-                    .font(.system(size: 148, weight: .bold, design: .rounded))
+                    .font(.system(size: 120, weight: .bold, design: .rounded))
                     .foregroundStyle(Color(.primarynormal))
             }
         }
