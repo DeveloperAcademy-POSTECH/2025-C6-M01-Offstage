@@ -35,7 +35,7 @@ struct WaitingBusRealtimeInfoView: View {
                     .font(.title3)
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.leading)
-                    .foregroundColor(Color(red: 0.86, green: 0.87, blue: 0.91))
+                    .foregroundColor(Color(.gray50))
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }

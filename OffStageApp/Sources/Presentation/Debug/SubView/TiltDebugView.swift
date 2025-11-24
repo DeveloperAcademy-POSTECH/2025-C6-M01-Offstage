@@ -81,7 +81,7 @@ struct TiltDebugView: View {
             .frame(width: 200, height: 200)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.gray.opacity(0.1))
+                    .fill(Color(.gray200).opacity(0.1))
             )
 
             // TTS 메시지 테스트
@@ -126,7 +126,7 @@ struct TiltDebugView: View {
                 // 햅틱 주기 표시
                 Text("계산된 주기: \(Double(tiltManager.calculateHapticInterval()), specifier: "%.2f")초")
                     .font(.caption2)
-                    .foregroundColor(.gray)
+                    .foregroundColor(Color(.gray200))
             }
             .padding()
 

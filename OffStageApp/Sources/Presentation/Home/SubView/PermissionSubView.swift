@@ -19,7 +19,7 @@ struct PermissionSubView: View {
                     Text(L10n.Permission.Prompt.all)
                         .font(.system(size: 17))
                         .multilineTextAlignment(.center)
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color(.gray200))
                 }
                 .padding(.top, 50)
                 .padding(.bottom)
@@ -45,7 +45,7 @@ struct PermissionSubView: View {
                                 .font(.system(size: 17))
                             Text(L10n.Permission.Location.reason)
                                 .font(.system(size: 16))
-                                .foregroundColor(.gray)
+                                .foregroundColor(Color(.gray200))
                         }
                         Spacer()
                     }
@@ -71,7 +71,7 @@ struct PermissionSubView: View {
                                 .font(.system(size: 17))
                             Text(L10n.Permission.Camera.reason)
                                 .font(.system(size: 16))
-                                .foregroundColor(.gray)
+                                .foregroundColor(Color(.gray200))
                         }
                         Spacer()
                     }
@@ -97,7 +97,7 @@ struct PermissionSubView: View {
                                 .font(.system(size: 17))
                             Text(L10n.Permission.Mic.reason)
                                 .font(.system(size: 16))
-                                .foregroundColor(.gray)
+                                .foregroundColor(Color(.gray200))
                         }
                         Spacer()
                     }

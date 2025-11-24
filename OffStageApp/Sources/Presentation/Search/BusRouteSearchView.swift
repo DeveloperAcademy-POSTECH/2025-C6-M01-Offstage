@@ -149,7 +149,7 @@ struct BusRouteSearchView: View {
     private func busRouteListContent(routes: [BusRouteWithArrival], filterState: FilterState) -> some View {
         VStack {
             Rectangle()
-                .fill(Color(.backgroundheavy))
+                .fill(Color(.black800))
                 .frame(maxWidth: .infinity)
                 .frame(height: 5)
             ScrollView {
@@ -243,7 +243,7 @@ struct BusRouteSearchView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 16)
-                .background(Color(red: 13 / 255, green: 14 / 255, blue: 17 / 255))
+                .background(Color(.black800))
         }
     }
 
@@ -298,7 +298,7 @@ struct BusRouteSearchView: View {
                     } else {
                         Text("도착 예정 정보 없음")
                             .font(.body)
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color(.gray200))
                             .lineLimit(nil)
                     }
                 }
@@ -350,7 +350,7 @@ struct BusRouteSearchView: View {
         VStack {
             Image(systemName: "bus")
                 .font(.largeTitle)
-                .foregroundColor(.gray)
+                .foregroundColor(Color(.gray200))
                 .accessibilityHidden(true)
             Text("버스 노선을 찾을 수 없습니다")
                 .font(.title2)

@@ -20,7 +20,7 @@ struct RouteNumberToken: View {
         .padding(.horizontal, 7)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(Color(red: 0.11, green: 0.12, blue: 0.15))
+                .foregroundStyle(Color(.backgroundmedium))
         )
     }
 }
