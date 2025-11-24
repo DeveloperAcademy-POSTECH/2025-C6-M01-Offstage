@@ -46,40 +46,42 @@ struct HomeView: View {
                     .foregroundColor(Color(.gray50))
                     .padding(.bottom, 35)
 
-                stopInfoView()
+                ScrollView {
+                    stopInfoView()
 
-                HStack {
-                    Text("탑승할 버스 검색")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .multilineTextAlignment(.leading)
-                        .foregroundColor(.white)
-                        .padding(.top, 30)
-                        .padding(.bottom, 20)
+                    HStack {
+                        Text("탑승할 버스 검색")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .lineLimit(nil)
+                            .multilineTextAlignment(.leading)
+                            .foregroundColor(.white)
+                            .padding(.top, 30)
+                            .padding(.bottom, 20)
 
-                    Spacer()
-                }
-                .padding(.horizontal)
-
-                BusSearchBar(
-                    text: $busNumberInput,
-                    isMicEnabled: !viewModel.isLoading && viewModel.nearestBusStop != nil,
-                    micHint: micAccessibilityHint,
-                    onSubmit: {
-                        if !busNumberInput.isEmpty, let nearestStop = viewModel.nearestBusStop {
-                            router.push(.busRouteSearch(
-                                busStop: nearestStop,
-                                recognizedText: busNumberInput
-                            ))
-                            busNumberInput = ""
-                        }
-                    },
-                    onMicTap: {
-                        isSheetPresented = true
+                        Spacer()
                     }
-                )
-                .padding(.horizontal)
+                    .padding(.horizontal)
 
+                    BusSearchBar(
+                        text: $busNumberInput,
+                        isMicEnabled: !viewModel.isLoading && viewModel.nearestBusStop != nil,
+                        micHint: micAccessibilityHint,
+                        onSubmit: {
+                            if !busNumberInput.isEmpty, let nearestStop = viewModel.nearestBusStop {
+                                router.push(.busRouteSearch(
+                                    busStop: nearestStop,
+                                    recognizedText: busNumberInput
+                                ))
+                                busNumberInput = ""
+                            }
+                        },
+                        onMicTap: {
+                            isSheetPresented = true
+                        }
+                    )
+                    .padding(.horizontal)
+                }
                 Spacer()
             }
             .padding(.top)
@@ -177,6 +179,7 @@ struct HomeView: View {
                     )
                     .font(.title3)
                     .fontWeight(.semibold)
+                    .lineLimit(nil)
                     .multilineTextAlignment(.leading)
                     .foregroundColor(.white)
                     .lineSpacing(8)
@@ -208,7 +211,6 @@ struct HomeView: View {
             .background(Color(.backgroundstrong))
             .cornerRadius(12)
             .padding(.horizontal)
-
         } else {
             VStack(spacing: 10) {
                 HStack {
