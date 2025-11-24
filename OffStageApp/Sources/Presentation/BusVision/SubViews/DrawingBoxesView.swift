@@ -22,7 +22,7 @@ final class DrawingBoxesView: UIView {
         let backgroundLayer = CAShapeLayer()
         let backgroundPath = UIBezierPath(roundedRect: rectangle, cornerRadius: 10.0)
         backgroundLayer.path = backgroundPath.cgPath
-        backgroundLayer.fillColor = UIColor(red: 0.98, green: 0.99, blue: 0, alpha: 0.2).cgColor
+        backgroundLayer.fillColor = UIColor(named: "primarynormal")?.withAlphaComponent(0.2).cgColor
         backgroundLayer.strokeColor = UIColor.white.cgColor
         backgroundLayer.lineWidth = 1.0
         layer.addSublayer(backgroundLayer)
@@ -36,7 +36,7 @@ final class DrawingBoxesView: UIView {
             cornerLength: cornerLength,
             radius: radius
         ).cgPath
-        viewfinderLayer.strokeColor = UIColor(red: 0.9, green: 1, blue: 0, alpha: 1.0).cgColor
+        viewfinderLayer.strokeColor = UIColor(named: "primarynormal")?.withAlphaComponent(0.1).cgColor
         viewfinderLayer.fillColor = UIColor.clear.cgColor
         viewfinderLayer.lineWidth = 4
         viewfinderLayer.lineCap = .round
