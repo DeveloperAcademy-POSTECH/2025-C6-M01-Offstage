@@ -15,12 +15,8 @@ import SwiftUI
         @State private var tapTimer: Timer?
 
         var body: some View {
-            ZStack {
+            ZStack(alignment: .bottomLeading) {
                 content
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        handleScreenTap()
-                    }
 
                 if isButtonVisible {
                     Button(action: {
@@ -45,10 +41,18 @@ import SwiftUI
                             .environmentObject(router)
                     }
                 }
+
+                // 좌하단 숨김 영역 (100x100)
+                Color.clear
+                    .frame(width: 100, height: 100)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        handleSecretTap()
+                    }
             }
         }
 
-        private func handleScreenTap() {
+        private func handleSecretTap() {
             tapCount += 1
 
             tapTimer?.invalidate()
