@@ -25,6 +25,10 @@ struct QuickCameraView: View {
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
+            if !vm.tiltManager.isSuitableForBusDetection {
+                TiltGuideView(offset: vm.tiltManager.offsetZ, tiltState: vm.tiltManager.tiltState)
+            }
+
             VStack {
                 // 버스도착정보: \(버스번호)번 버스를 인식합니다
                 (
@@ -51,8 +55,11 @@ struct QuickCameraView: View {
                 Spacer()
 
                 // 탐지결과
-                DetectingStatusSubView(status: vm.stateToPresent)
-                    .padding()
+                if vm.tiltManager.isSuitableForBusDetection {
+                    DetectingStatusSubView(status: vm.stateToPresent)
+                        .padding()
+                        .animation(.easeInOut, value: vm.tiltManager.isSuitableForBusDetection)
+                }
             }
             .accessibilitySortPriority(-100)
         }
@@ -75,6 +82,9 @@ struct QuickCameraView: View {
                 .accessibilityLabel("도움말")
                 .accessibilityHint("두번 탭하여 도움말 시트를 열 수 있습니다.")
             }
+        }
+        .onDisappear {
+            vm.tiltManager.disableHapticFeedback()
         }
     }
 }
