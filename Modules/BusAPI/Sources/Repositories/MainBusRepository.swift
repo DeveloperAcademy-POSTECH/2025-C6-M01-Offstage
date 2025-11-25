@@ -6,8 +6,8 @@ public final class MainBusRepository: BusRepository {
     private let seoulRepository: BusRepository
 
     public init(
-        tagoRepository: BusRepository = TagoBusRepository(),
-        seoulRepository: BusRepository = SeoulBusRepository()
+        tagoRepository: BusRepository = MockBusRepository(),
+        seoulRepository: BusRepository = MockBusRepository()
     ) {
         self.tagoRepository = tagoRepository
         self.seoulRepository = seoulRepository
