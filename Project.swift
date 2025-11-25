@@ -8,7 +8,7 @@ let baseInfoPlist: [String: Plist.Value] = [
         "UIColorName": "",
         "UIImageName": "",
     ],
-    "CFBundleShortVersionString": "1.0.3",
+    "CFBundleShortVersionString": "1.0.4",
     "CFBundleVersion": "1",
     "ARRIVAL_SERVICE_KEY": "$(ARRIVAL_SERVICE_KEY)",
     "LOCATION_SERVICE_KEY": "$(LOCATION_SERVICE_KEY)",
@@ -71,7 +71,7 @@ let configurations: [Configuration] = [
 ]
 
 let app = Target.target(
-    name: "OffStage",
+    name: "버스온다",
     destinations: [.iPhone],
     product: .app,
     bundleId: "$(PRODUCT_BUNDLE_IDENTIFIER)",
@@ -89,19 +89,19 @@ let app = Target.target(
 let settings = Settings.settings(configurations: configurations)
 
 let project = Project(
-    name: "OffStage",
+    name: "버스온다",
     settings: settings,
     targets: [busAPI, app],
     schemes: [
         .scheme(
-            name: "OffStage-Dev",
-            buildAction: .buildAction(targets: ["OffStage"]),
+            name: "버스온다 (Dev)",
+            buildAction: .buildAction(targets: ["버스온다"]),
             runAction: .runAction(configuration: .configuration("Debug-Dev")),
             archiveAction: .archiveAction(configuration: .configuration("Release-Dev"))
         ),
         .scheme(
-            name: "OffStage",
-            buildAction: .buildAction(targets: ["OffStage"]),
+            name: "버스온다",
+            buildAction: .buildAction(targets: ["버스온다"]),
             runAction: .runAction(configuration: .configuration("Debug-Prod")),
             archiveAction: .archiveAction(configuration: .configuration("Release-Prod"))
         ),

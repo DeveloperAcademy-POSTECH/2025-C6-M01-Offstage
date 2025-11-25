@@ -1,5 +1,0 @@
-#include "Secrets.xcconfig"
-
-APP_DISPLAY_NAME = OffStage Dev
-PRODUCT_BUNDLE_IDENTIFIER = 2025C6.OffStage.App.Dev
-SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) DEBUG_MODE
