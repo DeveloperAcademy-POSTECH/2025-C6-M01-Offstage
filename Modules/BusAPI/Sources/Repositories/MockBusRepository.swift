@@ -12,53 +12,83 @@ public final class MockBusRepository: BusRepository {
 
     public func fetchCities(for _: BusAPIService) async throws -> [BusCity] {
         logger.info("📍 Fetching cities (mock)")
-        return try decode(MockData.cities)
+        return (try? decode(MockData.cities)) ?? []
     }
 
     public func fetchRouteLocations(cityCode _: String, routeId: String, page _: Int?) async throws -> [BusLocation] {
         logger.info("📍 Fetching route locations for routeId: \(routeId) (mock)")
-        return try decode(MockData.routeLocations)
+        return (try? decode(MockData.routeLocations)) ?? []
     }
 
     public func searchStops(cityCode _: String?, nodeName: String?, nodeNumber: String?) async throws -> [BusStop] {
         logger.info("📍 Searching stops with name: \(nodeName ?? ""), number: \(nodeNumber ?? "") (mock)")
-        return try decode(MockData.searchStops)
+        return (try? decode(MockData.searchStops)) ?? []
     }
 
     public func fetchStopsNearby(latitude: Double, longitude: Double, cityCode _: String?) async throws -> [BusStop] {
         logger.info("📍 Fetching stops nearby lat: \(latitude), lon: \(longitude) (mock)")
-        return try decode(MockData.stopsNearby)
+        return (try? decode(MockData.stopsNearby)) ?? []
     }
 
     public func fetchRoutesPassingThroughStop(cityCode _: String, nodeId: String) async throws -> [BusRoute] {
         logger.info("📍 Fetching routes passing through stop: \(nodeId) (mock)")
-        return try decode(MockData.stopRoutes)
+
+        let routes = BusScheduleSimulator.getRoutesForStop(nodeId: nodeId)
+        return routes.map { route in
+            BusRoute(
+                routeId: route.routeId,
+                routeNumber: route.routeNumber
+            )
+        }
     }
 
     public func fetchRouteInfo(cityCode _: String, routeId: String) async throws -> BusRoute? {
         logger.info("📍 Fetching route info for routeId: \(routeId) (mock)")
-        let routes: [BusRoute] = try decode(MockData.routeInfo)
+        let routes: [BusRoute] = (try? decode(MockData.routeInfo)) ?? []
         return routes.first
     }
 
     public func searchRoutes(cityCode _: String, routeNumber: String) async throws -> [BusRoute] {
         logger.info("📍 Searching routes with number: \(routeNumber) (mock)")
-        return try decode(MockData.searchRoutes)
+        return (try? decode(MockData.searchRoutes)) ?? []
     }
 
     public func fetchRouteStations(cityCode _: String, routeId: String) async throws -> [BusRouteStation] {
         logger.info("📍 Fetching route stations for routeId: \(routeId) (mock)")
-        return try decode(MockData.routeStations)
+        return (try? decode(MockData.routeStations)) ?? []
     }
 
     public func fetchStopArrivals(cityCode _: String, nodeId: String) async throws -> [BusArrival] {
-        logger.info("📍 Fetching stop arrivals for nodeId: \(nodeId) (mock)")
-        return try decode(MockData.stopArrivals)
+        logger.info("📍 Fetching stop arrivals for nodeId: \(nodeId) (mock with schedule)")
+
+        let arrivals = BusScheduleSimulator.calculateArrivals(for: nodeId)
+        return arrivals.map { arrival in
+            BusArrival(
+                routeId: arrival.routeId,
+                routeNumber: arrival.routeNumber,
+                nodeId: arrival.nodeId,
+                nodeName: arrival.nodeName,
+                remainingStopCount: arrival.remainingStops,
+                estimatedArrivalTime: arrival.arrivalTime
+            )
+        }
     }
 
     public func fetchRouteArrivals(cityCode _: String, nodeId: String, routeId: String) async throws -> [BusArrival] {
-        logger.info("📍 Fetching route arrivals for nodeId: \(nodeId), routeId: \(routeId) (mock)")
-        return try decode(MockData.routeArrivals)
+        logger.info("📍 Fetching route arrivals for nodeId: \(nodeId), routeId: \(routeId) (mock with schedule)")
+
+        guard let arrival = BusScheduleSimulator.calculateArrival(routeId: routeId, nodeId: nodeId) else {
+            return []
+        }
+
+        return [BusArrival(
+            routeId: arrival.routeId,
+            routeNumber: arrival.routeNumber,
+            nodeId: arrival.nodeId,
+            nodeName: arrival.nodeName,
+            remainingStopCount: arrival.remainingStops,
+            estimatedArrivalTime: arrival.arrivalTime
+        )]
     }
 
     private func decode<T: Decodable>(_ jsonString: String) throws -> [T] {
