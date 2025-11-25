@@ -229,13 +229,11 @@ struct HomeView: View {
                     Text(L10n.Common.Ui.buttonRetry)
                         .font(.headline)
                         .foregroundColor(.white)
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 50)
-                                .stroke(Color(.primarynormal), lineWidth: 2)
-                        )
                         .padding(.vertical, 8)
                         .padding(.horizontal, 15)
+                        .background(
+                            Capsule().stroke(Color(.primarynormal), lineWidth: 2)
+                        )
                 }
             }
             .frame(maxWidth: .infinity)
