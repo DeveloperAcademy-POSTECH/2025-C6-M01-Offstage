@@ -2,15 +2,18 @@ import BusAPI
 import Foundation
 
 public final class MainBusRepository: BusRepository {
-    private let tagoRepository: BusRepository
-    private let seoulRepository: BusRepository
+    private var tagoRepository: BusRepository {
+        shouldUseMock() ? MockBusRepository() : TagoBusRepository()
+    }
 
-    public init(
-        tagoRepository: BusRepository = MockBusRepository(),
-        seoulRepository: BusRepository = MockBusRepository()
-    ) {
-        self.tagoRepository = tagoRepository
-        self.seoulRepository = seoulRepository
+    private var seoulRepository: BusRepository {
+        shouldUseMock() ? MockBusRepository() : SeoulBusRepository()
+    }
+
+    public init() {}
+
+    private func shouldUseMock() -> Bool {
+        UserDefaults.standard.bool(forKey: "useMockData")
     }
 
     // MARK: - BusRepository conformance

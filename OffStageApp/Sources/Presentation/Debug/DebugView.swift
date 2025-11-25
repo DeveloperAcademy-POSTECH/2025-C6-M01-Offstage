@@ -14,6 +14,9 @@
         @State private var overrideLatitude: String = "37.3918667"
         @State private var overrideLongitude: String = "127.1118833"
 
+        // Mock 데이터 사용 여부
+        @State private var useMockData: Bool = AppSettings.useMockData
+
         // 테스트용 버스 정류장 및 노선 정보
         private let testBusStop = BusStop(
             nodeId: "GGB206000635",
@@ -32,6 +35,23 @@
         var body: some View {
             NavigationView {
                 List {
+                    Section(header: Text("API 설정")) {
+                        Toggle("Mock 데이터 사용", isOn: $useMockData)
+                            .onChange(of: useMockData) { _, newValue in
+                                AppSettings.useMockData = newValue
+                            }
+
+                        if useMockData {
+                            Text("✅ Mock 데이터 모드: 네트워크 없이 시연 가능")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                        } else {
+                            Text("📡 실제 API 모드: 실시간 버스 정보 조회")
+                                .font(.caption)
+                                .foregroundColor(.blue)
+                        }
+                    }
+
                     Section(header: Text("위치 오버라이드")) {
                         Toggle("위치 강제 설정", isOn: $isLocationOverrideEnabled)
                             .onChange(of: isLocationOverrideEnabled) { _, newValue in
