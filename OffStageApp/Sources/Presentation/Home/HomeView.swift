@@ -231,7 +231,9 @@ struct HomeView: View {
                         .foregroundColor(.white)
                         .padding(.vertical, 8)
                         .padding(.horizontal, 15)
-                        .background(Capsule().fill(Color.blue))
+                        .background(
+                            Capsule().stroke(Color(.primarynormal), lineWidth: 2)
+                        )
                 }
             }
             .frame(maxWidth: .infinity)

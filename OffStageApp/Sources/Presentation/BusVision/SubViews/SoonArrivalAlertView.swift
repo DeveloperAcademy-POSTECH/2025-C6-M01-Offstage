@@ -1,6 +1,5 @@
 import SwiftUI
 
-// TODO: 추후 정류장 개수로 수정 시 텍스트와 VO라벨링 수정 필요
 /// 비전버스에서 곧도착  알람 뜨는 뷰
 struct SoonArrivalAlertView: View {
     /// 보여줄 노선번호
@@ -20,7 +19,7 @@ struct SoonArrivalAlertView: View {
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(.primarynormal), lineWidth: 2)
+                .stroke(Color(.primarynormal), lineWidth: 3)
                 .fill(.black)
         )
         .padding(.horizontal)
