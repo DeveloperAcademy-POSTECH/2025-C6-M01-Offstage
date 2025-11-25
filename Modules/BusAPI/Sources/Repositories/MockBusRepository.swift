@@ -2,32 +2,30 @@ import Foundation
 import Logging
 
 public final class MockBusRepository: BusRepository {
-    private let decoder: JSONDecoder
     private let logger = Logger(label: "BusAPI.MockBusRepository")
 
-    public init(decoder: JSONDecoder = JSONDecoder()) {
-        self.decoder = decoder
+    public init() {
         logger.info("🎭 MockBusRepository initialized - using mock data")
     }
 
     public func fetchCities(for _: BusAPIService) async throws -> [BusCity] {
         logger.info("📍 Fetching cities (mock)")
-        return (try? decode(MockData.cities)) ?? []
+        return MockData.cities
     }
 
     public func fetchRouteLocations(cityCode _: String, routeId: String, page _: Int?) async throws -> [BusLocation] {
         logger.info("📍 Fetching route locations for routeId: \(routeId) (mock)")
-        return (try? decode(MockData.routeLocations)) ?? []
+        return MockData.routeLocations
     }
 
     public func searchStops(cityCode _: String?, nodeName: String?, nodeNumber: String?) async throws -> [BusStop] {
         logger.info("📍 Searching stops with name: \(nodeName ?? ""), number: \(nodeNumber ?? "") (mock)")
-        return (try? decode(MockData.searchStops)) ?? []
+        return MockData.searchStops
     }
 
     public func fetchStopsNearby(latitude: Double, longitude: Double, cityCode _: String?) async throws -> [BusStop] {
         logger.info("📍 Fetching stops nearby lat: \(latitude), lon: \(longitude) (mock)")
-        return (try? decode(MockData.stopsNearby)) ?? []
+        return MockData.stopsNearby
     }
 
     public func fetchRoutesPassingThroughStop(cityCode _: String, nodeId: String) async throws -> [BusRoute] {
@@ -44,18 +42,17 @@ public final class MockBusRepository: BusRepository {
 
     public func fetchRouteInfo(cityCode _: String, routeId: String) async throws -> BusRoute? {
         logger.info("📍 Fetching route info for routeId: \(routeId) (mock)")
-        let routes: [BusRoute] = (try? decode(MockData.routeInfo)) ?? []
-        return routes.first
+        return MockData.routeInfo.first
     }
 
     public func searchRoutes(cityCode _: String, routeNumber: String) async throws -> [BusRoute] {
         logger.info("📍 Searching routes with number: \(routeNumber) (mock)")
-        return (try? decode(MockData.searchRoutes)) ?? []
+        return MockData.searchRoutes
     }
 
     public func fetchRouteStations(cityCode _: String, routeId: String) async throws -> [BusRouteStation] {
         logger.info("📍 Fetching route stations for routeId: \(routeId) (mock)")
-        return (try? decode(MockData.routeStations)) ?? []
+        return MockData.routeStations
     }
 
     public func fetchStopArrivals(cityCode _: String, nodeId: String) async throws -> [BusArrival] {
@@ -89,19 +86,5 @@ public final class MockBusRepository: BusRepository {
             remainingStopCount: arrival.remainingStops,
             estimatedArrivalTime: arrival.arrivalTime
         )]
-    }
-
-    private func decode<T: Decodable>(_ jsonString: String) throws -> [T] {
-        guard let data = jsonString.data(using: .utf8) else {
-            throw BusAPIError.emptyBody
-        }
-
-        let envelope = try decoder.decode(BusAPIEnvelope<T>.self, from: data)
-
-        guard envelope.header.isSuccess else {
-            throw BusAPIError.invalidStatus(header: envelope.header)
-        }
-
-        return envelope.items
     }
 }
