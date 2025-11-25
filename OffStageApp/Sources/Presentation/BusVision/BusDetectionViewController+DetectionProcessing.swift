@@ -13,6 +13,7 @@ extension BusDetectionViewController {
         guard let predictions = request.results as? [VNRecognizedObjectObservation]
         else {
             onDetectedStatusChanged?(.unDetected)
+            drawingBoxesView?.drawBox(with: [])
             return
         }
 
@@ -88,6 +89,8 @@ extension BusDetectionViewController {
         with ocrResults: [OCRResult],
         from predictions: [VNRecognizedObjectObservation]
     ) {
+        drawingBoxesView?.drawBox(with: [])
+
         if let myBusResult = ocrResults.first(where: { $0.isMyBus }) {
             // 내가 탈 버스
             onDetectedStatusChanged?(
