@@ -2,18 +2,36 @@ import BusAPI
 import Foundation
 
 public final class MainBusRepository: BusRepository {
+    #if DEBUG_MODE
+        private let mockRepository = MockBusRepository()
+    #endif
+    private lazy var realTagoRepository = TagoBusRepository()
+    private lazy var realSeoulRepository = SeoulBusRepository()
+
     private var tagoRepository: BusRepository {
-        shouldUseMock() ? MockBusRepository() : TagoBusRepository()
+        #if DEBUG_MODE
+            shouldUseMock ? mockRepository : realTagoRepository
+        #else
+            realTagoRepository
+        #endif
     }
 
     private var seoulRepository: BusRepository {
-        shouldUseMock() ? MockBusRepository() : SeoulBusRepository()
+        #if DEBUG_MODE
+            shouldUseMock ? mockRepository : realSeoulRepository
+        #else
+            realSeoulRepository
+        #endif
     }
 
     public init() {}
 
-    private func shouldUseMock() -> Bool {
-        UserDefaults.standard.bool(forKey: "useMockData")
+    private var shouldUseMock: Bool {
+        #if DEBUG_MODE
+            UserDefaults.standard.bool(forKey: "useMockData")
+        #else
+            false
+        #endif
     }
 
     // MARK: - BusRepository conformance
@@ -27,62 +45,42 @@ public final class MainBusRepository: BusRepository {
     }
 
     public func searchStops(cityCode: String?, nodeName: String?, nodeNumber: String?) async throws -> [BusStop] {
-        if cityCode == "1000" {
-            return try await seoulRepository.searchStops(cityCode: cityCode, nodeName: nodeName, nodeNumber: nodeNumber)
-        }
-        return try await tagoRepository.searchStops(cityCode: cityCode, nodeName: nodeName, nodeNumber: nodeNumber)
+        let repository = cityCode == "1000" ? seoulRepository : tagoRepository
+        return try await repository.searchStops(cityCode: cityCode, nodeName: nodeName, nodeNumber: nodeNumber)
     }
 
     public func fetchStopsNearby(latitude: Double, longitude: Double, cityCode: String?) async throws -> [BusStop] {
-        if cityCode == "1000" {
-            return try await seoulRepository.fetchStopsNearby(
-                latitude: latitude,
-                longitude: longitude,
-                cityCode: cityCode
-            )
-        }
-        return try await tagoRepository.fetchStopsNearby(latitude: latitude, longitude: longitude, cityCode: cityCode)
+        let repository = cityCode == "1000" ? seoulRepository : tagoRepository
+        return try await repository.fetchStopsNearby(latitude: latitude, longitude: longitude, cityCode: cityCode)
     }
 
     public func fetchRoutesPassingThroughStop(cityCode: String, nodeId: String) async throws -> [BusRoute] {
-        if cityCode == "1000" {
-            return try await seoulRepository.fetchRoutesPassingThroughStop(cityCode: cityCode, nodeId: nodeId)
-        }
-        return try await tagoRepository.fetchRoutesPassingThroughStop(cityCode: cityCode, nodeId: nodeId)
+        let repository = cityCode == "1000" ? seoulRepository : tagoRepository
+        return try await repository.fetchRoutesPassingThroughStop(cityCode: cityCode, nodeId: nodeId)
     }
 
     public func fetchRouteInfo(cityCode: String, routeId: String) async throws -> BusRoute? {
-        if cityCode == "1000" {
-            return try await seoulRepository.fetchRouteInfo(cityCode: cityCode, routeId: routeId)
-        }
-        return try await tagoRepository.fetchRouteInfo(cityCode: cityCode, routeId: routeId)
+        let repository = cityCode == "1000" ? seoulRepository : tagoRepository
+        return try await repository.fetchRouteInfo(cityCode: cityCode, routeId: routeId)
     }
 
     public func searchRoutes(cityCode: String, routeNumber: String) async throws -> [BusRoute] {
-        if cityCode == "1000" {
-            return try await seoulRepository.searchRoutes(cityCode: cityCode, routeNumber: routeNumber)
-        }
-        return try await tagoRepository.searchRoutes(cityCode: cityCode, routeNumber: routeNumber)
+        let repository = cityCode == "1000" ? seoulRepository : tagoRepository
+        return try await repository.searchRoutes(cityCode: cityCode, routeNumber: routeNumber)
     }
 
     public func fetchRouteStations(cityCode: String, routeId: String) async throws -> [BusRouteStation] {
-        if cityCode == "1000" {
-            return try await seoulRepository.fetchRouteStations(cityCode: cityCode, routeId: routeId)
-        }
-        return try await tagoRepository.fetchRouteStations(cityCode: cityCode, routeId: routeId)
+        let repository = cityCode == "1000" ? seoulRepository : tagoRepository
+        return try await repository.fetchRouteStations(cityCode: cityCode, routeId: routeId)
     }
 
     public func fetchStopArrivals(cityCode: String, nodeId: String) async throws -> [BusArrival] {
-        if cityCode == "1000" {
-            return try await seoulRepository.fetchStopArrivals(cityCode: cityCode, nodeId: nodeId)
-        }
-        return try await tagoRepository.fetchStopArrivals(cityCode: cityCode, nodeId: nodeId)
+        let repository = cityCode == "1000" ? seoulRepository : tagoRepository
+        return try await repository.fetchStopArrivals(cityCode: cityCode, nodeId: nodeId)
     }
 
     public func fetchRouteArrivals(cityCode: String, nodeId: String, routeId: String) async throws -> [BusArrival] {
-        if cityCode == "1000" {
-            return try await seoulRepository.fetchRouteArrivals(cityCode: cityCode, nodeId: nodeId, routeId: routeId)
-        }
-        return try await tagoRepository.fetchRouteArrivals(cityCode: cityCode, nodeId: nodeId, routeId: routeId)
+        let repository = cityCode == "1000" ? seoulRepository : tagoRepository
+        return try await repository.fetchRouteArrivals(cityCode: cityCode, nodeId: nodeId, routeId: routeId)
     }
 }

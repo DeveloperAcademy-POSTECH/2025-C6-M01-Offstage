@@ -9,7 +9,7 @@ let baseInfoPlist: [String: Plist.Value] = [
         "UIImageName": "",
     ],
     "CFBundleShortVersionString": "1.0.4",
-    "CFBundleVersion": "2",
+    "CFBundleVersion": "3",
     "ARRIVAL_SERVICE_KEY": "$(ARRIVAL_SERVICE_KEY)",
     "LOCATION_SERVICE_KEY": "$(LOCATION_SERVICE_KEY)",
     "STOP_SERVICE_KEY": "$(STOP_SERVICE_KEY)",
