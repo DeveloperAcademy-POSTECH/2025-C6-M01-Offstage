@@ -9,11 +9,19 @@ public final class MainBusRepository: BusRepository {
     private lazy var realSeoulRepository = SeoulBusRepository()
 
     private var tagoRepository: BusRepository {
-        shouldUseMock ? mockRepository : realTagoRepository
+        #if DEBUG_MODE
+            shouldUseMock ? mockRepository : realTagoRepository
+        #else
+            realTagoRepository
+        #endif
     }
 
     private var seoulRepository: BusRepository {
-        shouldUseMock ? mockRepository : realSeoulRepository
+        #if DEBUG_MODE
+            shouldUseMock ? mockRepository : realSeoulRepository
+        #else
+            realSeoulRepository
+        #endif
     }
 
     public init() {}
