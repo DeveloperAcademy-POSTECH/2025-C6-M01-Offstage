@@ -1,6 +1,7 @@
 import Combine
 import CoreLocation
 import Foundation
+import MapKit
 
 /// A concrete implementation of the `LocationProviding` protocol using Apple's CoreLocation framework.
 ///
@@ -54,6 +55,10 @@ final class LocationManager: NSObject, LocationProviding {
             if isOverrideEnabled, let overrideLocation {
                 return overrideLocation
             }
+
+            if shouldUseMockData {
+                return mockC5Location
+            }
         #endif
 
         return try await withCheckedThrowingContinuation { continuation in
@@ -62,20 +67,39 @@ final class LocationManager: NSObject, LocationProviding {
         }
     }
 
-    // [추가] 프로토콜 함수 구현
-    func fetchPlacemark(from location: CLLocationCoordinate2D) async throws -> CLPlacemark? {
-        let clLocation = CLLocation(
-            latitude: location.latitude,
-            longitude: location.longitude
-        )
+    #if DEBUG_MODE
+        private var shouldUseMockData: Bool {
+            UserDefaults.standard.bool(forKey: "useMockData")
+        }
 
-        // 로케일을 "ko-KR"로 설정하여 주소를 한국어로 받습니다.
+        private var mockC5Location: CLLocationCoordinate2D {
+            CLLocationCoordinate2D(latitude: 36.0143, longitude: 129.3256)
+        }
+    #endif
+
+    func fetchPlacemark(from location: CLLocationCoordinate2D) async throws -> CLPlacemark? {
+        #if DEBUG_MODE
+            if shouldUseMockData {
+                return mockC5Placemark(for: location)
+            }
+        #endif
+
+        let clLocation = CLLocation(latitude: location.latitude, longitude: location.longitude)
         let placemarks = try await geocoder.reverseGeocodeLocation(
             clLocation,
             preferredLocale: Locale(identifier: "ko-KR")
         )
         return placemarks.first
     }
+
+    #if DEBUG_MODE
+        private func mockC5Placemark(for location: CLLocationCoordinate2D) -> CLPlacemark {
+            MKPlacemark(coordinate: location, addressDictionary: [
+                "City": "포항시",
+                "State": "경상북도",
+            ])
+        }
+    #endif
 }
 
 // MARK: - CLLocationManagerDelegate
