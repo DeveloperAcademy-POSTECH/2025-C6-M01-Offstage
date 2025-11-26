@@ -13,6 +13,7 @@ final class BusArrivalViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var currentEstimatedArrivalTime: Int?
+    @Published var isNavigating = false
 
     // MARK: - 속성
 
@@ -74,6 +75,18 @@ final class BusArrivalViewModel: ObservableObject {
         arrivalMonitoringTask = nil
         stopCountdownTimer()
         hasVibratedAtSecondStop = false
+    }
+
+    func navigateToBusVision() -> (busStop: BusStop, busRoute: BusRoute)? {
+        guard !isNavigating else { return nil }
+        isNavigating = true
+
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            isNavigating = false
+        }
+
+        return (busStop, busRoute)
     }
 
     // MARK: - 비공개 헬퍼 메서드

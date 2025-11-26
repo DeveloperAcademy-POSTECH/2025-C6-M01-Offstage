@@ -75,10 +75,12 @@ struct BusArrivalView: View {
                 }
 
                 Button(action: {
-                    router.push(.busVision(
-                        busStop: viewModel.busStop,
-                        busRoute: viewModel.busRoute
-                    ))
+                    if let params = viewModel.navigateToBusVision() {
+                        router.push(.busVision(
+                            busStop: params.busStop,
+                            busRoute: params.busRoute
+                        ))
+                    }
                 }) {
                     HStack {
                         Image(systemName: "camera")
@@ -93,6 +95,8 @@ struct BusArrivalView: View {
                     .padding(.horizontal, 2)
                     .frame(maxWidth: .infinity)
                 }
+                .disabled(viewModel.isNavigating)
+                .opacity(viewModel.isNavigating ? 0.5 : 1.0)
                 .overlay(
                     RoundedRectangle(cornerRadius: 99)
                         .stroke(Color(.primarynormal), lineWidth: 6)
